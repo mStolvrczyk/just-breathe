@@ -1,19 +1,20 @@
 import Vue from 'vue'
+
+// Plugins
+import './plugins'
+
+// Sync router with store
+import { sync } from 'vuex-router-sync'
+
+// Application imports
 import App from './components/App.vue'
-import VueRouter from 'vue-router'
-import routes from './routes'
+import router from '@/router'
 import store from './store/index'
-import './registerServiceWorker'
-import Vuetify from 'vuetify'
-import 'vuetify/dist/vuetify.min.css' // Ensure you are using css-loader
 
-Vue.use(VueRouter)
-Vue.use(Vuetify)
+// Sync store with router
+sync(store, router)
+
 Vue.config.productionTip = false
-
-const router = new VueRouter({
-  routes: routes
-})
 
 new Vue({
   router,
