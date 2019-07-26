@@ -3,10 +3,13 @@
     color="#ECEFF1"
     flat
     prominent
+    app
+    fixed
   >
     <div class="v-toolbar-title">
       <v-toolbar-title
         class="tertiary--text font-weight-light"
+        id="toolbar"
       >
         <v-btn
           v-if="responsive"
@@ -50,13 +53,38 @@ export default {
     title: null,
     responsive: false
   }),
-  watch: {
-    '$route' (val) {
-      this.title = val.name
+  mounted () {
+    this.onResponsiveInverted()
+    window.addEventListener('resize', this.onResponsiveInverted)
+    this.title = this.getTitle
+  },
+  beforeDestroy () {
+    window.removeEventListener('resize', this.onResponsiveInverted)
+  },
+
+  methods: {
+    ...mapMutations('layout', ['setDrawer', 'toggleDrawer']),
+    onClickBtn () {
+      this.setDrawer(!this.$store.state.layout.drawer)
+    },
+    onClick () {
+      //
+    },
+    onResponsiveInverted () {
+      if (window.innerWidth < 991) {
+        this.responsive = true
+      } else {
+        this.responsive = false
+      }
+    }
+  },
+  computed: {
+    getTitle () {
+      return this.$route.name
     }
   }
 }
 </script>
 
-<!--<style lang="stylus">-->
-<!--</style>-->
+<style lang="stylus">
+</style>
