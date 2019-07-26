@@ -10,9 +10,6 @@ import paths from './paths'
 
 Vue.use(Router)
 
-// const router = new Router({
-//   routes: paths
-// })
 const router = new Router({
   mode: 'history',
   routes: paths
