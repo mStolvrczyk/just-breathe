@@ -14,11 +14,12 @@
         <v-btn
           v-if="responsive"
           class="default v-btn--simple"
-          dark
           icon
           @click.stop="onClickBtn"
         >
-          <v-icon>mdi-view-list</v-icon>
+          <v-icon
+          color="grey"
+          >mdi-view-list</v-icon>
         </v-btn>
         {{ title }}
       </v-toolbar-title>
@@ -26,19 +27,19 @@
     <v-spacer/>
     <v-btn icon>
       <v-icon
-        color="grey darken-1"
+        color="tertiary"
       >
         apps</v-icon>
     </v-btn>
     <v-btn icon>
       <v-icon
-        color="grey darken-1"
+        color="tertiary"
       >
         notifications</v-icon>
     </v-btn>
     <v-btn icon>
       <v-icon
-        color="grey darken-1"
+        color="tertiary"
       >
         person</v-icon>
     </v-btn>
