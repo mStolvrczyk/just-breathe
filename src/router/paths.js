@@ -11,6 +11,7 @@ export default [
         alias: '',
         component: DashboardView,
         name: 'Dashboard',
+        view: 'Dashboard',
         meta: { description: 'Overview of enviroment' }
       }
     ]
