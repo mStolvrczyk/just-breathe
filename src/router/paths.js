@@ -18,9 +18,9 @@ export default [
       {
         path: 'map',
         component: MapView,
-        name: 'Dashboard',
-        view: 'Dashboard',
-        meta: { description: 'Overview of enviroment' }
+        name: 'Map',
+        view: 'Map',
+        meta: { description: 'Map with locations of measuring stations' }
       }
     ]
   }
