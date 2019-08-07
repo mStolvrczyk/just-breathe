@@ -1,10 +1,10 @@
 <template>
   <v-card
-    class="pa-2"
+    class="pa-3"
     color="teal lighten-4"
   >
     <div class="row map">
-      <l-map :zoom="zoom" :center="center">
+      <l-map :zoom="zoom" :center="center" style="z-index: 0">
         <l-tile-layer :url="url"
         :attribution="attribution"></l-tile-layer>
         <l-marker :lat-lng="marker"></l-marker>

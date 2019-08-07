@@ -4,24 +4,18 @@ import MapView from '@/components/views/Map'
 
 export default [
   {
-    path: '/',
-    component: DashView,
-    children: [
-      {
-        path: 'dashboard',
-        alias: '',
-        component: DashboardView,
-        name: 'Dashboard',
-        view: 'Dashboard',
-        meta: { description: 'Overview of enviroment' }
-      },
-      {
-        path: 'map',
-        component: MapView,
-        name: 'Map',
-        view: 'Map',
-        meta: { description: 'Map with locations of measuring stations' }
-      }
-    ]
+    path: '/dashboard',
+    alias: '',
+    component: DashboardView,
+    name: 'Dashboard',
+    view: 'Dashboard',
+    meta: { description: 'Overview of enviroment' }
+  },
+  {
+    path: '/map',
+    component: MapView,
+    name: 'Map',
+    view: 'Map',
+    meta: { description: 'Map with locations of measuring stations' }
   }
 ]

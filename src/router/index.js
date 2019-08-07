@@ -5,14 +5,25 @@ import Router from 'vue-router'
 // import Meta from 'vue-meta'
 
 // Routes
-
 import paths from './paths'
+
+function route (path, view, name) {
+  return {
+    name: name || view,
+    path,
+    component: (resovle) => import(
+      `@/components/views/${view}.vue`
+    ).then(resovle)
+  }
+}
 
 Vue.use(Router)
 
 const router = new Router({
   mode: 'history',
-  routes: paths
+  routes: paths.map(path => route(path.path, path.view, path.name)).concat([
+    { path: '*', redirect: '/dashboard' }
+  ])
 })
 
 export default router

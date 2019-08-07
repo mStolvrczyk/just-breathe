@@ -11,7 +11,8 @@ import 'leaflet/dist/leaflet.css'
 import { sync } from 'vuex-router-sync'
 
 // Application imports
-import App from './components/App.vue'
+
+import App from './App.vue'
 import router from '@/router'
 import store from '@/store'
 

@@ -58,24 +58,14 @@
 <!--            {{station.city}}-->
 <!--          </div>-->
 <!--        </div>-->
-        <leaflet-map/>
-        <div class="row map">
-          <l-map :zoom="zoom" :center="center">
-            <l-tile-layer :url="url"
-                          :attribution="attribution"></l-tile-layer>
-            <l-marker :lat-lng="marker"></l-marker>
-          </l-map>
-        </div>
       </v-flex>
     </v-layout>
   </v-container>
 </template>
 <script>
 import { mapGetters, mapActions, mapState } from 'vuex'
-import LeafletMap from './dashboard_components/LeafletMap'
 export default {
   name: 'Dashboard',
-  components: { LeafletMap },
   methods: {
     ...mapActions('todos', ['getStations'])
   },
