@@ -1,19 +1,12 @@
 <template>
-  <div>
-    <navbar/>
-    <sidebar/>
-    <v-content>
-      <router-view/>
-    </v-content>
-  </div>
+  <v-content>
+    <router-view/>
+  </v-content>
 </template>
 
 <script>
-  import Navbar from './layout/Navbar'
-  import Sidebar from './layout/Sidebar'
   export default {
-    name: 'Dash',
-    components: { Sidebar, Navbar }
+    name: 'Dash'
   }
 </script>
 
