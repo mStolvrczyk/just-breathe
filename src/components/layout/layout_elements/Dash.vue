@@ -5,11 +5,10 @@
 </template>
 
 <script>
-  export default {
-    name: 'Dash'
-  }
+export default {
+  name: 'Dash'
+}
 </script>
 
 <style scoped>
-
 </style>

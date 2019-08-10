@@ -1,4 +1,3 @@
-import DashView from '@/components/Dash.vue'
 import DashboardView from '@/components/views/Dashboard'
 import MapView from '@/components/views/Map'
 
