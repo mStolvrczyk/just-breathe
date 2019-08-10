@@ -3,6 +3,7 @@
     <v-container>
       <v-layout row wrap>
         <v-flex xs8 offset-xs2>
+          <navbar/>
           <v-autocomplete
             background-color="teal lighten-4"
             v-model="model"
@@ -68,9 +69,10 @@
 
 <script>
 import LeafletMap from '../../material/LeafletMap'
+import Navbar from './Navbar'
 export default {
   name: 'Dash',
-  components: { LeafletMap }
+  components: { Navbar, LeafletMap }
 }
 </script>
 

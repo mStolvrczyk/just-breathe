@@ -1,6 +1,6 @@
 <template>
   <v-toolbar
-    color="teal lighten-4"
+    color='rgba(0, 0, 0, 0.3)'
     flat
     persistent
     app
@@ -21,29 +21,23 @@
         >
           <div class="v-toolbar-title">
             <v-toolbar-title
-              class="tertiary--text font-weight-light"
+              class="white--text font-weight-light"
               id="toolbar"
             >
-              Air Quality Check
+              Air Quality Check<span style="font-style: italic" class="font-weight-thin"> Lite</span>
             </v-toolbar-title>
         </div>
         <v-spacer/>
           <v-toolbar-items>
             <v-btn icon>
               <v-icon
-                color="tertiary"
-              >
-                apps</v-icon>
-            </v-btn>
-            <v-btn icon>
-              <v-icon
-                color="tertiary"
+                color="white"
               >
                 notifications</v-icon>
             </v-btn>
             <v-btn icon>
               <v-icon
-                color="tertiary"
+                color="white"
               >
                 person</v-icon>
             </v-btn>
@@ -59,7 +53,8 @@ import { mapState } from 'vuex'
 export default {
   name: 'Navbar',
   data: () => ({
-    title: null,
+    title: 'Air Quality Check',
+    subtitle: 'Lite',
     responsive: false
   }),
   computed: {
