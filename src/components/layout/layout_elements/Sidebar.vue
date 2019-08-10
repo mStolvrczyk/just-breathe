@@ -1,7 +1,6 @@
 <template>
   <v-navigation-drawer
     id="ap-drawer"
-    v-model="inputValue"
     app
     dark
     floating
@@ -10,7 +9,7 @@
     width="260"
   >
     <v-img
-      :src="image"
+      :src="sidebarImage"
       :gradient="sidebarOverlayGradiant"
       height="100%"
     >
@@ -33,7 +32,7 @@
 
 <script>
 import { mapMutations, mapState } from 'vuex'
-import SidebarMenu from './sidebar_components/SidebarMenu'
+import SidebarMenu from '../sidebar_components/SidebarMenu'
 
 export default {
   name: 'Sidebar',
@@ -44,19 +43,19 @@ export default {
   },
   components: { SidebarMenu },
   computed: {
-    ...mapState('layout', ['image']),
-    inputValue: {
-      get () {
-        return this.$store.state.layout.drawer
-      },
-      set (val) {
-        this.setDrawer(val)
-      }
-    },
+    ...mapState('layout', ['sidebarImage']),
+    // inputValue: {
+    //   get () {
+    //     return this.$store.state.layout.drawer
+    //   },
+    //   set (val) {
+    //     this.setDrawer(val)
+    //   }
+    // },
     // eslint-disable-next-line vue/no-dupe-keys
-    items () {
-      return this.$t('Layout.View.items')
-    },
+    // items () {
+    //   return this.$t('Layout.View.items')
+    // },
     sidebarOverlayGradiant () {
       return `${this.$store.state.layout.sidebarBackgroundColor}, ${this.$store.state.layout.sidebarBackgroundColor}`
     }

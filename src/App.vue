@@ -1,21 +1,18 @@
 <template>
-  <v-app id="app">
-    <navbar/>
-    <sidebar/>
-    <dash/>
-  </v-app>
+  <div id="apps">
+    <layout/>
+<!--    <layout-lite/>-->
+  </div>
 </template>
 <style lang="stylus">
   #app {
     background-color #ECEFF1
-
   }
 </style>
 <script>
-import Navbar from './components/layout/Navbar'
-import Sidebar from './components/layout/Sidebar'
-import Dash from './components/Dash'
+import Layout from './components/layout/Layout'
+import LayoutLite from './components/layout_lite/LayoutLite'
 export default {
-  components: { Dash, Sidebar, Navbar }
+  components: { LayoutLite, Layout }
 }
 </script>
