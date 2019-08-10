@@ -5,7 +5,7 @@
       :src="appImage"
       :gradient="appOverlayGradiant"
       >
-        <navbar/>
+<!--        <navbar/>-->
         <dash/>
       </v-img>
     </v-app>
