@@ -5,7 +5,6 @@
       :src="appImage"
       :gradient="appOverlayGradiant"
       >
-<!--        <navbar/>-->
         <dash/>
       </v-img>
     </v-app>
@@ -13,12 +12,11 @@
 </template>
 
 <script>
-import Navbar from './layout_lite_elements/Navbar'
 import Dash from './layout_lite_elements/Dash'
 import { mapState } from 'vuex'
 export default {
   name: 'LayoutLite',
-  components: { Dash, Navbar },
+  components: { Dash },
   computed: {
     ...mapState('layout', ['appImage']),
     appOverlayGradiant () {
