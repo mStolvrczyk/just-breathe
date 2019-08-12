@@ -1,7 +1,7 @@
 <template>
   <div id="apps">
-    <layout/>
-<!--    <layout-lite/>-->
+<!--    <layout/>-->
+    <layout-lite/>
   </div>
 </template>
 <style lang="stylus">

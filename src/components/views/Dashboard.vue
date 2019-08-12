@@ -53,30 +53,13 @@
             </v-list-tile>
           </template>
         </v-autocomplete>
-<!--        <div class="todos">-->
-<!--          <div v-for="station in allStations" :key="station.id" class="todo">-->
-<!--            {{station.city}}-->
-<!--          </div>-->
-<!--        </div>-->
       </v-flex>
     </v-layout>
   </v-container>
 </template>
 <script>
-import { mapGetters, mapActions, mapState } from 'vuex'
 export default {
-  name: 'Dashboard',
-  methods: {
-    ...mapActions('todos', ['getStations'])
-  },
-  computed: {
-    ...mapGetters('todos', ['allStations']
-    ),
-    ...mapState('todos', ['image'])
-  },
-  created () {
-    this.getStations()
-  }
+  name: 'Dashboard'
 }
 </script>
 
