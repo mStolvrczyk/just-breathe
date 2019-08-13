@@ -58,14 +58,14 @@ export default {
   data () {
     return {
       zoom: 10,
-      center: L.latLng(50.0614300, 19.9365800),
+      center: L.latLng(49.7215300, 18.8019800),
       url: 'https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=fc31e976df5a44d7b5164bcbb91c70b0',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<a/> contributors',
       marker: L.latLng(51.754613, 19.434925)
     }
   },
   // mounted () {
-  //   console.log(this.filterStations)
+  //   console.log(this.allStations)
   // }
 }
 </script>
