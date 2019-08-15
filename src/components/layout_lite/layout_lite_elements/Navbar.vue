@@ -5,6 +5,8 @@
     persistent
     app
     fixed
+    scroll-threshold="1"
+    scroll-off-screen="true"
   >
 <!--    <v-img-->
 <!--      :src="navbarImage"-->
