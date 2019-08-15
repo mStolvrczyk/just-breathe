@@ -1,11 +1,13 @@
 import axios from 'axios'
 
 const state = {
-  stations: []
+  stations: [],
+  selectedStation: []
 }
 
 const mutations = {
-  setStations: (state, stations) => (state.stations = stations)
+  setStations: (state, stations) => (state.stations = stations),
+  setSelectedStation: (state, selectedStation) => (state.selectedStation = selectedStation)
 }
 
 const actions = {
@@ -17,12 +19,17 @@ const actions = {
     }
     const localResponse = JSON.parse(localStorage.getItem('stations'))
     commit('setStations', localResponse)
+  },
+  async getSelectedStation ({ commit }, selectedStationName) {
+    const response = state.stations.filter(({ stationName }) => stationName === selectedStationName)
+    commit('setSelectedStation', response)
   }
 }
 
 const getters = {
   allStations: state => state.stations,
-  filterStations: state => state.stations.filter(({ city }) => city === 'Ustroń')
+  selectedStation: state => state.selectedStation,
+  filterStations: state => state.stations.filter(({ city }) => city === 'Kraków')
 }
 
 export default {

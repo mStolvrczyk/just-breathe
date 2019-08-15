@@ -16,17 +16,13 @@
               :attribution="attribution"></l-tile-layer>
               <l-marker
                 :key="index"
-                v-for="(station, index) in filterStations"
+                v-for="(station, index) in allStations"
                 :lat-lng="latLng(station.gegrLat, station.gegrLon)"
+                @click="centerStation(station)"
               ></l-marker>
             </l-map>
           </div>
         </v-card>
-        <div>
-<!--          <div v-for="station in allStations" :key="station.id" class="todo">-->
-<!--            {{station.city}}-->
-<!--          </div>-->
-        </div>
       </v-flex>
     </v-layout>
   </v-container>
@@ -49,24 +45,26 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('stations', ['allStations', 'filterStations']
-    )
+    ...mapGetters('stations', ['allStations', 'selectedStation']
+    ),
+    centerStation () {
+      return L.latLng(this.selectedStation.gegrLat, this.selectedStation.gegrLon)
+    }
   },
   created () {
     this.getStations()
   },
   data () {
     return {
-      zoom: 10,
-      center: L.latLng(49.7215300, 18.8019800),
+      zoom: 6,
+      center: L.latLng(52.25, 19.3),
       url: 'https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=fc31e976df5a44d7b5164bcbb91c70b0',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<a/> contributors',
       marker: L.latLng(51.754613, 19.434925)
     }
-  },
-  // mounted () {
-  //   console.log(this.allStations)
-  // }
+  }
+//   watch: {
+//   }
 }
 </script>
 
