@@ -45,7 +45,7 @@
                 >
                   {{ item.stationName.charAt(0) }}
                 </v-list-tile-avatar>
-                <v-list-tile-content @click="getSelectedStation(item.stationName)">
+                <v-list-tile-content @click="getSelectedStation(item.stationName), viewStation()">
                   <v-list-tile-title v-text="item.stationName"></v-list-tile-title>
                   <v-list-tile-sub-title v-text="item.city"></v-list-tile-sub-title>
                 </v-list-tile-content>
@@ -74,10 +74,13 @@ export default {
     stationName: null
   }),
   methods: {
-    ...mapActions('stations', ['getStations', 'getSelectedStation'])
+    ...mapActions('stations', ['getStations', 'getSelectedStation']),
+    viewStation () {
+      console.log(this.selectedStation[0].gegrLat)
+    }
   },
   computed: {
-    ...mapGetters('stations', ['allStations']
+    ...mapGetters('stations', ['allStations', 'selectedStation']
     )
   },
   created () {
