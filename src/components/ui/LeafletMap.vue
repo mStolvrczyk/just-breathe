@@ -1,49 +1,39 @@
 <template>
-  <v-container>
-    <v-layout>
-      <v-flex xs10 offset-xs1>
-        <v-card
-          class="pa-3"
-          color="teal lighten-4"
+    <div class="custom-popup" id="map">
+        <l-map
+                :zoom="zoom"
+                :center="center"
+                style="z-index: 0"
         >
-          <div class="custom-popup" id="map">
-            <l-map
-              :zoom="zoom"
-              :center="center"
-              style="z-index: 0"
+            <l-tile-layer :url="url"
+                          :attribution="attribution"></l-tile-layer>
+            <l-marker
+                    :key="index"
+                    v-for="(station, index) in allStations"
+                    :lat-lng="latLng(station.gegrLat, station.gegrLon)"
             >
-              <l-tile-layer :url="url"
-              :attribution="attribution"></l-tile-layer>
-              <l-marker
-                :key="index"
-                v-for="(station, index) in allStations"
-                :lat-lng="latLng(station.gegrLat, station.gegrLon)"
-              >
                 <div class="leaflet-popup-content-wrapper">
-                  <l-popup :content="station.stationName"></l-popup>
+                    <l-popup :content="station.stationName"></l-popup>
                 </div>
-                  <l-icon
-                    v-if="center === latLng(station.gegrLat, station.gegrLon)"
-                    :icon-url="yellowIcon"
-                    :icon-size="iconSize"
-                  ></l-icon>
-                  <l-icon
-                    v-else
-                    :icon-url="tealIcon"
-                    :icon-size="iconSize"
-                  ></l-icon>
-              </l-marker>
-            </l-map>
-          </div>
-        </v-card>
-      </v-flex>
-    </v-layout>
-  </v-container>
+                <l-icon
+                        v-if="center === latLng(station.gegrLat, station.gegrLon)"
+                        :icon-url="yellowIcon"
+                        :icon-size="iconSize"
+                ></l-icon>
+                <l-icon
+                        v-else
+                        :icon-url="tealIcon"
+                        :icon-size="iconSize"
+                ></l-icon>
+            </l-marker>
+        </l-map>
+    </div>
 </template>
 
 <script>
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
 import { mapGetters, mapActions } from 'vuex'
+
 export default {
   name: 'LeafletMap',
   components: {
@@ -61,7 +51,7 @@ export default {
   },
   computed: {
     ...mapGetters('stations', ['allStations', 'selectedStation']
-    ),
+    )
     // centerStation () {
     //   this.$store.watch(
     //     this.selectedStation(), () => {
@@ -104,14 +94,15 @@ export default {
 </script>
 
 <style lang="stylus">
-#map {
-  height: 75vh;
-}
-.custom-popup .leaflet-popup-content-wrapper {
-  background:#4DB6AC;
-  color:white;
-  font-size:16px;
-  line-height:24px;
-  border-radius: 5px;
-}
+    #map {
+        height: 75vh;
+    }
+
+    .custom-popup .leaflet-popup-content-wrapper {
+        background: #4DB6AC;
+        color: white;
+        font-size: 16px;
+        line-height: 24px;
+        border-radius: 5px;
+    }
 </style>

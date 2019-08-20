@@ -32,7 +32,7 @@
 
 <script>
 import { mapMutations, mapState } from 'vuex'
-import SidebarMenu from '../sidebar_components/SidebarMenu'
+import SidebarMenu from './SidebarMenu'
 
 export default {
   name: 'Sidebar',

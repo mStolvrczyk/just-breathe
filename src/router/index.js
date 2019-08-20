@@ -12,18 +12,16 @@ function route (path, view, name) {
     name: name || view,
     path,
     component: (resovle) => import(
-      `@/components/views/${view}.vue`
+      `@/views/${view}.vue`
     ).then(resovle)
   }
 }
 
 Vue.use(Router)
 
-const router = new Router({
+export default new Router({
   mode: 'history',
   routes: paths.map(path => route(path.path, path.view, path.name)).concat([
     { path: '*', redirect: '/dashboard' }
   ])
 })
-
-export default router

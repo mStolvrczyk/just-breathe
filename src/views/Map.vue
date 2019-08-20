@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import LeafletMap from '../material/LeafletMap'
+import LeafletMap from '../components/ui/LeafletMap'
 export default {
   name: 'Map',
   components: { LeafletMap }

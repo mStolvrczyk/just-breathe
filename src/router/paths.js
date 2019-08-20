@@ -1,5 +1,5 @@
-import DashboardView from '@/components/views/Dashboard'
-import MapView from '@/components/views/Map'
+import DashboardView from '@/views/Dashboard'
+import MapView from '@/views/Map'
 
 export default [
   {
