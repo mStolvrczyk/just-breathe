@@ -22,10 +22,16 @@
                 <div class="leaflet-popup-content-wrapper">
                   <l-popup :content="station.stationName"></l-popup>
                 </div>
-                <l-icon
-                  :icon-size="iconSize"
-                  :icon-url="icon"
-                ></l-icon>
+                  <l-icon
+                    v-if="center === latLng(station.gegrLat, station.gegrLon)"
+                    :icon-url="yellowIcon"
+                    :icon-size="iconSize"
+                  ></l-icon>
+                  <l-icon
+                    v-else
+                    :icon-url="tealIcon"
+                    :icon-size="iconSize"
+                  ></l-icon>
               </l-marker>
             </l-map>
           </div>
@@ -55,7 +61,7 @@ export default {
   },
   computed: {
     ...mapGetters('stations', ['allStations', 'selectedStation']
-    )
+    ),
     // centerStation () {
     //   this.$store.watch(
     //     this.selectedStation(), () => {
@@ -70,6 +76,9 @@ export default {
     //   //   return 10
     //   // }
     // }
+    // addMarker () {
+    //   L.marker().
+    // }
   },
   created () {
     this.getStations()
@@ -80,17 +89,15 @@ export default {
       center: L.latLng(52.25, 19.3),
       url: 'https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=fc31e976df5a44d7b5164bcbb91c70b0',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<a/> contributors',
-      icon: require('@/assets/tealPin.png'),
-      iconSize: [40, 40],
+      tealIcon: require('@/assets/tealPin.png'),
+      yellowIcon: require('@/assets/yellowPin.png'),
+      iconSize: [40, 40]
     }
   },
   watch: {
     '$store.state.stations.selectedStation' () {
       this.center = L.latLng(this.selectedStation[0].gegrLat, this.selectedStation[0].gegrLon)
       this.zoom = 10
-      // if (L.marker(this.selectedStation[0].gegrLat, this.selectedStation[0].gegrLon)) {
-      //   this.L.marker.icon = require('@/assets/yellowPin.png')
-      // }
     }
   }
 }
