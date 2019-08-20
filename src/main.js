@@ -1,6 +1,5 @@
 import Vue from 'vue'
-import LayoutRegular from '@/layouts/LayoutRegular'
-import LayoutLite from '@/layouts/LayoutLite'
+
 // Plugins
 import './plugins'
 
@@ -16,10 +15,6 @@ import { sync } from 'vuex-router-sync'
 import App from './App.vue'
 import router from '@/router'
 import store from '@/store'
-
-// layouts imports
-Vue.component('layout-default', LayoutRegular)
-Vue.component('layout-centered', LayoutLite)
 
 // Sync store with router
 sync(store, router)

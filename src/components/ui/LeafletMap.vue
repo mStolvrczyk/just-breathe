@@ -1,22 +1,22 @@
 <template>
     <div class="custom-popup" id="map">
         <l-map
-                :zoom="zoom"
+                :zoom.sync="zoom"
                 :center="center"
                 style="z-index: 0"
         >
             <l-tile-layer :url="url"
                           :attribution="attribution"></l-tile-layer>
             <l-marker
-                    :key="index"
-                    v-for="(station, index) in allStations"
-                    :lat-lng="latLng(station.gegrLat, station.gegrLon)"
+                    :key="station.id"
+                    v-for="station in allStations"
+                    :lat-lng="getMark(station)"
             >
                 <div class="leaflet-popup-content-wrapper">
                     <l-popup :content="station.stationName"></l-popup>
                 </div>
                 <l-icon
-                        v-if="center === latLng(station.gegrLat, station.gegrLon)"
+                        v-if="center.id === station.id"
                         :icon-url="yellowIcon"
                         :icon-size="iconSize"
                 ></l-icon>
@@ -32,7 +32,7 @@
 
 <script>
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'LeafletMap',
@@ -43,40 +43,29 @@ export default {
     LPopup,
     LIcon
   },
+  props: {
+    selectedStation: Object
+  },
   methods: {
-    ...mapActions('stations', ['getStations']),
-    latLng: (lat, lng) => {
-      return L.latLng(lat, lng)
+    getMark: (station) => {
+      return {
+        id: station.id,
+        lat: station.gegrLat,
+        lng: station.gegrLon,
+        color: 'blue'
+      }
     }
   },
   computed: {
-    ...mapGetters('stations', ['allStations', 'selectedStation']
-    )
-    // centerStation () {
-    //   this.$store.watch(
-    //     this.selectedStation(), () => {
-    //       this.center = L.latLng(this.selectedStation[0].gegrLat, this.selectedStation[0].gegrLon)
-    //     }
-    //   )
-    // },
-    // setZoom () {
-    //   return 6
-    //   // if (!this.selectedStation.length > 0) {
-    //   // } else {
-    //   //   return 10
-    //   // }
-    // }
-    // addMarker () {
-    //   L.marker().
-    // }
-  },
-  created () {
-    this.getStations()
+    ...mapGetters('stations', ['allStations'])
   },
   data () {
     return {
       zoom: 6,
-      center: L.latLng(52.25, 19.3),
+      center: {
+        lat: 52.25,
+        lng: 19.3
+      },
       url: 'https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=fc31e976df5a44d7b5164bcbb91c70b0',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<a/> contributors',
       tealIcon: require('@/assets/tealPin.png'),
@@ -85,9 +74,13 @@ export default {
     }
   },
   watch: {
-    '$store.state.stations.selectedStation' () {
-      this.center = L.latLng(this.selectedStation[0].gegrLat, this.selectedStation[0].gegrLon)
-      this.zoom = 10
+    'selectedStation' (value) {
+      this.center = {
+        id: value.id,
+        lat: value.gegrLat,
+        lng: value.gegrLon
+      }
+      this.zoom = 13
     }
   }
 }
@@ -95,7 +88,7 @@ export default {
 
 <style lang="stylus">
     #map {
-        height: 75vh;
+        height: 80vh;
     }
 
     .custom-popup .leaflet-popup-content-wrapper {

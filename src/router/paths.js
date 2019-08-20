@@ -1,5 +1,4 @@
 import DashboardView from '@/views/Dashboard'
-import MapView from '@/views/Map'
 
 export default [
   {
@@ -9,12 +8,5 @@ export default [
     name: 'Dashboard',
     view: 'Dashboard',
     meta: { description: 'Overview of enviroment' }
-  },
-  {
-    path: '/map',
-    component: MapView,
-    name: 'Map',
-    view: 'Map',
-    meta: { description: 'Map with locations of measuring stations' }
   }
 ]

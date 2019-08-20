@@ -1,47 +1,64 @@
 <template>
-  <v-navigation-drawer
-    id="ap-drawer"
-    app
-    dark
-    floating
-    persistent
-    mobile-break-point="991"
-    width="260"
-  >
-    <v-img
-      :src="sidebarImage"
-      :gradient="sidebarOverlayGradiant"
-      height="100%"
+    <v-navigation-drawer
+            v-model="sidebarVisibility"
+            fixed
+            app
+            dark
+            floating
+            persistent
+            mobile-break-point="991"
+            width="260"
     >
-      <v-layout
-        class="fill-height"
-        tag="v-list"
-        column
-      >
-        <v-list-tile avatar>
-          <v-list-tile-title class="title">
-            Air Quality Check
-          </v-list-tile-title>
-        </v-list-tile>
-        <v-divider/>
-        <sidebar-menu/>
-      </v-layout>
-    </v-img>
-  </v-navigation-drawer>
+        <v-img
+                :src="sidebarImage"
+                :gradient="sidebarOverlayGradiant"
+                height="100%"
+        >
+            <v-layout
+                    class="fill-height"
+                    tag="v-list"
+                    column
+            >
+                <v-list-tile avatar>
+                    <v-list-tile-title class="title">
+                        Air Quality Check
+                    </v-list-tile-title>
+                </v-list-tile>
+                <v-divider/>
+                <v-list-tile
+                        v-for="link in links"
+                        :key="link.title"
+                        :to="link.to"
+                >
+                    <v-list-tile-action>
+                        <v-icon>{{ link.icon }}</v-icon>
+                    </v-list-tile-action>
+                    <v-list-tile-content>
+                        <v-list-tile-title>{{ link.title }}</v-list-tile-title>
+                    </v-list-tile-content>
+                </v-list-tile>
+            </v-layout>
+        </v-img>
+    </v-navigation-drawer>
 </template>
 
 <script>
 import { mapMutations, mapState } from 'vuex'
-import SidebarMenu from './SidebarMenu'
 
 export default {
   name: 'Sidebar',
   data () {
     return {
-      responsive: false
+      responsive: false,
+      sidebarVisibility: false,
+      drawer: true,
+      links: [
+        { title: 'Home', to: '/dashboard', icon: 'dashboard' },
+        { title: 'User panel', icon: 'person' },
+        { title: 'Map', to: '/map', icon: 'place' }
+      ]
     }
   },
-  components: { SidebarMenu },
   computed: {
     ...mapState('layout', ['sidebarImage']),
     // inputValue: {

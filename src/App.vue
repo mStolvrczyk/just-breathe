@@ -1,22 +1,64 @@
 <template>
     <v-app class="primary-background">
-        <component :is="layout">
-            <router-view></router-view>
-        </component>
+        <v-toolbar
+                color='rgba(0, 0, 0, 0.3)'
+                flat
+                dark
+                dense
+                app
+                fixed
+        >
+            <div class="v-toolbar-title">
+                <v-toolbar-title>
+                    AirQuality
+                </v-toolbar-title>
+            </div>
+            <v-spacer/>
+            <v-btn icon>
+                <v-icon>
+                    apps
+                </v-icon>
+            </v-btn>
+            <v-btn icon>
+                <v-icon>
+                    notifications
+                </v-icon>
+            </v-btn>
+            <v-btn @click="updateDetailsDialogVisibility(true)"
+                   icon>
+                <v-icon>
+                    person
+                </v-icon>
+            </v-btn>
+        </v-toolbar>
+        <v-content>
+            <v-container fluid class="pa-0">
+                <v-img
+                        :src="appImage"
+                        :gradient="`${'rgba(0, 128, 128, 0.7)'}, ${'rgba(0, 128, 128, 0.7)'}`"
+                >
+                    <router-view></router-view>
+                </v-img>
+            </v-container>
+        </v-content>
+        <DetailsDialog :visibility.sync="detailsDialogVisible"
+                       v-on:updateVisibility="updateDetailsDialogVisibility"></DetailsDialog>
     </v-app>
 </template>
 
 <script>
-import LayoutRegular from '@/layouts/LayoutRegular'
-import LayoutLite from '@/layouts/LayoutLite'
 
-export const layout = 'Regular'
+import DetailsDialog from '@/components/ui/DetailsDialog'
 
 export default {
-  components: { LayoutLite, LayoutRegular },
-  computed: {
-    layout () {
-      return `Layout${layout}`
+  components: { DetailsDialog },
+  data: () => ({
+    appImage: require('@/assets/appImage.jpg'),
+    detailsDialogVisible: false
+  }),
+  methods: {
+    updateDetailsDialogVisibility (value) {
+      this.detailsDialogVisible = value
     }
   }
 }
