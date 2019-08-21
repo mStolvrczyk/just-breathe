@@ -1,33 +1,42 @@
 <template>
-    <div class="custom-popup" id="map">
-        <l-map
-                :zoom.sync="zoom"
-                :center="center"
-                style="z-index: 0"
-        >
-            <l-tile-layer :url="url"
-                          :attribution="attribution"></l-tile-layer>
-            <l-marker
-                    :key="station.id"
-                    v-for="station in allStations"
-                    :lat-lng="getMark(station)"
+  <v-container>
+    <v-flex xs10 offset-xs1>
+      <v-card
+        class="pa-3"
+        color="teal lighten-4"
+      >
+        <div class="custom-popup" id="map">
+            <l-map
+                    :zoom.sync="zoom"
+                    :center="center"
+                    style="z-index: 0"
             >
-                <div class="leaflet-popup-content-wrapper">
-                    <l-popup :content="station.stationName"></l-popup>
-                </div>
-                <l-icon
-                        v-if="center.id === station.id"
-                        :icon-url="yellowIcon"
-                        :icon-size="iconSize"
-                ></l-icon>
-                <l-icon
-                        v-else
-                        :icon-url="tealIcon"
-                        :icon-size="iconSize"
-                ></l-icon>
-            </l-marker>
-        </l-map>
-    </div>
+                <l-tile-layer :url="url"
+                              :attribution="attribution"></l-tile-layer>
+                <l-marker
+                        :key="station.id"
+                        v-for="station in allStations"
+                        :lat-lng="getMark(station)"
+                >
+                    <div class="leaflet-popup-content-wrapper">
+                        <l-popup :content="station.stationName"></l-popup>
+                    </div>
+                    <l-icon
+                            v-if="center.id === station.id"
+                            :icon-url="yellowIcon"
+                            :icon-size="yellowIconSize"
+                    ></l-icon>
+                    <l-icon
+                            v-else
+                            :icon-url="tealIcon"
+                            :icon-size="tealIconSize"
+                    ></l-icon>
+                </l-marker>
+            </l-map>
+        </div>
+      </v-card>
+    </v-flex>
+  </v-container>
 </template>
 
 <script>
@@ -70,7 +79,8 @@ export default {
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<a/> contributors',
       tealIcon: require('@/assets/tealPin.png'),
       yellowIcon: require('@/assets/yellowPin.png'),
-      iconSize: [40, 40]
+      tealIconSize: [40, 40],
+      yellowIconSize: [30,40]
     }
   },
   watch: {
@@ -80,7 +90,7 @@ export default {
         lat: value.gegrLat,
         lng: value.gegrLon
       }
-      this.zoom = 13
+      this.zoom = 10
     }
   }
 }
