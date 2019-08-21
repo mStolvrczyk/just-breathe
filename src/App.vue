@@ -10,7 +10,7 @@
         >
             <div class="v-toolbar-title">
                 <v-toolbar-title>
-                    AirQuality
+                    Air Quality Check
                 </v-toolbar-title>
             </div>
             <v-spacer/>
@@ -35,7 +35,7 @@
             <v-container fluid class="pa-0">
                 <v-img
                         :src="appImage"
-                        :gradient="`${'rgba(0, 128, 128, 0.7)'}, ${'rgba(0, 128, 128, 0.7)'}`"
+                        :gradient="`${'rgba(0, 128, 128, 0.6)'}, ${'rgba(0, 128, 128, 0.6)'}`"
                 >
                     <router-view></router-view>
                 </v-img>
