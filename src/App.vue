@@ -7,8 +7,8 @@
             dark
             app
             fixed
-            scroll-threshold="1"
-            scroll-off-screen="true"
+            :scroll-threshold="1"
+            :scroll-off-screen="true"
     >
         <div class="v-toolbar-title">
             <v-toolbar-title>

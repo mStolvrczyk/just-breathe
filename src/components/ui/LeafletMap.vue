@@ -15,7 +15,7 @@
                               :attribution="attribution"></l-tile-layer>
                 <l-marker
                         :key="station.id"
-                        v-for="station in allStations"
+                        v-for="station in stations"
                         :lat-lng="getMark(station)"
                 >
                     <div class="leaflet-popup-content-wrapper">
@@ -41,7 +41,6 @@
 
 <script>
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
-import { mapGetters } from 'vuex'
 
 export default {
   name: 'LeafletMap',
@@ -53,7 +52,8 @@ export default {
     LIcon
   },
   props: {
-    selectedStation: Object
+    selectedStation: Object,
+    stations: Array
   },
   methods: {
     getMark: (station) => {
@@ -64,9 +64,6 @@ export default {
         color: 'blue'
       }
     }
-  },
-  computed: {
-    ...mapGetters('stations', ['allStations'])
   },
   data () {
     return {
@@ -80,7 +77,7 @@ export default {
       tealIcon: require('@/assets/tealPin.png'),
       yellowIcon: require('@/assets/yellowPin.png'),
       tealIconSize: [40, 40],
-      yellowIconSize: [30,40]
+      yellowIconSize: [30, 40]
     }
   },
   watch: {

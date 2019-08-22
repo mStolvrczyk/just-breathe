@@ -3,7 +3,7 @@
         <v-autocomplete
                 background-color="teal lighten-4"
                 v-model="selectedStation"
-                :items="allStations"
+                :items="stations"
                 flat
                 search="searchValue"
                 hide-no-data
@@ -22,29 +22,29 @@
                 </v-list-tile>
             </template>
         </v-autocomplete>
-        <LeafletMap :selected-station="selectedStation"></LeafletMap>
+        <LeafletMap :stations="stations" :selected-station="selectedStation"></LeafletMap>
     </v-container>
 </template>
 <script>
 import LeafletMap from '@/components/ui/LeafletMap'
-import { mapGetters, mapActions } from 'vuex'
+import StationsService from '@/services/StationsService'
 
 export default {
   name: 'Dashboard',
   components: { LeafletMap },
   data: () => ({
     selectedStation: null,
-    searchValue: ''
+    searchValue: '',
+    stationsService: new StationsService(),
+    stations: []
   }),
   methods: {
-    ...mapActions('stations', ['getStations'])
-  },
-  computed: {
-    ...mapGetters('stations', ['allStations']
-    )
+    async getAllStations () {
+      this.stations = await this.stationsService.getAll()
+    }
   },
   mounted () {
-    return this.getStations()
+    this.getAllStations()
   }
 }
 </script>
