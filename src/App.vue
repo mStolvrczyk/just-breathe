@@ -3,10 +3,12 @@
     <v-toolbar
             color='rgba(0, 0, 0, 0.3)'
             flat
+            persistent
             dark
-            dense
             app
             fixed
+            scroll-threshold="1"
+            scroll-off-screen="true"
     >
         <div class="v-toolbar-title">
             <v-toolbar-title>
