@@ -1,21 +1,21 @@
 # Air Quality Check (in progress...)
 
-### Air Quality Check is a Vue.js SPA application for controlling air pollution in Poland.
-###It uses Firebase fo storing data, JSON API developed by Chief Inspectorate fo Environmental Protection and Vue.js libraries like 
+## General info
+Air Quality Check is a Vue.js SPA application for controlling air pollution in Poland. It uses Firebase for storing data, JSON API developed by Chief Inspectorate for Environmental Protection and Vue.js libraries like Vue2Leaflet and vue-chartjs.
+
+
 
 ## Project setup
+In relation with headers setup in API to be able to communicate with it you have to download and run my node.js API which you can find [here](https://bitbucket.org/mStolvrczyk/air-quality-check-api/src/master/).
+After that: 
 ```
-npm install
+$ cd ../lorem
+$ npm install
+$ npm run serve
 ```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
 ### Compiles and minifies for production
 ```
-npm run build
+npm run build: production
 ```
 
 ### Run your tests
@@ -33,5 +33,4 @@ npm run lint
 npm run test:unit
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+
