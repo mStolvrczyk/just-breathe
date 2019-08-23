@@ -1,7 +1,7 @@
-# Air Quality Check
-#(in progress...)
+# Air Quality Check (in progress...)
 
-### Air Quality Check is a Vue.js SPA application for controlling air pollution in Poland
+### Air Quality Check is a Vue.js SPA application for controlling air pollution in Poland.
+###It uses Firebase fo storing data, JSON API developed by Chief Inspectorate fo Environmental Protection and Vue.js libraries like 
 
 ## Project setup
 ```
