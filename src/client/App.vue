@@ -70,7 +70,7 @@ export default {
     #app {
       background-image:
         linear-gradient(to bottom, rgba(0, 128, 128, 0.6), rgba(0, 128, 128, 0.6)),
-        url('./assets/appImage.jpg');
+        url('assets/appImage.jpg');
 
     }
 </style>
