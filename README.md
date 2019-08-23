@@ -9,7 +9,7 @@ Air Quality Check is a Vue.js SPA application for controlling air pollution in P
 In relation with headers setup in API to be able to communicate with it you have to download and run my node.js API which you can find [here](https://bitbucket.org/mStolvrczyk/air-quality-check-api/src/master/).
 After that: 
 ```
-$ cd ../lorem
+$ cd ../air-quality-check
 $ npm install
 $ npm run serve
 ```
