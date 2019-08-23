@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils'
-import Navbar from '@/components/layout/Navbar.vue'
+import Navbar from '@/components/layout/NavbarLite.vue'
 
 describe('Navbar.vue', () => {
   it('setup correctly', () => {

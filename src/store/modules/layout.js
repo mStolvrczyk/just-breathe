@@ -4,7 +4,7 @@ const state = {
   drawer: null,
   navbar: null,
   sidebarImage: require('@/assets/sidebarImage.jpg'),
-  appImage: require('@/assets/appImage7.jpg'),
+  appImage: require('@/assets/appImage.jpg'),
   sidebarBackgroundColor: 'rgba(0, 128, 128, 0.7)',
   appBackgroundColor: 'rgba(0, 128, 128, 0.6)'
   // sidebarBackgroundColor: 'rgba(27, 27, 27, 0.74)'
