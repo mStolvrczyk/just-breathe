@@ -6,33 +6,37 @@
         color="teal lighten-4"
       >
         <div class="custom-popup" id="map">
-            <l-map
-                    :zoom.sync="zoom"
-                    :center="center"
-                    style="z-index: 0"
-            >
-                <l-tile-layer :url="url"
-                              :attribution="attribution"></l-tile-layer>
-                <l-marker
-                        :key="station.id"
-                        v-for="station in stations"
-                        :lat-lng="getMark(station)"
-                >
-                    <div class="leaflet-popup-content-wrapper">
-                        <l-popup :content="station.stationName"></l-popup>
-                    </div>
-                    <l-icon
-                            v-if="center.id === station.id"
-                            :icon-url="yellowIcon"
-                            :icon-size="yellowIconSize"
-                    ></l-icon>
-                    <l-icon
-                            v-else
-                            :icon-url="tealIcon"
-                            :icon-size="tealIconSize"
-                    ></l-icon>
-                </l-marker>
-            </l-map>
+<!--            <l-map-->
+<!--                    :zoom.sync="zoom"-->
+<!--                    :center="center"-->
+<!--                    style="z-index: 0"-->
+<!--            >-->
+<!--                <l-tile-layer :url="url"-->
+<!--                              :attribution="attribution"></l-tile-layer>-->
+<!--                <l-marker-->
+<!--                        :key="station.id"-->
+<!--                        v-for="station in stations"-->
+<!--                        :lat-lng="getMark(station)"-->
+<!--                >-->
+<!--                    <div class="leaflet-popup-content-wrapper">-->
+<!--                        <l-popup :content="station.stationName"></l-popup>-->
+<!--                    </div>-->
+<!--                    <l-icon-->
+<!--                            v-if="center.id === station.id"-->
+<!--                            :icon-url="yellowIcon"-->
+<!--                            :icon-size="yellowIconSize"-->
+<!--                    ></l-icon>-->
+<!--                    <l-icon-->
+<!--                            v-else-->
+<!--                            :icon-url="tealIcon"-->
+<!--                            :icon-size="tealIconSize"-->
+<!--                    ></l-icon>-->
+<!--                </l-marker>-->
+<!--            </l-map>-->
+          <v-map :zoom="6" :center="center">
+            <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
+            <v-locatecontrol/>
+          </v-map>
         </div>
       </v-card>
     </v-flex>
@@ -41,15 +45,16 @@
 
 <script>
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
-
+import Vue2LeafletLocatecontrol from 'vue2-leaflet-locatecontrol';
 export default {
   name: 'LeafletMap',
   components: {
-    LMap,
-    LTileLayer,
+    "v-map": LMap,
+    "v-tilelayer": LTileLayer,
     LMarker,
     LPopup,
-    LIcon
+    LIcon,
+    "v-locatecontrol": Vue2LeafletLocatecontrol
   },
   props: {
     selectedStation: Object,
@@ -77,7 +82,8 @@ export default {
       tealIcon: require('@/assets/tealPin.png'),
       yellowIcon: require('@/assets/yellowPin.png'),
       tealIconSize: [40, 40],
-      yellowIconSize: [30, 40]
+      yellowIconSize: [30, 40],
+      initialLocation: [59.93428, 30.335098]
     }
   },
   watch: {
@@ -94,6 +100,8 @@ export default {
 </script>
 
 <style lang="stylus">
+  @import "~leaflet/dist/leaflet.css";
+  @import "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";
     #map {
         height: 80vh;
     }
