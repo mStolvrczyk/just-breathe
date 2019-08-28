@@ -6,36 +6,36 @@
         color="teal lighten-4"
       >
         <div class="custom-popup" id="map">
-<!--            <l-map-->
-<!--                    :zoom.sync="zoom"-->
-<!--                    :center="center"-->
-<!--                    style="z-index: 0"-->
-<!--            >-->
-<!--                <l-tile-layer :url="url"-->
-<!--                              :attribution="attribution"></l-tile-layer>-->
-<!--                <l-marker-->
-<!--                        :key="station.id"-->
-<!--                        v-for="station in stations"-->
-<!--                        :lat-lng="getMark(station)"-->
-<!--                >-->
-<!--                    <div class="leaflet-popup-content-wrapper">-->
-<!--                        <l-popup :content="station.stationName"></l-popup>-->
-<!--                    </div>-->
-<!--                    <l-icon-->
-<!--                            v-if="center.id === station.id"-->
-<!--                            :icon-url="yellowIcon"-->
-<!--                            :icon-size="yellowIconSize"-->
-<!--                    ></l-icon>-->
-<!--                    <l-icon-->
-<!--                            v-else-->
-<!--                            :icon-url="tealIcon"-->
-<!--                            :icon-size="tealIconSize"-->
-<!--                    ></l-icon>-->
-<!--                </l-marker>-->
-<!--            </l-map>-->
+          <!--            <l-map-->
+          <!--                    :zoom.sync="zoom"-->
+          <!--                    :center="center"-->
+          <!--                    style="z-index: 0"-->
+          <!--            >-->
+          <!--                <l-tile-layer :url="url"-->
+          <!--                              :attribution="attribution"></l-tile-layer>-->
+          <!--                <l-marker-->
+          <!--                        :key="station.id"-->
+          <!--                        v-for="station in stations"-->
+          <!--                        :lat-lng="getMark(station)"-->
+          <!--                >-->
+          <!--                    <div class="leaflet-popup-content-wrapper">-->
+          <!--                        <l-popup :content="station.stationName"></l-popup>-->
+          <!--                    </div>-->
+          <!--                    <l-icon-->
+          <!--                            v-if="center.id === station.id"-->
+          <!--                            :icon-url="yellowIcon"-->
+          <!--                            :icon-size="yellowIconSize"-->
+          <!--                    ></l-icon>-->
+          <!--                    <l-icon-->
+          <!--                            v-else-->
+          <!--                            :icon-url="tealIcon"-->
+          <!--                            :icon-size="tealIconSize"-->
+          <!--                    ></l-icon>-->
+          <!--                </l-marker>-->
+          <!--            </l-map>-->
           <v-map :zoom="6" :center="center">
             <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
-            <v-locatecontrol/>
+            <v-locatecontrol></v-locatecontrol>
           </v-map>
         </div>
       </v-card>
@@ -45,16 +45,17 @@
 
 <script>
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
-import Vue2LeafletLocatecontrol from 'vue2-leaflet-locatecontrol';
+import Vue2LeafletLocatecontrol from '@/components/leaflet/Vue2LeafletLocatecontrol'
+
 export default {
   name: 'LeafletMap',
   components: {
-    "v-map": LMap,
-    "v-tilelayer": LTileLayer,
+    'v-map': LMap,
+    'v-tilelayer': LTileLayer,
     LMarker,
     LPopup,
     LIcon,
-    "v-locatecontrol": Vue2LeafletLocatecontrol
+    'v-locatecontrol': Vue2LeafletLocatecontrol
   },
   props: {
     selectedStation: Object,
@@ -73,10 +74,10 @@ export default {
   data () {
     return {
       zoom: 6,
-      center: {
-        lat: 52.25,
-        lng: 19.3
-      },
+      center: [
+        52.25,
+        19.3
+      ],
       url: 'https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=fc31e976df5a44d7b5164bcbb91c70b0',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<a/> contributors',
       tealIcon: require('@/assets/tealPin.png'),
@@ -102,15 +103,16 @@ export default {
 <style lang="stylus">
   @import "~leaflet/dist/leaflet.css";
   @import "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";
-    #map {
-        height: 80vh;
-    }
 
-    .custom-popup .leaflet-popup-content-wrapper {
-        background: #4DB6AC;
-        color: white;
-        font-size: 16px;
-        line-height: 24px;
-        border-radius: 5px;
-    }
+  #map {
+    height: 80vh;
+  }
+
+  .custom-popup .leaflet-popup-content-wrapper {
+    background: #4DB6AC;
+    color: white;
+    font-size: 16px;
+    line-height: 24px;
+    border-radius: 5px;
+  }
 </style>
