@@ -1,23 +1,34 @@
 const webpack = require('webpack')
+const path = require('path')
 
-// mozna skonfigurowac podstawowa sciezke do api, do ktorego wysylasz zapytania
 function getApiUrl () {
   switch (process.env.NODE_ENV) {
     case 'production': {
-      return 'http://localhost:8000/api'
+      return './api'
     }
     default: {
-      return 'http://localhost:8000/api'
+      return './api'
     }
   }
 }
 
 module.exports = {
   configureWebpack: {
+    ...require('./webpack.config'),
     plugins: [
       new webpack.DefinePlugin({
         'process.env.API_BASE_URL': JSON.stringify(getApiUrl())
       })
     ]
+  },
+  outputDir: path.resolve(__dirname, 'dist', 'client')
+}
+
+if (process.env.NODE_ENV === 'development') {
+  module.exports.devServer = {
+    // eslint-disable-next-line global-require
+    before: (app, server) => {
+      app.use('/', require('./src/server/app'))
+    }
   }
 }
