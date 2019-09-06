@@ -1,42 +1,46 @@
 <template>
   <v-container>
     <v-flex xs10 offset-xs1>
+      <v-btn
+      @click="closestStation()"
+      />
       <v-card
         class="pa-3"
         color="teal lighten-4"
       >
         <div class="custom-popup" id="map">
-          <!--            <l-map-->
-          <!--                    :zoom.sync="zoom"-->
-          <!--                    :center="center"-->
-          <!--                    style="z-index: 0"-->
-          <!--            >-->
-          <!--                <l-tile-layer :url="url"-->
-          <!--                              :attribution="attribution"></l-tile-layer>-->
-          <!--                <l-marker-->
-          <!--                        :key="station.id"-->
-          <!--                        v-for="station in stations"-->
-          <!--                        :lat-lng="getMark(station)"-->
-          <!--                >-->
-          <!--                    <div class="leaflet-popup-content-wrapper">-->
-          <!--                        <l-popup :content="station.stationName"></l-popup>-->
-          <!--                    </div>-->
-          <!--                    <l-icon-->
-          <!--                            v-if="center.id === station.id"-->
-          <!--                            :icon-url="yellowIcon"-->
-          <!--                            :icon-size="yellowIconSize"-->
-          <!--                    ></l-icon>-->
-          <!--                    <l-icon-->
-          <!--                            v-else-->
-          <!--                            :icon-url="tealIcon"-->
-          <!--                            :icon-size="tealIconSize"-->
-          <!--                    ></l-icon>-->
-          <!--                </l-marker>-->
-          <!--            </l-map>-->
-          <v-map :zoom="6" :center="center">
-            <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
-            <v-locatecontrol></v-locatecontrol>
-          </v-map>
+                      <v-map
+                              :zoom.sync="zoom"
+                              :center="center"
+                              style="z-index: 0"
+                      >
+                          <v-tilelayer :url="url"
+                                        :attribution="attribution"></v-tilelayer>
+                        <v-locatecontrol/>
+                          <l-marker
+                                  :key="station.id"
+                                  v-for="station in stations"
+                                  :lat-lng="getMark(station)"
+                          >
+                              <div class="leaflet-popup-content-wrapper">
+                                  <l-popup :content="station.stationName"></l-popup>
+                              </div>
+                              <l-icon
+                                      v-if="center.id === station.id"
+                                      :icon-url="yellowIcon"
+                                      :icon-size="yellowIconSize"
+                              ></l-icon>
+                              <l-icon
+                                      v-else
+                                      :icon-url="tealIcon"
+                                      :icon-size="tealIconSize"
+                              ></l-icon>
+                          </l-marker>
+                      </v-map>
+<!--          <v-map :zoom="6" :center="center">-->
+<!--            <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>-->
+<!--            <v-locatecontrol/>-->
+<!--          </v-map>-->
         </div>
       </v-card>
     </v-flex>
@@ -69,6 +73,16 @@ export default {
         lng: station.gegrLon,
         color: 'blue'
       }
+    },
+    closestStation ()  {
+      L.GeometryUtil.closestLayer(LMap, this.coordinates, this.center)
+    },
+    coordinatesFilter: ({gegrLat, gegrLon}) => {
+      return [
+        gegrLat,
+        gegrLon
+      ]
+
     }
   },
   data () {
@@ -84,7 +98,10 @@ export default {
       yellowIcon: require('@/assets/yellowPin.png'),
       tealIconSize: [40, 40],
       yellowIconSize: [30, 40],
-      initialLocation: [59.93428, 30.335098]
+      initialLocation: [59.93428, 30.335098],
+      myStation: L.latLng(52.25, 19.3),
+      coordinates: [],
+      stationsLoaded: false
     }
   },
   watch: {
@@ -95,6 +112,9 @@ export default {
         lng: value.gegrLon
       }
       this.zoom = 10
+    },
+    'stations' (value) {
+      this.coordinates.push(value.map(this.coordinatesFilter))
     }
   }
 }
