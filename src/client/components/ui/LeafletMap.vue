@@ -37,16 +37,12 @@
                 :icon-size="tealIconSize"
               ></l-icon>
             </l-marker>
-            <l-marker
-              v-if="found"
-              :lat-lng="found"
-            >
-            </l-marker>
+<!--            <l-marker-->
+<!--              v-if="found"-->
+<!--              :lat-lng="found"-->
+<!--            >-->
+<!--            </l-marker>-->
           </v-map>
-          <!--          <v-map :zoom="6" :center="center">-->
-          <!--            <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>-->
-          <!--            <v-locatecontrol/>-->
-          <!--          </v-map>-->
         </div>
       </v-card>
     </v-flex>
@@ -93,8 +89,8 @@ export default {
     getMark: (station) => {
       return {
         id: station.id,
-        lat: station.gegrLat,
-        lng: station.gegrLon,
+        lat: station.coordinates[0],
+        lng: station.coordinates[1],
         color: 'blue'
       }
     },
@@ -102,35 +98,35 @@ export default {
       let minDist = Infinity
       let nearest_text = '*None*'
       let markerDist
+      let stationId
       // get all objects added to the map
       let objects = Object.values(this.$refs.map.mapObject._layers)
-
       // iterate over objects and calculate distance between them
-      for (let i = 0; i < this.coordinates[0].length; i += 1) {
-        markerDist = this.getDistance(this.coordinates[0][i].map(Number), this.center.map(Number))
+      for (let i = 0; i < this.stations.length; i += 1) {
+        markerDist = this.getDistance(this.stations[i].coordinates.map(Number), this.userLocation)
         if (markerDist < minDist) {
           minDist = markerDist
           // eslint-disable-next-line camelcase
-          nearest_text = this.coordinates[0][i]
+          nearest_text = this.stations[i].coordinates
+          stationId = this.stations[i].id
         }
       }
 
       this.found = {
-        id: 868569,
-        color: 'red',
+        id: stationId,
         lat: nearest_text[0],
         lng: nearest_text[1]
       }
     },
-    coordinatesFilter: ({ gegrLat, gegrLon }) => {
-      return [
-        gegrLat,
-        gegrLon
-      ]
+    setLocation (pos) {
+      if(this.userLocation.length >= 0) {
+        navigator.geolocation.clearWatch(this.watcher)
+      }
+      this.userLocation.push(
+        pos.coords.latitude,
+        pos.coords.longitude
+      )
     }
-  },
-  mounted () {
-
   },
   data () {
     return {
@@ -146,9 +142,8 @@ export default {
       tealIconSize: [40, 40],
       yellowIconSize: [30, 40],
       initialLocation: [59.93428, 30.335098],
-      myStation: [52.25, 19.3],
-      coordinates: [],
-      stationsLoaded: false,
+      userLocation: [],
+      watcher: navigator.geolocation.watchPosition(this.setLocation),
       found: null
     }
   },
@@ -156,13 +151,18 @@ export default {
     'selectedStation' (value) {
       this.center = {
         id: value.id,
-        lat: value.gegrLat,
-        lng: value.gegrLon
+        lat: value.coordinates[0],
+        lng: value.coordinates[1]
       }
       this.zoom = 10
     },
-    'stations' (value) {
-      this.coordinates.push(value.map(this.coordinatesFilter))
+    'found' (value) {
+      this.center = {
+        id: value.id,
+        lat: value.lat,
+        lng: value.lng
+      }
+      this.zoom = 10
     }
   }
 }

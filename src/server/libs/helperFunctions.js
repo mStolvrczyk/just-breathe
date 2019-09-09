@@ -7,8 +7,10 @@ module.exports = {
       id,
       stationName,
       city: city ? city.name : '',
-      gegrLat,
-      gegrLon
+      coordinates: [
+        gegrLat,
+        gegrLon
+      ],
     }
   },
   sensorsFilter: function ({ id, param }) {
