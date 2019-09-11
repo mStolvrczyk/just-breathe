@@ -1,58 +1,82 @@
 <template>
-  <v-container>
-    <v-flex xs10 offset-xs1>
-      <v-btn
-        @click="closestStation"
-      />
-      <v-card
-        class="pa-3"
-        color="teal lighten-4"
-      >
-        <div class="custom-popup" id="map">
-          <v-map
-            ref="map"
-            :zoom.sync="zoom"
-            :center="center"
-            style="z-index: 0"
-          >
-            <v-tilelayer :url="url"
-                         :attribution="attribution"></v-tilelayer>
-            <v-locatecontrol/>
-            <l-marker
-              :key="station.id"
-              v-for="station in stations"
-              :lat-lng="getMark(station)"
+  <v-container
+    fill-height
+    fluid
+    grid-list-sm
+  >
+    <v-layout wrap>
+      <v-flex xs12 offset-xs0 md12 offset-md0 sm12 offset-sm0 lg10 offset-lg1>
+        <v-card
+          class="pa-3"
+          color="teal lighten-4"
+        >
+          <div class="custom-popup" id="map">
+            <v-map
+              ref="map"
+              :zoom.sync="zoom"
+              :center="center"
+              style="z-index: 0"
             >
-              <div class="leaflet-popup-content-wrapper">
-                <l-popup :content="station.stationName"></l-popup>
-              </div>
-              <l-icon
-                v-if="center.id === station.id"
-                :icon-url="yellowIcon"
-                :icon-size="yellowIconSize"
-              ></l-icon>
-              <l-icon
-                v-else
-                :icon-url="tealIcon"
-                :icon-size="tealIconSize"
-              ></l-icon>
-            </l-marker>
-<!--            <l-marker-->
-<!--              v-if="found"-->
-<!--              :lat-lng="found"-->
-<!--            >-->
-<!--            </l-marker>-->
-          </v-map>
+              <v-tilelayer :url="url"
+                           :attribution="attribution"></v-tilelayer>
+              <l-marker
+                :key="station.id"
+                v-for="station in stations"
+                :lat-lng="getMark(station)"
+              >
+                <div class="leaflet-popup-content-wrapper">
+                  <l-popup :content="station.stationName"></l-popup>
+                </div>
+                <l-icon
+                  v-if="center.id === station.id"
+                  :icon-url="yellowIcon"
+                  :icon-size="yellowIconSize"
+                ></l-icon>
+                <l-icon
+                  v-else
+                  :icon-url="tealIcon"
+                  :icon-size="tealIconSize"
+                ></l-icon>
+              </l-marker>
+            </v-map>
+          </div>
+        </v-card>
+      </v-flex>
+      <v-flex xs12 md12 sm12 lg1 offset-lg0>
+        <div align="center">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn @click="closestStation" icon fab small color="white" v-on="on">
+                <v-icon>mdi-crosshairs-gps</v-icon>
+              </v-btn>
+            </template>
+            <span>Show closest location</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn icon fab small color="white" v-on="on">
+                <v-icon>mdi-earth</v-icon>
+              </v-btn>
+            </template>
+            <span>Polution map</span>
+          </v-tooltip>
+          <v-tooltip v-if="zoomWatcher" bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn @click="zoomReset" icon fab small color="white" v-on="on">
+                <v-icon>mdi-arrow-left</v-icon>
+              </v-btn>
+            </template>
+            <span>Go back</span>
+          </v-tooltip>
         </div>
-      </v-card>
-    </v-flex>
+      </v-flex>
+    </v-layout>
   </v-container>
 </template>
 
 <script>
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
 import Vue2LeafletLocatecontrol from '@/components/leaflet/Vue2LeafletLocatecontrol'
-
 export default {
   name: 'LeafletMap',
   components: {
@@ -126,6 +150,12 @@ export default {
         pos.coords.latitude,
         pos.coords.longitude
       )
+    },
+    zoomReset () {
+      this.zoom = 6
+      this.center = [52.25, 19.3]
+      this.center.id = null
+      // this.zoomWatcher = false
     }
   },
   data () {
@@ -144,7 +174,8 @@ export default {
       initialLocation: [59.93428, 30.335098],
       userLocation: [],
       watcher: navigator.geolocation.watchPosition(this.setLocation),
-      found: null
+      found: null,
+      zoomWatcher: false,
     }
   },
   watch: {
@@ -163,6 +194,12 @@ export default {
         lng: value.lng
       }
       this.zoom = 10
+    },
+    'zoom' (value) {
+      this.zoomWatcher = true
+      // if (value ===  [52.25, 19.3]) {
+      //   this.zoomWatcher = false
+      // }
     }
   }
 }
