@@ -14,7 +14,7 @@
             <v-map
               ref="map"
               :zoom.sync="zoom"
-              :center="center"
+              :center.sync="center"
               style="z-index: 0"
             >
               <v-tilelayer :url="url"
@@ -200,6 +200,9 @@ export default {
       // if (value ===  [52.25, 19.3]) {
       //   this.zoomWatcher = false
       // }
+    },
+    center () {
+      this.zoomWatcher = true
     }
   }
 }
