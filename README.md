@@ -6,8 +6,7 @@ Air Quality Check is a Vue.js SPA application that allows you to monitor air qua
 
 
 ## Project setup
-In relation with headers setup in API to be able to communicate with it you have to download and run my node.js API which you can find [here](https://bitbucket.org/mStolvrczyk/air-quality-check-api/src/master/).
-After that: 
+
 ```
 $ npm install
 $ npm run serve
@@ -31,5 +30,9 @@ npm run lint
 ```
 npm run test:unit
 ```
-
-
+## Future plans:
+* "find me" function
+* polution map 
+* adding charts with vue-chartjs
+* firebase for storing data and authentication
+* adding User Panel that will contain information such as last measurements or average of them
