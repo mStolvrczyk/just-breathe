@@ -62,7 +62,7 @@
           </v-tooltip>
           <v-tooltip v-if="zoomWatcher" bottom>
             <template v-slot:activator="{ on }">
-              <v-btn @click="zoomReset()" icon fab small color="white" v-on="on">
+              <v-btn @click="zoomReset" icon fab small color="white" v-on="on">
                 <v-icon>mdi-arrow-left</v-icon>
               </v-btn>
             </template>
@@ -76,7 +76,7 @@
 
 <script>
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
-import Vue2LeafletLocatecontrol from '@/components/leaflet/Vue2LeafletLocatecontrol'
+
 export default {
   name: 'LeafletMap',
   components: {
@@ -154,7 +154,6 @@ export default {
       this.$refs.map.setZoom(6)
       this.$refs.map.setCenter([52.25, 19.3])
       this.centerStationId = null
-      this.zoomWatcher = false
     }
   },
   data () {
@@ -164,6 +163,7 @@ export default {
         52.25,
         19.3
       ],
+      zoomWatcher: false,
       url: 'https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=fc31e976df5a44d7b5164bcbb91c70b0',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<a/> contributors',
       tealIcon: require('@/assets/tealPin.png'),
@@ -174,7 +174,6 @@ export default {
       userLocation: [],
       watcher: navigator.geolocation.watchPosition(this.setLocation),
       found: null,
-      zoomWatcher: false,
       centerStationId: null
     }
   },
@@ -196,7 +195,11 @@ export default {
       this.zoom = 10
     },
     'zoom' (value) {
-      this.zoomWatcher = true
+      if (value === 6) {
+        this.zoomWatcher = false
+      } else {
+        this.zoomWatcher = true
+      }
     },
     center () {
       this.zoomWatcher = true
