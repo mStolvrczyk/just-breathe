@@ -14,7 +14,7 @@
             <v-map
               ref="map"
               :zoom.sync="zoom"
-              :center.sync="center"
+              :center="center"
               style="z-index: 0"
             >
               <v-tilelayer :url="url"
@@ -28,7 +28,7 @@
                   <l-popup :content="station.stationName"></l-popup>
                 </div>
                 <l-icon
-                  v-if="center.id === station.id"
+                  v-if="centerStationId === station.id"
                   :icon-url="yellowIcon"
                   :icon-size="yellowIconSize"
                 ></l-icon>
@@ -62,7 +62,7 @@
           </v-tooltip>
           <v-tooltip v-if="zoomWatcher" bottom>
             <template v-slot:activator="{ on }">
-              <v-btn @click="zoomReset" icon fab small color="white" v-on="on">
+              <v-btn @click="zoomReset()" icon fab small color="white" v-on="on">
                 <v-icon>mdi-arrow-left</v-icon>
               </v-btn>
             </template>
@@ -84,8 +84,7 @@ export default {
     'v-tilelayer': LTileLayer,
     LMarker,
     LPopup,
-    LIcon,
-    'v-locatecontrol': Vue2LeafletLocatecontrol
+    LIcon
   },
   props: {
     selectedStation: Object,
@@ -143,7 +142,7 @@ export default {
       }
     },
     setLocation (pos) {
-      if(this.userLocation.length >= 0) {
+      if (this.userLocation.length >= 0) {
         navigator.geolocation.clearWatch(this.watcher)
       }
       this.userLocation.push(
@@ -152,10 +151,10 @@ export default {
       )
     },
     zoomReset () {
-      this.zoom = 6
-      this.center = [52.25, 19.3]
-      this.center.id = null
-      // this.zoomWatcher = false
+      this.$refs.map.setZoom(6)
+      this.$refs.map.setCenter([52.25, 19.3])
+      this.centerStationId = null
+      this.zoomWatcher = false
     }
   },
   data () {
@@ -176,30 +175,28 @@ export default {
       watcher: navigator.geolocation.watchPosition(this.setLocation),
       found: null,
       zoomWatcher: false,
+      centerStationId: null
     }
   },
   watch: {
     'selectedStation' (value) {
       this.center = {
-        id: value.id,
         lat: value.coordinates[0],
         lng: value.coordinates[1]
       }
+      this.centerStationId = value.id
       this.zoom = 10
     },
     'found' (value) {
       this.center = {
-        id: value.id,
         lat: value.lat,
         lng: value.lng
       }
+      this.centerStationId = value.id
       this.zoom = 10
     },
     'zoom' (value) {
       this.zoomWatcher = true
-      // if (value ===  [52.25, 19.3]) {
-      //   this.zoomWatcher = false
-      // }
     },
     center () {
       this.zoomWatcher = true
