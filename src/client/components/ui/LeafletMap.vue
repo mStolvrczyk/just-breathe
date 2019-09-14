@@ -14,7 +14,7 @@
             <v-map
               ref="map"
               :zoom.sync="zoom"
-              :center="center"
+              :center.sync="center"
               style="z-index: 0"
             >
               <v-tilelayer :url="url"
@@ -60,7 +60,7 @@
             </template>
             <span>Polution map</span>
           </v-tooltip>
-          <v-tooltip v-if="zoomWatcher" bottom>
+          <v-tooltip v-if="buttonVisibility" bottom>
             <template v-slot:activator="{ on }">
               <v-btn @click="zoomReset" icon fab small color="white" v-on="on">
                 <v-icon>mdi-arrow-left</v-icon>
@@ -151,7 +151,10 @@ export default {
       )
     },
     zoomReset () {
+      // let lat = 52.25
+      // let lon = 19.3
       this.$refs.map.setZoom(6)
+      // this.$refs.map.setCenter([lat.toFixed(1), lon.toFixed(1)])
       this.$refs.map.setCenter([52.25, 19.3])
       this.centerStationId = null
     }
@@ -163,7 +166,7 @@ export default {
         52.25,
         19.3
       ],
-      zoomWatcher: false,
+      buttonVisibility: false,
       url: 'https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=fc31e976df5a44d7b5164bcbb91c70b0',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<a/> contributors',
       tealIcon: require('@/assets/tealPin.png'),
@@ -195,15 +198,8 @@ export default {
       this.zoom = 10
     },
     'zoom' (value) {
-      if (value === 6) {
-        this.zoomWatcher = false
-      } else {
-        this.zoomWatcher = true
-      }
+      this.buttonVisibility = value !== 6;
     },
-    center () {
-      this.zoomWatcher = true
-    }
   }
 }
 </script>

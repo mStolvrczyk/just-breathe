@@ -1,4 +1,4 @@
-import appHttpClient from '../lib/appHttpClient'
+import appHttpClient from '../libs/appHttpClient'
 import { prop } from 'ramda'
 
 export default class StationsService {
