@@ -28,7 +28,7 @@
                   <l-popup :content="station.stationName"></l-popup>
                 </div>
                 <l-icon
-                  v-if="center.id === station.id"
+                  v-if="centerStationId === station.id"
                   :icon-url="yellowIcon"
                   :icon-size="yellowIconSize"
                 ></l-icon>
@@ -60,7 +60,7 @@
             </template>
             <span>Polution map</span>
           </v-tooltip>
-          <v-tooltip v-if="zoomWatcher" bottom>
+          <v-tooltip v-if="buttonVisibility" bottom>
             <template v-slot:activator="{ on }">
               <v-btn @click="zoomReset" icon fab small color="white" v-on="on">
                 <v-icon>mdi-arrow-left</v-icon>
@@ -76,7 +76,7 @@
 
 <script>
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
-import Vue2LeafletLocatecontrol from '@/components/leaflet/Vue2LeafletLocatecontrol'
+
 export default {
   name: 'LeafletMap',
   components: {
@@ -84,8 +84,7 @@ export default {
     'v-tilelayer': LTileLayer,
     LMarker,
     LPopup,
-    LIcon,
-    'v-locatecontrol': Vue2LeafletLocatecontrol
+    LIcon
   },
   props: {
     selectedStation: Object,
@@ -143,7 +142,7 @@ export default {
       }
     },
     setLocation (pos) {
-      if(this.userLocation.length >= 0) {
+      if (this.userLocation.length >= 0) {
         navigator.geolocation.clearWatch(this.watcher)
       }
       this.userLocation.push(
@@ -152,10 +151,12 @@ export default {
       )
     },
     zoomReset () {
-      this.zoom = 6
-      this.center = [52.25, 19.3]
-      this.center.id = null
-      // this.zoomWatcher = false
+      // let lat = 52.25
+      // let lon = 19.3
+      this.$refs.map.setZoom(6)
+      // this.$refs.map.setCenter([lat.toFixed(1), lon.toFixed(1)])
+      this.$refs.map.setCenter([52.25, 19.3])
+      this.centerStationId = null
     }
   },
   data () {
@@ -165,6 +166,7 @@ export default {
         52.25,
         19.3
       ],
+      buttonVisibility: false,
       url: 'https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=fc31e976df5a44d7b5164bcbb91c70b0',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<a/> contributors',
       tealIcon: require('@/assets/tealPin.png'),
@@ -175,35 +177,29 @@ export default {
       userLocation: [],
       watcher: navigator.geolocation.watchPosition(this.setLocation),
       found: null,
-      zoomWatcher: false,
+      centerStationId: null
     }
   },
   watch: {
     'selectedStation' (value) {
       this.center = {
-        id: value.id,
         lat: value.coordinates[0],
         lng: value.coordinates[1]
       }
+      this.centerStationId = value.id
       this.zoom = 10
     },
     'found' (value) {
       this.center = {
-        id: value.id,
         lat: value.lat,
         lng: value.lng
       }
+      this.centerStationId = value.id
       this.zoom = 10
     },
     'zoom' (value) {
-      this.zoomWatcher = true
-      // if (value ===  [52.25, 19.3]) {
-      //   this.zoomWatcher = false
-      // }
+      this.buttonVisibility = value !== 6;
     },
-    center () {
-      this.zoomWatcher = true
-    }
   }
 }
 </script>
