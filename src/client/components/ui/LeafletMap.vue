@@ -22,7 +22,7 @@
               <l-marker
                 :key="station.id"
                 v-for="station in stations"
-                :lat-lng="getMark(station)"
+                :lat-lng="functions.getMark(station)"
               >
                 <div class="leaflet-popup-content-wrapper">
                   <l-popup :content="station.stationName"></l-popup>
@@ -46,7 +46,7 @@
         <div align="center">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn @click="closestStation" icon fab small color="white" v-on="on">
+              <v-btn @click="functions.closestStation(stations, userLocation)" icon fab small color="white" v-on="on">
                 <v-icon>mdi-crosshairs-gps</v-icon>
               </v-btn>
             </template>
@@ -76,6 +76,7 @@
 
 <script>
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
+import Functions from '@/libs/helperFunctions'
 
 export default {
   name: 'LeafletMap',
@@ -91,56 +92,6 @@ export default {
     stations: Array
   },
   methods: {
-    getDistance (origin, destination) {
-      // return distance in meters
-      let lon1 = this.toRadian(origin[1])
-      let lat1 = this.toRadian(origin[0])
-      let lon2 = this.toRadian(destination[1])
-      let lat2 = this.toRadian(destination[0])
-
-      let deltaLat = lat2 - lat1
-      let deltaLon = lon2 - lon1
-
-      let a = Math.pow(Math.sin(deltaLat / 2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(deltaLon / 2), 2)
-      let c = 2 * Math.asin(Math.sqrt(a))
-      let EARTH_RADIUS = 6371
-      return c * EARTH_RADIUS * 1000
-    },
-    toRadian (degree) {
-      return degree * Math.PI / 180
-    },
-    getMark: (station) => {
-      return {
-        id: station.id,
-        lat: station.coordinates[0],
-        lng: station.coordinates[1],
-        color: 'blue'
-      }
-    },
-    closestStation () {
-      let minDist = Infinity
-      let nearest_text = '*None*'
-      let markerDist
-      let stationId
-      // get all objects added to the map
-      let objects = Object.values(this.$refs.map.mapObject._layers)
-      // iterate over objects and calculate distance between them
-      for (let i = 0; i < this.stations.length; i += 1) {
-        markerDist = this.getDistance(this.stations[i].coordinates.map(Number), this.userLocation)
-        if (markerDist < minDist) {
-          minDist = markerDist
-          // eslint-disable-next-line camelcase
-          nearest_text = this.stations[i].coordinates
-          stationId = this.stations[i].id
-        }
-      }
-
-      this.found = {
-        id: stationId,
-        lat: nearest_text[0],
-        lng: nearest_text[1]
-      }
-    },
     setLocation (pos) {
       if (this.userLocation.length >= 0) {
         navigator.geolocation.clearWatch(this.watcher)
@@ -150,13 +101,10 @@ export default {
         pos.coords.longitude
       )
     },
-    zoomReset () {
-      // let lat = 52.25
-      // let lon = 19.3
-      this.$refs.map.setZoom(6)
-      // this.$refs.map.setCenter([lat.toFixed(1), lon.toFixed(1)])
-      this.$refs.map.setCenter([52.25, 19.3])
-      this.centerStationId = null
+    zoomReset ($refs, centerStationId) {
+      $refs.map.setZoom(6)
+      $refs.map.setCenter([52.25, 19.3])
+      centerStationId = null
     }
   },
   data () {
@@ -176,8 +124,8 @@ export default {
       initialLocation: [59.93428, 30.335098],
       userLocation: [],
       watcher: navigator.geolocation.watchPosition(this.setLocation),
-      found: null,
-      centerStationId: null
+      centerStationId: null,
+      functions: new Functions()
     }
   },
   watch: {
@@ -189,7 +137,7 @@ export default {
       this.centerStationId = value.id
       this.zoom = 10
     },
-    'found' (value) {
+    'functions.found' (value) {
       this.center = {
         lat: value.lat,
         lng: value.lng

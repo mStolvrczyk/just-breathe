@@ -40,7 +40,7 @@
 <!--                        :gradient="`${'rgba(0, 128, 128, 0.6)'}, ${'rgba(0, 128, 128, 0.6)'}`"-->
 <!--                >-->
 <!--                </v-img>-->
-                <router-view></router-view>
+                <router-view/>
         </v-container>
     </v-content>
     <DetailsDialog :visibility.sync="detailsDialogVisible"
