@@ -43,7 +43,7 @@
                 <router-view/>
         </v-container>
     </v-content>
-    <DetailsDialog :visibility.sync="detailsDialogVisible"
+    <DetailsDialog :visibility.sync="visibility"
                    v-on:updateVisibility="updateDetailsDialogVisibility"></DetailsDialog>
   </v-app>
 </template>
@@ -56,11 +56,11 @@ export default {
   components: { DetailsDialog },
   data: () => ({
     appImage: require('@/assets/appImage.jpg'),
-    detailsDialogVisible: false
+    visibility: false
   }),
   methods: {
     updateDetailsDialogVisibility (value) {
-      this.detailsDialogVisible = value
+      this.visibility = value
     }
   }
 }

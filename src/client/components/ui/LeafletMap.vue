@@ -101,10 +101,10 @@ export default {
         pos.coords.longitude
       )
     },
-    zoomReset ($refs, centerStationId) {
-      $refs.map.setZoom(6)
-      $refs.map.setCenter([52.25, 19.3])
-      centerStationId = null
+    zoomReset () {
+      this.$refs.map.setZoom(6)
+      this.$refs.map.setCenter([52.25, 19.3])
+      this.centerStationId = null
     }
   },
   data () {
