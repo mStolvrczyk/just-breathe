@@ -25,7 +25,24 @@
                 :lat-lng="functions.getMark(station)"
               >
                 <div class="leaflet-popup-content-wrapper">
-                  <l-popup :content="station.stationName"></l-popup>
+                  <l-popup>
+                    <div align="center">
+                      <v-card
+                        class="pa-3 white--text"
+                        color="#4DB6AC"
+                      >
+                        <strong>Location Name:</strong> {{station.stationName}}<br>
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on }">
+                            <v-btn round v-on="on">
+                              <v-icon>mdi-chart-bar</v-icon>
+                            </v-btn>
+                          </template>
+                          <span>Show charts</span>
+                        </v-tooltip>
+                      </v-card>
+                    </div>
+                  </l-popup>
                 </div>
                 <l-icon
                   v-if="centerStationId === station.id"
@@ -148,6 +165,9 @@ export default {
     'zoom' (value) {
       this.buttonVisibility = value !== 6;
     },
+  },
+  mounted () {
+    this.$refs.map
   }
 }
 </script>
@@ -161,7 +181,7 @@ export default {
   }
 
   .custom-popup .leaflet-popup-content-wrapper {
-    background: #4DB6AC;
+    background: #B2DFDB;
     color: white;
     font-size: 16px;
     line-height: 24px;
