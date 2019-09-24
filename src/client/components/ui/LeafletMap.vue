@@ -34,7 +34,7 @@
                         <strong>Location Name:</strong> {{station.stationName}}<br>
                         <v-tooltip bottom>
                           <template v-slot:activator="{ on }">
-                            <v-btn round v-on="on">
+                            <v-btn round v-on="on" @click="openDialog(station.id)">
                               <v-icon>mdi-chart-bar</v-icon>
                             </v-btn>
                           </template>
@@ -106,7 +106,8 @@ export default {
   },
   props: {
     selectedStation: Object,
-    stations: Array
+    stations: Array,
+    visibility: Boolean
   },
   methods: {
     setLocation (pos) {
@@ -122,6 +123,10 @@ export default {
       this.$refs.map.setZoom(6)
       this.$refs.map.setCenter([52.25, 19.3])
       this.centerStationId = null
+    },
+    openDialog (choosenStationId) {
+      this.$emit('updateVisibility', true)
+      this.$emit('sendId', choosenStationId)
     }
   },
   data () {
@@ -165,9 +170,6 @@ export default {
     'zoom' (value) {
       this.buttonVisibility = value !== 6;
     },
-  },
-  mounted () {
-    this.$refs.map
   }
 }
 </script>

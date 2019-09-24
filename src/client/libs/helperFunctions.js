@@ -49,4 +49,7 @@ export default class Functions {
       lng: nearest_text[1]
     }
   }
+  async getStation (stationDetails, stationService, id) {
+    stationDetails = await stationService.getStation(id)
+  }
 }
