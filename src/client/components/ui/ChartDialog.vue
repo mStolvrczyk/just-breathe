@@ -23,36 +23,36 @@
 </template>
 
 <script>
-  import StationsService from '@/services/StationsService'
-  import Functions from '@/libs/helperFunctions'
+import StationsService from '@/services/StationsService'
+import Functions from '@/libs/helperFunctions'
 
-  export default {
-    name: 'ChartDialog',
-    data () {
-      return {
-        stationsService: new StationsService(),
-        functions: new Functions(),
-        stationDetails: null
-      }
+export default {
+  name: 'ChartDialog',
+  data () {
+    return {
+      stationsService: new StationsService(),
+      functions: new Functions(),
+      stationDetails: null
+    }
+  },
+  props: {
+    visibility: Boolean,
+    choosenStationId: null
+  },
+  methods: {
+    closeDialog () {
+      this.$emit('updateVisibility', false)
     },
-    props: {
-      visibility: Boolean,
-      choosenStationId: null
-    },
-    methods: {
-      closeDialog () {
-        this.$emit('updateVisibility', false)
-      },
-      async getThisStation (id) {
-        this.stationDetails = await this.stationsService.getStation(id)
-      }
-    },
-    watch: {
-      'choosenStationId' (value) {
-        this.getThisStation(value)
-      }
+    async getThisStation (id) {
+      this.stationDetails = await this.stationsService.getStation(id)
+    }
+  },
+  watch: {
+    'choosenStationId' (value) {
+      this.getThisStation(value)
     }
   }
+}
 </script>
 
 <style scoped>

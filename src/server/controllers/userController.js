@@ -12,7 +12,7 @@ router.get('/stations', async (request, response) => {
 /**
  * Pobieranie danych dla konkretnej stacji
  */
-router.get('/:station', async (request, response) => {
+router.get('/stations/:station', async (request, response) => {
   const stationSensorsData = await stationsService.getStation(request.params.station)
   response.json(stationSensorsData)
 })
