@@ -1,34 +1,34 @@
 <template>
-  <v-dialog
-    v-model="visibility"
-    width="1200"
-    scrollable
-    light
-  >
-    <v-card
-      color="teal lighten-4"
+  <div>
+    <v-dialog
+      v-model="visibility"
+      max-width="1000"
+      scrollable
+      persistent
+      style="position: relative"
+      light
     >
-      <v-card-text>
-        <v-card
-          flat
-          class="pa-5"
-          v-for="(item, index) in datacollection.datasets"
-        >
-          <bar-chart :chart-data="{labels: [datacollection.labels[index]], datasets: [item]}"
-                     height="35px"></bar-chart>
-          <v-divider></v-divider>
-        </v-card>
-      </v-card-text>
-    </v-card>
-    <v-tooltip bottom  v-if="visibility">
-      <template v-slot:activator="{ on }">
-        <v-btn @click="closeDialog" icon fab small color="white" v-on="on">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-      <span>Show closest location</span>
-    </v-tooltip>
-  </v-dialog>
+      <v-card
+        color="teal lighten-4"
+      >
+        <v-card-text>
+          <v-card
+            flat
+            class="pa-5"
+            v-for="(item, index) in datacollection.datasets"
+          >
+            <bar-chart :chart-data="{labels: [datacollection.labels[index]], datasets: [item]}"
+                       :height="35"></bar-chart>
+            <v-divider></v-divider>
+          </v-card>
+        </v-card-text>
+      </v-card>
+      <v-btn style="position: absolute; transform: translateY(-785px) translateX(-380px);" @click="closeDialog" icon fab
+             small right bottom color="white">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </v-dialog>
+  </div>
 </template>
 
 <script>
@@ -52,41 +52,39 @@ export default {
       datacollection: {
         datasets: [
           {
-            backgroundColor: "#b0dd10",
+            backgroundColor: '#b0dd10',
             data: [
               6.21506,
-              401,
+              401
             ],
-            label: "Bardzo dobry",
+            label: 'Bardzo dobry'
           },
           {
-            backgroundColor: "#b0dd10",
+            backgroundColor: '#b0dd10',
             data: [
               6.21506,
-              401,
+              401
             ],
-            label: "Bardzo dobry",
+            label: 'Bardzo dobry'
           },
           {
-            backgroundColor: "#b0dd10",
+            backgroundColor: '#b0dd10',
             data: [
               6.21506,
-              401,
+              401
             ],
-            label: "Bardzo dobry",
+            label: 'Bardzo dobry'
           },
           {
-            backgroundColor: "#b0dd10",
+            backgroundColor: '#b0dd10',
             data: [
               6.21506,
-              401,
+              401
             ],
-            label: "Bardzo dobry",
+            label: 'Bardzo dobry'
           }
         ],
-        dates: [
-
-        ],
+        dates: [],
         labels: [
           'NO2',
           'NO2',
@@ -115,7 +113,7 @@ export default {
     }
   },
   props: {
-    visibility: Boolean,
+    visibility: Boolean
     // choosenStationId: null
   },
   methods: {
@@ -131,23 +129,23 @@ export default {
         value: sensor.measurement.value,
         date: sensor.measurement.date,
         qualityLevel: sensor.qualityLevel
-      }));
+      }))
       this.datacollection = {
-        labels: this.stationDetails.map(({symbol}) => symbol),
-        datasets: this.stationDetails.map(({symbol, value, qualityLevel}) => ({
+        labels: this.stationDetails.map(({ symbol }) => symbol),
+        datasets: this.stationDetails.map(({ symbol, value, qualityLevel }) => ({
           label: qualityLevel,
-          backgroundColor: this.airQuality[qualityLevel.toLowerCase().replace(' ','')],
-          data: [value, this.airQualityMaxLevel[symbol.replace('.','')]],
+          backgroundColor: this.airQuality[qualityLevel.toLowerCase().replace(' ', '')],
+          data: [value, this.airQualityMaxLevel[symbol.replace('.', '')]]
         })),
-        dates: this.stationDetails.map(({date, symbol}) => ({
+        dates: this.stationDetails.map(({ date, symbol }) => ({
           date: date,
           symbol: symbol
         }))
       }
-      let data = new Date();
-      this.measurementDate = data.toLocaleDateString("en-US", this.options)
+      let data = new Date()
+      this.measurementDate = data.toLocaleDateString('en-US', this.options)
     }
-  },
+  }
   // watch: {
   //   'choosenStationId' (value) {
   //     this.getThisStation(value)
