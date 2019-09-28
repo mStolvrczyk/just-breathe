@@ -4,29 +4,26 @@
       v-model="visibility"
       max-width="1000"
       scrollable
-      persistent
-      style="position: relative"
       light
+      v-click-outside="closeDialog"
     >
       <v-card
         color="teal lighten-4"
       >
-        <v-card-text>
-          <v-card
-            flat
-            class="pa-5"
-            v-for="(item, index) in datacollection.datasets"
-          >
-            <bar-chart :chart-data="{labels: [datacollection.labels[index]], datasets: [item]}"
-                       :height="35"></bar-chart>
-            <v-divider></v-divider>
-          </v-card>
-        </v-card-text>
+      <v-card
+        color="white"
+        >
+        <v-btn-toggle
+          v-model="toggle_exclusive"
+          rounded
+          v-for=""
+        >
+          <v-btn>
+            <v-icon>mdi-format-align-left</v-icon>
+          </v-btn>
+        </v-btn-toggle>
+        </v-card>
       </v-card>
-      <v-btn style="position: absolute; transform: translateY(-785px) translateX(-380px);" @click="closeDialog" icon fab
-             small right bottom color="white">
-        <v-icon>mdi-close</v-icon>
-      </v-btn>
     </v-dialog>
   </div>
 </template>
@@ -48,49 +45,50 @@ export default {
       measurementDate: null,
       options: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
       stationDetails: [],
-      // datacollection: {},
-      datacollection: {
-        datasets: [
-          {
-            backgroundColor: '#b0dd10',
-            data: [
-              6.21506,
-              401
-            ],
-            label: 'Bardzo dobry'
-          },
-          {
-            backgroundColor: '#b0dd10',
-            data: [
-              6.21506,
-              401
-            ],
-            label: 'Bardzo dobry'
-          },
-          {
-            backgroundColor: '#b0dd10',
-            data: [
-              6.21506,
-              401
-            ],
-            label: 'Bardzo dobry'
-          },
-          {
-            backgroundColor: '#b0dd10',
-            data: [
-              6.21506,
-              401
-            ],
-            label: 'Bardzo dobry'
-          }
-        ],
-        dates: [],
-        labels: [
-          'NO2',
-          'NO2',
-          'NO2'
-        ]
-      },
+      datacollection: {},
+      // datacollection: {
+      //   datasets: [
+      //     {
+      //       backgroundColor: '#b0dd10',
+      //       data: [
+      //         6.21506,
+      //         401
+      //       ],
+      //       label: 'Bardzo dobry'
+      //     },
+      //     {
+      //       backgroundColor: '#b0dd10',
+      //       data: [
+      //         6.21506,
+      //         401
+      //       ],
+      //       label: 'Bardzo dobry'
+      //     },
+      //     {
+      //       backgroundColor: '#b0dd10',
+      //       data: [
+      //         6.21506,
+      //         401
+      //       ],
+      //       label: 'Bardzo dobry'
+      //     },
+      //     {
+      //       backgroundColor: '#b0dd10',
+      //       data: [
+      //         6.21506,
+      //         401
+      //       ],
+      //       label: 'Bardzo dobry'
+      //     }
+      //   ],
+      //   dates: [],
+      //   labels: [
+      //     'NO2',
+      //     'NO2',
+      //     'NO2'
+      //   ]
+      // },
+      tab: null,
       date: null,
       airQualityMaxLevel: {
         CO: 21,
@@ -113,21 +111,21 @@ export default {
     }
   },
   props: {
-    visibility: Boolean
-    // choosenStationId: null
+    visibility: Boolean,
+    choosenStationId: null
   },
   methods: {
-    closeDialog () {
+    closeDialog (event) {
       this.$emit('updateVisibility', false)
       this.datacollection = {}
+      console.log('dupa')
     },
     async getThisStation (id) {
       const response = await this.stationsService.getStation(id)
       this.stationDetails = response.map((sensor) => ({
         label: sensor.details.param,
         symbol: sensor.details.paramTwo,
-        value: sensor.measurement.value,
-        date: sensor.measurement.date,
+        value: sensor.measurement,
         qualityLevel: sensor.qualityLevel
       }))
       this.datacollection = {
@@ -145,12 +143,13 @@ export default {
       let data = new Date()
       this.measurementDate = data.toLocaleDateString('en-US', this.options)
     }
+  },
+  watch: {
+    'choosenStationId' (value) {
+      this.getThisStation(value)
+      console.log(this.stationDetails)
+    }
   }
-  // watch: {
-  //   'choosenStationId' (value) {
-  //     this.getThisStation(value)
-  //   }
-  // }
 }
 </script>
 

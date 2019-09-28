@@ -25,7 +25,7 @@ module.exports = {
 
     return sensorsData.map(({ key, values }) => ({
       details: sensors.find(({ paramTwo }) => paramTwo === key),
-      measurement: values.find(({ value }) => value !== null),
+      measurement: values.filter(({ value }) => value !== null),
       qualityLevel: qualityLevels[`${key.replace('.', '').toLowerCase()}IndexLevel`].indexLevelName || 'Brak indeksu'
     }))
   }
