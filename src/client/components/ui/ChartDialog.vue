@@ -3,26 +3,61 @@
     <v-dialog
       v-model="visibility"
       max-width="1000"
-      scrollable
+      persistent
       light
-      v-click-outside="closeDialog"
     >
       <v-card
         color="teal lighten-4"
       >
-      <v-card
-        color="white"
+        <div align="right">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn @click="closeDialog" icon fab small color="white" v-on="on">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </template>
+            <span>Show closest location</span>
+          </v-tooltip>
+        </div>
+        <v-spacer/>
+        <div
+          class="pa-4"
         >
-        <v-btn-toggle
-          v-model="toggle_exclusive"
-          rounded
-          v-for=""
+          <v-card
+            color="white"
+              >
+            <line-chart
+              :chart-data="datacollection"
+              :height="150"
+            >
+            </line-chart>
+          </v-card>
+        </div>
+        <v-card-text
+        align="center"
+        v-if="stationDetails.length > 1"
         >
-          <v-btn>
-            <v-icon>mdi-format-align-left</v-icon>
-          </v-btn>
-        </v-btn-toggle>
-        </v-card>
+          <v-btn-toggle round
+            mandatory
+          >
+            <v-tooltip
+              v-for="sensor in stationDetails"
+              bottom
+            >
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  input-value="true"
+                  @click="fillDatacollection(sensor)"
+                  v-on="on"
+                  class="active"
+                >
+                  {{sensor.symbol}}
+                </v-btn>
+              </template>
+              <span>{{sensor.name}}</span>
+            </v-tooltip>
+          </v-btn-toggle>
+        </v-card-text>
       </v-card>
     </v-dialog>
   </div>
@@ -31,65 +66,20 @@
 <script>
 import StationsService from '@/services/StationsService'
 import Functions from '@/libs/helperFunctions'
-import BarChart from '@/components/vue-chartjs/BarChart'
+import LineChart from '@/components/vue-chartjs/BarChart'
 
 export default {
   name: 'ChartDialog',
   components: {
-    BarChart
+    LineChart
   },
   data () {
     return {
       stationsService: new StationsService(),
       functions: new Functions(),
-      measurementDate: null,
-      options: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
       stationDetails: [],
       datacollection: {},
-      // datacollection: {
-      //   datasets: [
-      //     {
-      //       backgroundColor: '#b0dd10',
-      //       data: [
-      //         6.21506,
-      //         401
-      //       ],
-      //       label: 'Bardzo dobry'
-      //     },
-      //     {
-      //       backgroundColor: '#b0dd10',
-      //       data: [
-      //         6.21506,
-      //         401
-      //       ],
-      //       label: 'Bardzo dobry'
-      //     },
-      //     {
-      //       backgroundColor: '#b0dd10',
-      //       data: [
-      //         6.21506,
-      //         401
-      //       ],
-      //       label: 'Bardzo dobry'
-      //     },
-      //     {
-      //       backgroundColor: '#b0dd10',
-      //       data: [
-      //         6.21506,
-      //         401
-      //       ],
-      //       label: 'Bardzo dobry'
-      //     }
-      //   ],
-      //   dates: [],
-      //   labels: [
-      //     'NO2',
-      //     'NO2',
-      //     'NO2'
-      //   ]
-      // },
-      tab: null,
-      date: null,
+      date: this.formatDate(new Date),
       airQualityMaxLevel: {
         CO: 21,
         NO2: 401,
@@ -107,7 +97,7 @@ export default {
         zły: '#e50000',
         bardzozły: '#990000',
         brakindeksu: '#bfbfbf'
-      }
+      },
     }
   },
   props: {
@@ -115,38 +105,124 @@ export default {
     choosenStationId: null
   },
   methods: {
-    closeDialog (event) {
+    formatDate (date) {
+      let d = date,
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+      if (month.length < 2)
+        month = '0' + month;
+      if (day.length < 2)
+        day = '0' + day;
+
+      return [year, month, day].join('-');
+    },
+    setBackgroundColor (sensor) {
+      let colorArray = []
+      let sensorValue = null
+      let compartment = {}
+      let infinity = Infinity
+      let compartments = [
+        {
+          symbol: 'PM10',
+          limits: [
+            [0,20], [20, 60], [60,100], [100, 140], [140, 200], [200, infinity]
+          ],
+        },
+        {
+          symbol: 'PM2.5',
+          limits: [
+            [0,12], [12, 36], [36,60], [60, 84], [84, 120], [120, infinity]
+          ],
+        },
+        {
+          symbol: 'O3',
+          limits: [
+            [0,30], [30, 70], [70,120], [120, 160], [160, 240], [240, infinity]
+          ],
+        },
+        {
+          symbol: 'NO2',
+          limits: [
+            [0,40], [40, 100], [100,150], [150, 200], [200, 400], [400, infinity]
+          ],
+        },
+        {
+          symbol: 'SO2',
+          limits: [
+            [0,50], [50, 100], [100,200], [200, 350], [350, 500], [500, infinity]
+          ],
+        },
+        {
+          symbol: 'C6H6',
+          limits: [
+            [0,5], [5,10], [10,15], [15, 20], [20, 50], [50, infinity]
+          ],
+        },
+        {
+          symbol: 'CO',
+          limits: [
+            [0,2499], [2499, 6499], [6499,10499], [10499, 14499], [14499, 20499], [20499, infinity]
+          ],
+        }
+      ]
+      let colors = [
+        '#57b108',
+        '#b0dd10',
+        '#ffd911',
+        '#e58100',
+        '#e50000',
+        '#990000'
+      ]
+      for (let i=0; i<compartments.length; i+=1) {
+        if (sensor.symbol === compartments[i].symbol) {
+          compartment = compartments[i]
+          for (let i=0; i<sensor.measurements.length; i+=1) {
+            sensorValue = sensor.measurements[i].value
+            for (let i=0; i<compartment.limits.length; i+=1) {
+              if (compartment.limits[i][0] < sensorValue && sensorValue <= compartment.limits[i][1]) {
+                colorArray.push(colors[i])
+              }
+            }
+          }
+        }
+      }
+      return colorArray
+    },
+    fillDatacollection (sensor) {
+      this.datacollection = {
+        labels: sensor.measurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: sensor.name+' ('+sensor.symbol+')',
+            backgroundColor: this.setBackgroundColor(sensor),
+            data: sensor.measurements.map(({value}) => value)
+          },
+        ],
+      }
+    },
+    closeDialog () {
       this.$emit('updateVisibility', false)
-      this.datacollection = {}
-      console.log('dupa')
+      this.stationDetails = []
     },
     async getThisStation (id) {
       const response = await this.stationsService.getStation(id)
       this.stationDetails = response.map((sensor) => ({
-        label: sensor.details.param,
+        measurements: (sensor.measurement.filter(({date}) => date >= this.date+' 00:00:00')).reverse(),
+        name: sensor.details.param,
         symbol: sensor.details.paramTwo,
-        value: sensor.measurement,
         qualityLevel: sensor.qualityLevel
       }))
-      this.datacollection = {
-        labels: this.stationDetails.map(({ symbol }) => symbol),
-        datasets: this.stationDetails.map(({ symbol, value, qualityLevel }) => ({
-          label: qualityLevel,
-          backgroundColor: this.airQuality[qualityLevel.toLowerCase().replace(' ', '')],
-          data: [value, this.airQualityMaxLevel[symbol.replace('.', '')]]
-        })),
-        dates: this.stationDetails.map(({ date, symbol }) => ({
-          date: date,
-          symbol: symbol
-        }))
-      }
-      let data = new Date()
-      this.measurementDate = data.toLocaleDateString('en-US', this.options)
+      this.fillDatacollection(this.stationDetails[0])
     }
   },
   watch: {
     'choosenStationId' (value) {
       this.getThisStation(value)
+    },
+    'datacollection' (value) {
+      console.log(value)
       console.log(this.stationDetails)
     }
   }

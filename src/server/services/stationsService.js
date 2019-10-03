@@ -15,9 +15,6 @@ module.exports = {
       .then(functions.getData)
       .then((data) => data.map(functions.sensorsFilter))
 
-    const qualityLevels = await axios.get(`${apiGiosBaseUrl}/aqindex/getIndex/${stationID}`)
-      .then(functions.getData)
-
     const sensorsData = await Promise.all(sensors.map(({ id }) => {
       return axios.get(`${apiGiosBaseUrl}/data/getData/${id}`)
         .then(functions.getData)
@@ -26,7 +23,6 @@ module.exports = {
     return sensorsData.map(({ key, values }) => ({
       details: sensors.find(({ paramTwo }) => paramTwo === key),
       measurement: values.filter(({ value }) => value !== null),
-      qualityLevel: qualityLevels[`${key.replace('.', '').toLowerCase()}IndexLevel`].indexLevelName || 'Brak indeksu'
     }))
   }
 }
