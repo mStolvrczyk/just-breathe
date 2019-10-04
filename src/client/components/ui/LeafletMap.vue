@@ -137,8 +137,8 @@ export default {
         19.3
       ],
       buttonVisibility: false,
-      url: 'https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=fc31e976df5a44d7b5164bcbb91c70b0',
-      // url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+      // url: 'https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=fc31e976df5a44d7b5164bcbb91c70b0',
+      url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<a/> contributors',
       tealIcon: require('@/assets/tealPin.png'),
       yellowIcon: require('@/assets/yellowPin.png'),
