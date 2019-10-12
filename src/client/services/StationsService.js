@@ -8,4 +8,7 @@ export default class StationsService {
   async getStation (id) {
     return appHttpClient.get(`/stations/${id}`).then(prop('data'))
   }
+  async getSensor (id) {
+    return appHttpClient.get(`/stations/${id}`).then(prop('data'))
+  }
 }
