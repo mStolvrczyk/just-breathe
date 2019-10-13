@@ -1,94 +1,104 @@
 <template>
-  <v-container
-    fill-height
-    fluid
-    grid-list-sm
-  >
-    <v-layout wrap>
-      <v-flex xs12 offset-xs0 md12 offset-md0 sm12 offset-sm0 lg10 offset-lg1>
-        <v-card
-          class="pa-3"
-          color="teal lighten-4"
-        >
-          <div class="custom-popup" id="map">
-            <v-map
-              ref="map"
-              :zoom.sync="zoom"
-              :center.sync="center"
-              style="z-index: 0"
-            >
-              <v-tilelayer :url="url"
-                           :attribution="attribution"></v-tilelayer>
-              <l-marker
-                :key="station.id"
-                v-for="station in stations"
-                :lat-lng="functions.getMark(station)"
+  <div class="custom-popup" id="map">
+    <v-map
+      ref="map"
+      :zoom.sync="zoom"
+      :center.sync="center"
+      style="z-index: 0"
+    >
+      <v-tilelayer :url="url"
+                   :attribution="attribution"></v-tilelayer>
+      <l-marker
+        :key="station.id"
+        v-for="station in stations"
+        :lat-lng="functions.getMark(station)"
+      >
+        <div class="leaflet-popup-content-wrapper">
+          <l-popup>
+            <div align="center">
+              <v-card
+                class="pa-3 white--text"
+                color="#4DB6AC"
               >
-                <div class="leaflet-popup-content-wrapper">
-                  <l-popup>
-                    <div align="center">
-                      <v-card
-                        class="pa-3 white--text"
-                        color="#4DB6AC"
-                      >
-                        <strong>Location Name:</strong> {{station.stationName}}<br>
-                        <v-tooltip bottom>
-                          <template v-slot:activator="{ on }">
-                            <v-btn round v-on="on" @click="openDialog(station.id)">
-                              <v-icon>mdi-chart-bar</v-icon>
-                            </v-btn>
-                          </template>
-                          <span>Show charts</span>
-                        </v-tooltip>
-                      </v-card>
-                    </div>
-                  </l-popup>
-                </div>
-                <l-icon
-                  v-if="centerStationId === station.id"
-                  :icon-url="yellowIcon"
-                  :icon-size="yellowIconSize"
-                ></l-icon>
-                <l-icon
-                  v-else
-                  :icon-url="tealIcon"
-                  :icon-size="tealIconSize"
-                ></l-icon>
-              </l-marker>
-            </v-map>
-          </div>
-        </v-card>
-      </v-flex>
-      <v-flex xs12 md12 sm12 lg1 offset-lg0>
-        <div align="center">
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn @click="functions.closestStation(stations, userLocation)" icon fab small color="white" v-on="on">
-                <v-icon>mdi-crosshairs-gps</v-icon>
-              </v-btn>
-            </template>
-            <span>Show closest location</span>
-          </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn icon fab small color="white" v-on="on">
-                <v-icon>mdi-earth</v-icon>
-              </v-btn>
-            </template>
-            <span>Polution map</span>
-           </v-tooltip>
-          <v-tooltip v-if="buttonVisibility" bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn @click="zoomReset" icon fab small color="white" v-on="on">
-                <v-icon>mdi-arrow-left</v-icon>
-              </v-btn>
-            </template>
-            <span>Go back</span>
-          </v-tooltip>
+                <strong>Location Name:</strong> {{station.stationName}}<br>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-btn round v-on="on" @click="openDialog(station.id)">
+                      <v-icon>mdi-chart-bar</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Show charts</span>
+                </v-tooltip>
+              </v-card>
+            </div>
+          </l-popup>
         </div>
-      </v-flex>
-    </v-layout>
-  </v-container>
+        <l-icon
+          v-if="centerStationId === station.id"
+          :icon-url="yellowIcon"
+          :icon-size="yellowIconSize"
+        ></l-icon>
+        <l-icon
+          v-else
+          :icon-url="tealIcon"
+          :icon-size="tealIconSize"
+        ></l-icon>
+      </l-marker>
+    </v-map>
+    <v-container
+      fill-height
+      fluid
+      grid-list-sm
+    >
+      <v-layout wrap>
+        <v-flex xs12 md12 sm12 lg12 offset-lg0>
+          <div align="center" id="button_panel">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn @click="functions.closestStation(stations, userLocation)" icon fab small color="white" v-on="on">
+                  <v-icon>mdi-crosshairs-gps</v-icon>
+                </v-btn>
+              </template>
+              <span>Show closest location</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn icon fab small color="white" v-on="on">
+                  <v-icon>mdi-earth</v-icon>
+                </v-btn>
+              </template>
+              <span>Polution map</span>
+             </v-tooltip>
+            <v-tooltip v-if="buttonVisibility" bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn @click="zoomReset" icon fab small color="white" v-on="on">
+                  <v-icon>mdi-arrow-left</v-icon>
+                </v-btn>
+              </template>
+              <span>Go back</span>
+            </v-tooltip>
+          </div>
+        </v-flex>
+      </v-layout>
+    </v-container>
+  </div>
+<!--  <v-container-->
+<!--    fill-height-->
+<!--    fluid-->
+<!--    grid-list-sm-->
+<!--  >-->
+<!--      <v-flex xs12 offset-xs0 md12 offset-md0 sm12 offset-sm0 lg10 offset-lg1>-->
+<!--        <v-card-->
+<!--          class="pa-3"-->
+<!--          color="teal lighten-4"-->
+<!--        >-->
+<!--        </v-card>-->
+<!--      </v-flex>-->
+<!--    <v-layout wrap>-->
+<!--      <v-flex xs12 md12 sm12 lg1 offset-lg0>-->
+<!--      </v-flex>-->
+<!--    </v-layout>-->
+<!--  </v-container>-->
 </template>
 
 <script>
@@ -175,14 +185,21 @@ export default {
 }
 </script>
 
-<style lang="stylus">
+<style>
   @import "~leaflet/dist/leaflet.css";
   @import "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";
 
-  #map {
-    height: 80vh;
+  #map{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
   }
-
+  #button_panel {
+    position: absolute;
+    top: 80px;
+    right: 0;
+  }
   .custom-popup .leaflet-popup-content-wrapper {
     background: #B2DFDB;
     color: white;
