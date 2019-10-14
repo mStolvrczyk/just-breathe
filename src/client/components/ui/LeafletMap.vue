@@ -12,27 +12,28 @@
         :key="station.id"
         v-for="station in stations"
         :lat-lng="functions.getMark(station)"
+        @click="getStationDetails(station)"
       >
-        <div class="leaflet-popup-content-wrapper">
-          <l-popup>
-            <div align="center">
-              <v-card
-                class="pa-3 white--text"
-                color="#4DB6AC"
-              >
-                <strong>Location Name:</strong> {{station.stationName}}<br>
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on }">
-                    <v-btn round v-on="on" @click="openDialog(station.id)">
-                      <v-icon>mdi-chart-bar</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Show charts</span>
-                </v-tooltip>
-              </v-card>
-            </div>
-          </l-popup>
-        </div>
+<!--        <div class="leaflet-popup-content-wrapper">-->
+<!--          <l-popup>-->
+<!--            <div align="center">-->
+<!--              <v-card-->
+<!--                class="pa-3 white&#45;&#45;text"-->
+<!--                color="#4DB6AC"-->
+<!--              >-->
+<!--                <strong>Location Name:</strong> {{station.stationName}}<br>-->
+<!--                <v-tooltip bottom>-->
+<!--                  <template v-slot:activator="{ on }">-->
+<!--                    <v-btn round v-on="on" @click="openDialog(station.id)">-->
+<!--                      <v-icon>mdi-chart-bar</v-icon>-->
+<!--                    </v-btn>-->
+<!--                  </template>-->
+<!--                  <span>Show charts</span>-->
+<!--                </v-tooltip>-->
+<!--              </v-card>-->
+<!--            </div>-->
+<!--          </l-popup>-->
+<!--        </div>-->
         <l-icon
           v-if="centerStationId === station.id"
           :icon-url="yellowIcon"
@@ -45,65 +46,79 @@
         ></l-icon>
       </l-marker>
     </v-map>
-    <v-container
-      fill-height
-      fluid
-      grid-list-sm
-    >
-      <v-layout wrap>
-        <v-flex xs12 md12 sm12 lg12 offset-lg0>
-          <div align="center" id="button_panel">
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn @click="functions.closestStation(stations, userLocation)" icon fab small color="white" v-on="on">
-                  <v-icon>mdi-crosshairs-gps</v-icon>
-                </v-btn>
-              </template>
-              <span>Show closest location</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn icon fab small color="white" v-on="on">
-                  <v-icon>mdi-earth</v-icon>
-                </v-btn>
-              </template>
-              <span>Polution map</span>
-             </v-tooltip>
-            <v-tooltip v-if="buttonVisibility" bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn @click="zoomReset" icon fab small color="white" v-on="on">
-                  <v-icon>mdi-arrow-left</v-icon>
-                </v-btn>
-              </template>
-              <span>Go back</span>
-            </v-tooltip>
-          </div>
-        </v-flex>
-      </v-layout>
-    </v-container>
+      <div align="center" id="button_panel">
+        <div>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn @click="functions.closestStation(stations, userLocation)" icon fab small color="teal lighten-2" v-on="on">
+                <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
+              </v-btn>
+            </template>
+            <span>Show closest location</span>
+          </v-tooltip>
+        </div>
+        <div>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn icon fab small color="teal lighten-2" v-on="on">
+                <v-icon style="font-size:23px;color: white">mdi-earth</v-icon>
+              </v-btn>
+            </template>
+            <span>Polution map</span>
+           </v-tooltip>
+        </div>
+        <div>
+          <v-tooltip v-if="buttonVisibility" bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn @click="zoomReset" icon fab small color="teal lighten-2" v-on="on">
+                <v-icon style="font-size:23px;color: white">mdi-arrow-left</v-icon>
+              </v-btn>
+            </template>
+            <span>Go back</span>
+          </v-tooltip>
+        </div>
+      </div>
+      <div id="station_card">
+        <v-card
+          color="teal lighten-2"
+          class="pa-3 white--text"
+          width="200"
+        >
+          <strong>{{stationDetails.stationName}}</strong><br>
+          {{stationDetails.city}}
+        </v-card>
+      </div>
+      <div id="station_input">
+        <v-autocomplete
+          background-color="teal lighten-4"
+          v-model="selectedStation"
+          :items="stations"
+          flat
+          search="searchValue"
+          hide-no-data
+          clearable
+          item-value="id"
+          item-text="stationName"
+          label="Wybierz stację"
+          solo
+          return-object
+        >
+          <template v-slot:no-data>
+            <v-list-tile>
+              <v-list-tile-title>
+                Brak stacji
+              </v-list-tile-title>
+            </v-list-tile>
+          </template>
+        </v-autocomplete>
+      </div>
   </div>
-<!--  <v-container-->
-<!--    fill-height-->
-<!--    fluid-->
-<!--    grid-list-sm-->
-<!--  >-->
-<!--      <v-flex xs12 offset-xs0 md12 offset-md0 sm12 offset-sm0 lg10 offset-lg1>-->
-<!--        <v-card-->
-<!--          class="pa-3"-->
-<!--          color="teal lighten-4"-->
-<!--        >-->
-<!--        </v-card>-->
-<!--      </v-flex>-->
-<!--    <v-layout wrap>-->
-<!--      <v-flex xs12 md12 sm12 lg1 offset-lg0>-->
-<!--      </v-flex>-->
-<!--    </v-layout>-->
-<!--  </v-container>-->
 </template>
 
 <script>
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
 import Functions from '@/libs/helperFunctions'
+import StationsService from '@/services/StationsService'
 
 export default {
   name: 'LeafletMap',
@@ -120,6 +135,13 @@ export default {
     visibility: Boolean
   },
   methods: {
+    async getStationDetails (station) {
+      this.stationDetails = {
+        stationName: station.stationName,
+        city: station.city,
+        sensors: await this.stationsService.getStation(station.id)
+      }
+    },
     setLocation (pos) {
       if (this.userLocation.length >= 0) {
         navigator.geolocation.clearWatch(this.watcher)
@@ -147,8 +169,8 @@ export default {
         19.3
       ],
       buttonVisibility: false,
-      // url: 'https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=fc31e976df5a44d7b5164bcbb91c70b0',
-      url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+      url: 'https://tile.thunderforest.com/mobile-atlas/{z}/{x}/{y}.png?apikey=fc31e976df5a44d7b5164bcbb91c70b0',
+      // url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<a/> contributors',
       tealIcon: require('@/assets/tealPin.png'),
       yellowIcon: require('@/assets/yellowPin.png'),
@@ -158,10 +180,16 @@ export default {
       userLocation: [],
       watcher: navigator.geolocation.watchPosition(this.setLocation),
       centerStationId: null,
-      functions: new Functions()
+      searchValue: '',
+      stationDetails: {},
+      functions: new Functions(),
+      stationsService: new StationsService()
     }
   },
   watch: {
+    // 'stationDetails' (value) {
+    //   console.log(value)
+    // },
     'selectedStation' (value) {
       this.center = {
         lat: value.coordinates[0],
@@ -197,8 +225,19 @@ export default {
   }
   #button_panel {
     position: absolute;
-    top: 80px;
-    right: 0;
+    top: 120px;
+    right: 30px;
+  }
+  #station_card {
+    position: absolute;
+    top: 120px;
+    left: 60px;
+  }
+  #station_input {
+    width: 60%;
+    position: absolute;
+    top: 10px;
+    left: 285px;
   }
   .custom-popup .leaflet-popup-content-wrapper {
     background: #B2DFDB;

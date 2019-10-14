@@ -16,11 +16,11 @@
             </v-toolbar-title>
         </div>
         <v-spacer/>
-        <v-btn icon>
-            <v-icon>
-                apps
-            </v-icon>
-        </v-btn>
+<!--        <v-btn icon>-->
+<!--            <v-icon>-->
+<!--                apps-->
+<!--            </v-icon>-->
+<!--        </v-btn>-->
         <v-btn icon>
             <v-icon>
                 notifications
@@ -34,14 +34,14 @@
         </v-btn>
     </v-toolbar>
     <v-content>
-        <v-container fluid class="pa-0">
+<!--        <v-container fluid class="pa-0">-->
 <!--                <v-img-->
 <!--                        :src="appImage"-->
 <!--                        :gradient="`${'rgba(0, 128, 128, 0.6)'}, ${'rgba(0, 128, 128, 0.6)'}`"-->
 <!--                >-->
 <!--                </v-img>-->
                 <router-view/>
-        </v-container>
+<!--        </v-container>-->
     </v-content>
     <DetailsDialog :visibility.sync="visibility"
                    v-on:updateVisibility="updateDetailsDialogVisibility"></DetailsDialog>
@@ -69,7 +69,7 @@ export default {
 <style>
     #app {
       background-image:
-        linear-gradient(to bottom, rgba(0, 128, 128, 0.6), rgba(0, 128, 128, 0.6)),
+        linear-gradient(to bottom, rgba(30, 230, 176, 0.5), rgba(30, 230, 176, 0.5)),
         url('assets/appImage.jpg');
 
     }
