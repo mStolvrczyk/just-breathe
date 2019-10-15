@@ -17,7 +17,7 @@ router.get('/stations/:station', async (request, response) => {
   response.json(station)
 })
 
-router.get('/stations/:sensor', async (request, response) => {
+router.get('/sensors/:sensor', async (request, response) => {
   const sensor = await stationsService.getSensor(request.params.sensor)
   response.json(sensor)
 })

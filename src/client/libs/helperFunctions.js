@@ -58,20 +58,29 @@ export default class Functions {
   //ChartDialog.vue functions
 
   stationsService = new StationsService()
-  stations = []
+  stations = this.stationsService.getAll()
   sensorDetails = []
   datacollection = {}
   date = this.formatDate(new Date)
 
-
-  async getThisStation (id) {
-    this.stations = await this.stationsService.getStation(id)
-    // this.stationDetails = response.map((sensor) => ({
-    //   measurements: (sensor.measurement.filter(({date}) => date >= this.date+' 00:00:00')).reverse(),
-    //   name: sensor.details.param,
-    //   symbol: sensor.details.paramTwo,
-    // }))
-    // this.fillDatacollection(this.stationDetails[0])
+  async getStationDetails (id) {
+    let stationId  = id
+    let station = this.stations.find(({ id }) => id === stationId)
+    this.stationDetails = {
+      stationName: station.stationName,
+      city: station.city,
+      sensors: await this.stationsService.getStation(station.id)
+    }
+  }
+  async getSensorDetails (id) {
+    let response = await this.stationsService.getSensor(id)
+    console.log(this.sensorDetails)
+    this.stationDetails = response.map((sensor) => ({
+      measurements: (sensor.measurement.filter(({date}) => date >= this.date+' 00:00:00')).reverse(),
+      name: this.stationDetails.sensors.map,
+      symbol: sensor.key,
+    }))
+    this.fillDatacollection(this.stationDetails[0])
   }
 
   fillDatacollection (sensor) {

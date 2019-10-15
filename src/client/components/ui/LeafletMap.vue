@@ -12,7 +12,7 @@
         :key="station.id"
         v-for="station in stations"
         :lat-lng="functions.getMark(station)"
-        @click="getStationDetails(station)"
+        @click="getStationDetails(station.id)"
       >
 <!--        <div class="leaflet-popup-content-wrapper">-->
 <!--          <l-popup>-->
@@ -78,16 +78,37 @@
           </v-tooltip>
         </div>
       </div>
-    <transition name="menu-popover">
+    <transition name="station_card_popup">
       <div id="station_card" v-if="stationDetails != null">
         <v-card
           color="teal lighten-2"
           class="pa-3 white--text"
-          width="200"
+          width="170"
         >
-          <strong>{{stationDetails.stationName}}</strong><br>
-          {{stationDetails.city}}
+          <v-card-text align="center">
+            <strong>{{stationDetails.stationName}}</strong><br>
+            {{stationDetails.city}}
+          </v-card-text>
         </v-card>
+        <div id="sensor_panel" align="center">
+          <div
+            v-for="sensor in stationDetails.sensors"
+          >
+            <v-btn @click="functions.getSensorDetails(sensor.id)" round color="teal lighten-2" class="white--text">
+              {{sensor.paramTwo}}
+            </v-btn>
+          </div>
+        </div>
+        <div id="close_button">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn @click="stationDetails = null" icon fab small color="white" v-on="on" id="v-btn_close">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </template>
+            <span>Show closest location</span>
+          </v-tooltip>
+        </div>
       </div>
     </transition>
       <div id="station_input">
@@ -137,13 +158,15 @@ export default {
     visibility: Boolean
   },
   methods: {
-    async getStationDetails (station) {
-      this.stationDetails = {
-        stationName: station.stationName,
-        city: station.city,
-        sensors: await this.stationsService.getStation(station.id)
-      }
-    },
+    // async getStationDetails (id) {
+    //   let stationId  = id
+    //   let station = this.stations.find(({ id }) => id === stationId)
+    //   this.stationDetails = {
+    //     stationName: station.stationName,
+    //     city: station.city,
+    //     sensors: await this.stationsService.getStation(station.id)
+    //   }
+    // },
     setLocation (pos) {
       if (this.userLocation.length >= 0) {
         navigator.geolocation.clearWatch(this.watcher)
@@ -157,6 +180,7 @@ export default {
       this.$refs.map.setZoom(6)
       this.$refs.map.setCenter([52.25, 19.3])
       this.centerStationId = null
+      this.stationDetails = null
     },
     openDialog (choosenStationId) {
       this.$emit('updateVisibility', true)
@@ -184,19 +208,18 @@ export default {
       centerStationId: null,
       searchValue: '',
       stationDetails: null,
+      sensorDetails: null,
       functions: new Functions(),
       stationsService: new StationsService()
     }
   },
   watch: {
-    // 'stationDetails' (value) {
-    //   console.log(value)
-    // },
     'selectedStation' (value) {
       this.center = {
         lat: value.coordinates[0],
         lng: value.coordinates[1]
       }
+      this.getStationDetails(value.id)
       this.centerStationId = value.id
       this.zoom = 10
     },
@@ -205,6 +228,7 @@ export default {
         lat: value.lat,
         lng: value.lng
       }
+      this.getStationDetails(value.id)
       this.centerStationId = value.id
       this.zoom = 10
     },
@@ -219,15 +243,15 @@ export default {
   @import "~leaflet/dist/leaflet.css";
   @import "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";
 
-  .menu-popover-enter {
+  .station_card_popup-enter {
     opacity: 0;
     transform: rotateY(50deg);
   }
-  .menu-popover-enter-to {
+  .station_card_popup-enter-to {
     opacity: 1;
     transform: rotateY(0deg);
   }
-  .menu-popover-enter-active {
+  .station_card_popup-enter-active {
     transition: opacity, transform 200ms ease-out;
   }
   #map{
@@ -251,6 +275,16 @@ export default {
     position: absolute;
     top: 10px;
     left: 285px;
+  }
+  #close_button {
+    top: -5px;
+    left: 135px;
+    position: absolute;
+  }
+  #v-btn_close {
+    width: 25px;
+    height: 25px;
+
   }
   .custom-popup .leaflet-popup-content-wrapper {
     background: #B2DFDB;
