@@ -78,7 +78,8 @@
           </v-tooltip>
         </div>
       </div>
-      <div id="station_card">
+    <transition name="menu-popover">
+      <div id="station_card" v-if="stationDetails != null">
         <v-card
           color="teal lighten-2"
           class="pa-3 white--text"
@@ -88,6 +89,7 @@
           {{stationDetails.city}}
         </v-card>
       </div>
+    </transition>
       <div id="station_input">
         <v-autocomplete
           background-color="teal lighten-4"
@@ -181,7 +183,7 @@ export default {
       watcher: navigator.geolocation.watchPosition(this.setLocation),
       centerStationId: null,
       searchValue: '',
-      stationDetails: {},
+      stationDetails: null,
       functions: new Functions(),
       stationsService: new StationsService()
     }
@@ -217,6 +219,17 @@ export default {
   @import "~leaflet/dist/leaflet.css";
   @import "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";
 
+  .menu-popover-enter {
+    opacity: 0;
+    transform: rotateY(50deg);
+  }
+  .menu-popover-enter-to {
+    opacity: 1;
+    transform: rotateY(0deg);
+  }
+  .menu-popover-enter-active {
+    transition: opacity, transform 200ms ease-out;
+  }
   #map{
     position: absolute;
     top: 0;
