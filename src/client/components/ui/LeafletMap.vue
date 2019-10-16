@@ -12,7 +12,7 @@
         :key="station.id"
         v-for="station in stations"
         :lat-lng="functions.getMark(station)"
-        @click="getStationDetails(station.id)"
+        @click="functions.getStationDetails(station.id, stations)"
       >
 <!--        <div class="leaflet-popup-content-wrapper">-->
 <!--          <l-popup>-->
@@ -79,30 +79,38 @@
         </div>
       </div>
     <transition name="station_card_popup">
-      <div id="station_card" v-if="stationDetails != null">
+      <div id="station_card" v-if="functions.stationDetails != null">
         <v-card
           color="teal lighten-2"
           class="pa-3 white--text"
           width="170"
         >
           <v-card-text align="center">
-            <strong>{{stationDetails.stationName}}</strong><br>
-            {{stationDetails.city}}
+            <strong>{{functions.stationDetails.stationName}}</strong><br>
+            {{functions.stationDetails.city}}
           </v-card-text>
         </v-card>
         <div id="sensor_panel" align="center">
           <div
-            v-for="sensor in stationDetails.sensors"
+            v-for="sensor in functions.stationDetails.sensors"
           >
-            <v-btn @click="functions.getSensorDetails(sensor.id)" round color="teal lighten-2" class="white--text">
-              {{sensor.paramTwo}}
-            </v-btn>
+            <v-tooltip
+              bottom
+            >
+              <template v-slot:activator="{ on }">
+                <v-btn @click="functions.getSensorDetails(sensor.id)" round color="teal lighten-2"
+                       class="white--text" v-on="on">
+                  {{sensor.paramTwo}}
+                </v-btn>
+              </template>
+              <span>{{sensor.param}}</span>
+            </v-tooltip>
           </div>
         </div>
         <div id="close_button">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn @click="stationDetails = null" icon fab small color="white" v-on="on" id="v-btn_close">
+              <v-btn @click="functions.stationDetails = null" icon fab small color="white" v-on="on" id="v-btn_close">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </template>
@@ -158,15 +166,6 @@ export default {
     visibility: Boolean
   },
   methods: {
-    // async getStationDetails (id) {
-    //   let stationId  = id
-    //   let station = this.stations.find(({ id }) => id === stationId)
-    //   this.stationDetails = {
-    //     stationName: station.stationName,
-    //     city: station.city,
-    //     sensors: await this.stationsService.getStation(station.id)
-    //   }
-    // },
     setLocation (pos) {
       if (this.userLocation.length >= 0) {
         navigator.geolocation.clearWatch(this.watcher)
@@ -180,11 +179,7 @@ export default {
       this.$refs.map.setZoom(6)
       this.$refs.map.setCenter([52.25, 19.3])
       this.centerStationId = null
-      this.stationDetails = null
-    },
-    openDialog (choosenStationId) {
-      this.$emit('updateVisibility', true)
-      this.$emit('sendId', choosenStationId)
+      this.functions.stationDetails = null
     }
   },
   data () {
@@ -219,7 +214,7 @@ export default {
         lat: value.coordinates[0],
         lng: value.coordinates[1]
       }
-      this.getStationDetails(value.id)
+      this.functions.getStationDetails(value.id, this.stations)
       this.centerStationId = value.id
       this.zoom = 10
     },
@@ -228,7 +223,7 @@ export default {
         lat: value.lat,
         lng: value.lng
       }
-      this.getStationDetails(value.id)
+      this.functions.getStationDetails(value.id, this.stations)
       this.centerStationId = value.id
       this.zoom = 10
     },

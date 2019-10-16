@@ -58,14 +58,14 @@ export default class Functions {
   //ChartDialog.vue functions
 
   stationsService = new StationsService()
-  stations = this.stationsService.getAll()
   sensorDetails = []
+  stationDetails = null
   datacollection = {}
   date = this.formatDate(new Date)
 
-  async getStationDetails (id) {
+  async getStationDetails (id, stations) {
     let stationId  = id
-    let station = this.stations.find(({ id }) => id === stationId)
+    let station = await stations.find(({ id }) => id === stationId)
     this.stationDetails = {
       stationName: station.stationName,
       city: station.city,
