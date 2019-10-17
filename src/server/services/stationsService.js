@@ -12,7 +12,7 @@ module.exports = {
   getStation: async (stationID) => {
     return  axios.get(`${apiGiosBaseUrl}/station/sensors/${stationID}`)
       .then(functions.getData)
-      .then((data) => data.map(functions.sensorsFilter))
+      .then((data) => data.map(functions.stationFilter))
   },
   getSensor: async (sensorID) => {
     const sensorsData = await axios.get(`${apiGiosBaseUrl}/data/getData/${sensorID}`)

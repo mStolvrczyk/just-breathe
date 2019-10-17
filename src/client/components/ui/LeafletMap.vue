@@ -5,6 +5,7 @@
       :zoom.sync="zoom"
       :center.sync="center"
       style="z-index: 0"
+      :options="options"
     >
       <v-tilelayer :url="url"
                    :attribution="attribution"></v-tilelayer>
@@ -78,7 +79,7 @@
           </v-tooltip>
         </div>
       </div>
-    <transition name="popup">
+    <transition name="station_popup">
       <div id="station_card" v-if="functions.stationDetails != null">
         <v-card
           color="teal lighten-2"
@@ -110,7 +111,7 @@
         <div id="close_button">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn @click="functions.stationDetails = null, functions.sensorDetails = null" icon fab small color="white" v-on="on" id="v-btn_close">
+              <v-btn @click="functions.stationDetails = null" icon fab small color="white" v-on="on" id="v-btn_close">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </template>
@@ -143,7 +144,7 @@
         </template>
       </v-autocomplete>
     </div>
-    <transition name="popup">
+    <transition name="sensor_popup">
       <div
         id="chart_card"
         v-if="functions.sensorDetails != null"
@@ -208,6 +209,7 @@ export default {
   },
   data () {
     return {
+      options: {zoomControl: false},
       zoom: 6,
       center: [
         52.25,
@@ -233,6 +235,9 @@ export default {
     }
   },
   watch: {
+    'functions.stationDetails' () {
+      this.functions.sensorDetails = null
+    },
     'selectedStation' (value) {
       this.center = {
         lat: value.coordinates[0],
@@ -262,19 +267,25 @@ export default {
   @import "~leaflet/dist/leaflet.css";
   @import "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";
 
-  .popup-enter,
-  .popup-leave-to{
-    opacity: 0;
+  .station_popup-enter,
+  .station_popup-leave-to{
     transform: rotateY(50deg);
   }
-  .popup-enter-to,
-  .popup-leave {
-    opacity: 1;
+  .station_popup-enter-to,
+  .station_popup-leave {
     transform: rotateY(0deg);
   }
-  .popup-enter-active,
-  .popup-leave-active {
-    transition: opacity, transform 500ms ease-out;
+  .station_popup-enter-active,
+  .station_popup-leave-active {
+    transition: transform 400ms;
+  }
+  .sensor_popup-enter,
+  .sensor_popup-leave-to{
+    opacity: 0;
+  }
+  .sensor_popup-enter-active,
+  .sensor_popup-leave-active {
+    transition: opacity .5s;
   }
   #map{
     position: absolute;
