@@ -5,7 +5,7 @@ module.exports = {
   stationsFilter: function ({ id, stationName, city, gegrLat, gegrLon }) {
     return {
       id,
-      stationName,
+      stationName: stationName.replace('_', ' '),
       city: city ? city.name : '',
       coordinates: [
         gegrLat,
@@ -13,7 +13,7 @@ module.exports = {
       ],
     }
   },
-  sensorsFilter: function ({ id, param }) {
+  stationFilter: function ({ id, param }) {
     return {
       id,
       param: param ? param.paramName : '',
