@@ -78,7 +78,7 @@
           </v-tooltip>
         </div>
       </div>
-    <transition name="station_card_popup">
+    <transition name="popup">
       <div id="station_card" v-if="functions.stationDetails != null">
         <v-card
           color="teal lighten-2"
@@ -110,7 +110,7 @@
         <div id="close_button">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn @click="functions.stationDetails = null" icon fab small color="white" v-on="on" id="v-btn_close">
+              <v-btn @click="functions.stationDetails = null, functions.sensorDetails = null" icon fab small color="white" v-on="on" id="v-btn_close">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </template>
@@ -119,30 +119,52 @@
         </div>
       </div>
     </transition>
-      <div id="station_input">
-        <v-autocomplete
-          background-color="teal lighten-4"
-          v-model="selectedStation"
-          :items="stations"
-          flat
-          search="searchValue"
-          hide-no-data
-          clearable
-          item-value="id"
-          item-text="stationName"
-          label="Wybierz stację"
-          solo
-          return-object
+    <div id="station_input">
+      <v-autocomplete
+        background-color="teal lighten-4"
+        v-model="selectedStation"
+        :items="stations"
+        flat
+        search="searchValue"
+        hide-no-data
+        clearable
+        item-value="id"
+        item-text="stationName"
+        label="Wybierz stację"
+        solo
+        return-object
+      >
+        <template v-slot:no-data>
+          <v-list-tile>
+            <v-list-tile-title>
+              Brak stacji
+            </v-list-tile-title>
+          </v-list-tile>
+        </template>
+      </v-autocomplete>
+    </div>
+    <transition name="popup">
+      <div
+        id="chart_card"
+        v-if="functions.sensorDetails != null"
+      >
+        <v-card
+          class="pa-3"
+          color="teal lighten-4"
+          width="600"
         >
-          <template v-slot:no-data>
-            <v-list-tile>
-              <v-list-tile-title>
-                Brak stacji
-              </v-list-tile-title>
-            </v-list-tile>
-          </template>
-        </v-autocomplete>
+          <v-card
+            color="white"
+          >
+            <line-chart
+              :chart-data="functions.datacollection"
+              :height="170"
+            >
+            </line-chart>
+          </v-card>
+        </v-card>
       </div>
+    </transition>
   </div>
 </template>
 
@@ -150,6 +172,7 @@
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
 import Functions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
+import LineChart from '@/components/vue-chartjs/BarChart'
 
 export default {
   name: 'LeafletMap',
@@ -158,7 +181,8 @@ export default {
     'v-tilelayer': LTileLayer,
     LMarker,
     LPopup,
-    LIcon
+    LIcon,
+    LineChart
   },
   props: {
     selectedStation: Object,
@@ -238,16 +262,19 @@ export default {
   @import "~leaflet/dist/leaflet.css";
   @import "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";
 
-  .station_card_popup-enter {
+  .popup-enter,
+  .popup-leave-to{
     opacity: 0;
     transform: rotateY(50deg);
   }
-  .station_card_popup-enter-to {
+  .popup-enter-to,
+  .popup-leave {
     opacity: 1;
     transform: rotateY(0deg);
   }
-  .station_card_popup-enter-active {
-    transition: opacity, transform 200ms ease-out;
+  .popup-enter-active,
+  .popup-leave-active {
+    transition: opacity, transform 500ms ease-out;
   }
   #map{
     position: absolute;
@@ -262,7 +289,7 @@ export default {
   }
   #station_card {
     position: absolute;
-    top: 120px;
+    top: 100px;
     left: 60px;
   }
   #station_input {
@@ -280,6 +307,11 @@ export default {
     width: 25px;
     height: 25px;
 
+  }
+  #chart_card {
+    top: 160px;
+    left: 260px;
+    position: absolute;
   }
   .custom-popup .leaflet-popup-content-wrapper {
     background: #B2DFDB;

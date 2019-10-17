@@ -4,6 +4,8 @@ const sensorNames = {
   'SO2':'dwutlenek siarki',
   'C6H6':'benzen',
   'O3':'ozon',
-  'PM2.5':'pył zawieszony PM2.5'
-
+  'PM2.5':'pył zawieszony PM2.5',
+  'CO':'tlenek węgla'
 }
+
+export default sensorNames
