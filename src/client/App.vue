@@ -1,6 +1,6 @@
 <template>
   <v-app class="primary-background">
-    <v-toolbar
+    <v-app-bar
             color='rgba(0, 0, 0, 0.3)'
             flat
             persistent
@@ -32,7 +32,7 @@
                 person
             </v-icon>
         </v-btn>
-    </v-toolbar>
+    </v-app-bar>
     <v-content>
 <!--        <v-container fluid class="pa-0">-->
 <!--                <v-img-->

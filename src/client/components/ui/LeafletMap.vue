@@ -99,7 +99,7 @@
               bottom
             >
               <template v-slot:activator="{ on }">
-                <v-btn @click="functions.getSensorDetails(sensor.id)" round color="teal lighten-2"
+                <v-btn @click="functions.getSensorDetails(sensor.id)" rounded color="teal lighten-2"
                        class="white--text" v-on="on">
                   {{sensor.paramTwo}}
                 </v-btn>
