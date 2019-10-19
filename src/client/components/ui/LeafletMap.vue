@@ -51,7 +51,7 @@
         <div>
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn @click="functions.closestStation(stations, userLocation)" icon fab small color="teal lighten-2" v-on="on">
+              <v-btn @click="functions.closestStation(stations, userLocation)" fab small color="teal lighten-2" v-on="on">
                 <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
               </v-btn>
             </template>
@@ -61,7 +61,7 @@
         <div>
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn icon fab small color="teal lighten-2" v-on="on">
+              <v-btn fab small color="teal lighten-2" v-on="on">
                 <v-icon style="font-size:23px;color: white">mdi-earth</v-icon>
               </v-btn>
             </template>
@@ -71,7 +71,7 @@
         <div>
           <v-tooltip v-if="buttonVisibility" bottom>
             <template v-slot:activator="{ on }">
-              <v-btn @click="zoomReset" icon fab small color="teal lighten-2" v-on="on">
+              <v-btn @click="zoomReset" fab small color="teal lighten-2" v-on="on">
                 <v-icon style="font-size:23px;color: white">mdi-arrow-left</v-icon>
               </v-btn>
             </template>

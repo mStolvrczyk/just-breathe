@@ -1,5 +1,5 @@
 <template>
-  <v-app class="primary-background">
+  <v-app>
     <v-app-bar
             color='rgba(0, 0, 0, 0.3)'
             flat
