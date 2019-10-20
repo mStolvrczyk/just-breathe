@@ -15,26 +15,6 @@
         :lat-lng="functions.getMark(station)"
         @click="functions.getStationDetails(station.id, stations)"
       >
-<!--        <div class="leaflet-popup-content-wrapper">-->
-<!--          <l-popup>-->
-<!--            <div align="center">-->
-<!--              <v-card-->
-<!--                class="pa-3 white&#45;&#45;text"-->
-<!--                color="#4DB6AC"-->
-<!--              >-->
-<!--                <strong>Location Name:</strong> {{station.stationName}}<br>-->
-<!--                <v-tooltip bottom>-->
-<!--                  <template v-slot:activator="{ on }">-->
-<!--                    <v-btn round v-on="on" @click="openDialog(station.id)">-->
-<!--                      <v-icon>mdi-chart-bar</v-icon>-->
-<!--                    </v-btn>-->
-<!--                  </template>-->
-<!--                  <span>Show charts</span>-->
-<!--                </v-tooltip>-->
-<!--              </v-card>-->
-<!--            </div>-->
-<!--          </l-popup>-->
-<!--        </div>-->
         <l-icon
           v-if="centerStationId === station.id"
           :icon-url="yellowIcon"
@@ -48,30 +28,30 @@
       </l-marker>
     </v-map>
       <div align="center" id="button_panel">
-        <div>
+        <div class="my-2">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn @click="functions.closestStation(stations, userLocation)" icon fab small color="teal lighten-2" v-on="on">
+              <v-btn @click="functions.closestStation(stations, userLocation)" fab small color="teal lighten-2" v-on="on">
                 <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
               </v-btn>
             </template>
             <span>Show closest location</span>
           </v-tooltip>
         </div>
-        <div>
+        <div class="my-2">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn icon fab small color="teal lighten-2" v-on="on">
+              <v-btn fab small color="teal lighten-2" v-on="on">
                 <v-icon style="font-size:23px;color: white">mdi-earth</v-icon>
               </v-btn>
             </template>
             <span>Polution map</span>
            </v-tooltip>
         </div>
-        <div>
+        <div class="my-2">
           <v-tooltip v-if="buttonVisibility" bottom>
             <template v-slot:activator="{ on }">
-              <v-btn @click="zoomReset" icon fab small color="teal lighten-2" v-on="on">
+              <v-btn @click="zoomReset" fab small color="teal lighten-2" v-on="on">
                 <v-icon style="font-size:23px;color: white">mdi-arrow-left</v-icon>
               </v-btn>
             </template>
@@ -83,23 +63,25 @@
       <div id="station_card" v-if="functions.stationDetails != null">
         <v-card
           color="teal lighten-2"
-          class="pa-3 white--text"
+          class="pa-3"
           width="170"
         >
-          <v-card-text align="center">
+          <v-card-text align="center" class="white--text">
             <strong>{{functions.stationDetails.stationName}}</strong><br>
-            {{functions.stationDetails.city}}
+            {{functions.stationDetails.city}}<br>
+            <strong>{{'odległość: '+functions.nearestStation}}</strong>
           </v-card-text>
         </v-card>
         <div id="sensor_panel" align="center">
           <div
+            class="my-2"
             v-for="sensor in functions.stationDetails.sensors"
           >
             <v-tooltip
               bottom
             >
               <template v-slot:activator="{ on }">
-                <v-btn @click="functions.getSensorDetails(sensor.id)" round color="teal lighten-2"
+                <v-btn @click="functions.getSensorDetails(sensor.id)" rounded color="teal lighten-2"
                        class="white--text" v-on="on">
                   {{sensor.paramTwo}}
                 </v-btn>
@@ -111,7 +93,7 @@
         <div id="close_button">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn @click="functions.stationDetails = null" icon fab small color="white" v-on="on" id="v-btn_close">
+              <v-btn @click="functions.stationDetails = null" text fab x-small color="white" v-on="on" id="v-btn_close">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </template>
@@ -157,7 +139,16 @@
           <v-card
             color="white"
           >
+            <v-card-text
+              align="center"
+              v-if="functions.sensorDetails.measurements.length === 0"
+            >
+              <strong>
+                Brak pomiarów
+              </strong>
+            </v-card-text>
             <line-chart
+              v-else
               :chart-data="functions.datacollection"
               :height="170"
             >
@@ -186,7 +177,7 @@ export default {
     LineChart
   },
   props: {
-    selectedStation: Object,
+    // selectedStation: Object,
     stations: Array,
     visibility: Boolean
   },
@@ -231,7 +222,8 @@ export default {
       stationDetails: null,
       sensorDetails: null,
       functions: new Functions(),
-      stationsService: new StationsService()
+      stationsService: new StationsService(),
+      selectedStation: null
     }
   },
   watch: {
@@ -310,8 +302,8 @@ export default {
     left: 285px;
   }
   #close_button {
-    top: -5px;
-    left: 135px;
+    top: 3px;
+    left: 137px;
     position: absolute;
   }
   #v-btn_close {

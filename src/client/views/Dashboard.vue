@@ -24,7 +24,6 @@
 <!--        </v-autocomplete>-->
         <LeafletMap
           :stations="stations"
-          :selected-station="selectedStation"
           :visibility.sync="chartDialogVisibility"
           v-on:updateVisibility="updateChartDialogVisibility"
           v-on:sendId="setChoosenStationId"
