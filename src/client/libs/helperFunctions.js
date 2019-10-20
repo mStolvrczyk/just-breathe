@@ -1,5 +1,6 @@
 import StationsService from '@/services/StationsService'
 import sensorNames from '@/libs/sensorNames'
+import { min } from 'ramda'
 
 
 export default class Functions {
@@ -7,6 +8,12 @@ export default class Functions {
   //LeafletMap.vue functions
 
   found = null
+  stationsService = new StationsService()
+  stationDetails = null
+  sensorDetails = null
+  datacollection = {}
+  date = this.formatDate(new Date)
+  nearestStation = null
 
   getMark (station) {
     return {
@@ -50,20 +57,18 @@ export default class Functions {
         stationId = stations[i].id
       }
     }
+    if (minDist >= 1000) {
+      let km = minDist / 1000
+      this.nearestStation = km.toFixed(1) +'km'
+    }else {
+      this.nearestStation = minDist.toFixed(0)+'m'
+    }
     this.found = {
       id: stationId,
       lat: nearest_text[0],
       lng: nearest_text[1]
     }
   }
-
-  //ChartDialog.vue functions
-
-  stationsService = new StationsService()
-  stationDetails = null
-  sensorDetails = null
-  datacollection = {}
-  date = this.formatDate(new Date)
 
   async getStationDetails (id, stations) {
     let stationId  = id
