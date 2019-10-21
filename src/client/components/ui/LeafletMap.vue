@@ -13,7 +13,7 @@
         :key="station.id"
         v-for="station in stations"
         :lat-lng="functions.getMark(station)"
-        @click="functions.getStationDetails(station.id, stations)"
+        @click="functions.getStationDetails(station.id, stations, userLocation)"
       >
         <l-icon
           v-if="centerStationId === station.id"
@@ -69,7 +69,7 @@
           <v-card-text align="center" class="white--text">
             <strong>{{functions.stationDetails.stationName}}</strong><br>
             {{functions.stationDetails.city}}<br>
-            <strong>{{'odległość: '+functions.nearestStation}}</strong>
+            <strong>{{'odległość: '+functions.stationDetails.stationDistance}}</strong>
           </v-card-text>
         </v-card>
         <div id="sensor_panel" align="center">
@@ -147,13 +147,23 @@
                 Brak pomiarów
               </strong>
             </v-card-text>
-            <line-chart
-              v-else
-              :chart-data="functions.datacollection"
-              :height="170"
-            >
-            </line-chart>
+            <div v-else>
+              <bar-chart
+                v-if="chartSwitch"
+                :chart-data="functions.datacollection"
+                :height="170"
+              />
+              <line-chart
+                v-else
+                :chart-data="functions.datacollection"
+                :height="170"
+              />
+            </div>
           </v-card>
+          <v-btn @click="chartSwitch = false">
+          </v-btn>
+          <v-btn @click="chartSwitch = true">
+          </v-btn>
         </v-card>
       </div>
     </transition>
@@ -164,7 +174,8 @@
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
 import Functions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
-import LineChart from '@/components/vue-chartjs/BarChart'
+import BarChart from '@/components/vue-chartjs/BarChart'
+import LineChart from '@/components/vue-chartjs/LineChart'
 
 export default {
   name: 'LeafletMap',
@@ -174,10 +185,10 @@ export default {
     LMarker,
     LPopup,
     LIcon,
+    BarChart,
     LineChart
   },
   props: {
-    // selectedStation: Object,
     stations: Array,
     visibility: Boolean
   },
@@ -223,7 +234,8 @@ export default {
       sensorDetails: null,
       functions: new Functions(),
       stationsService: new StationsService(),
-      selectedStation: null
+      selectedStation: null,
+      chartSwitch: true
     }
   },
   watch: {
@@ -235,7 +247,7 @@ export default {
         lat: value.coordinates[0],
         lng: value.coordinates[1]
       }
-      this.functions.getStationDetails(value.id, this.stations)
+      this.functions.getStationDetails(value.id, this.stations, this.userLocation)
       this.centerStationId = value.id
       this.zoom = 10
     },
@@ -244,7 +256,7 @@ export default {
         lat: value.lat,
         lng: value.lng
       }
-      this.functions.getStationDetails(value.id, this.stations)
+      this.functions.getStationDetails(value.id, this.stations, this.userLocation)
       this.centerStationId = value.id
       this.zoom = 10
     },

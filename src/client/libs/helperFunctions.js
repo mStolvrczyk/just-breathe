@@ -1,6 +1,6 @@
 import StationsService from '@/services/StationsService'
 import sensorNames from '@/libs/sensorNames'
-import { min } from 'ramda'
+import { forEach } from 'ramda'
 
 
 export default class Functions {
@@ -13,7 +13,6 @@ export default class Functions {
   sensorDetails = null
   datacollection = {}
   date = this.formatDate(new Date)
-  nearestStation = null
 
   getMark (station) {
     return {
@@ -57,12 +56,6 @@ export default class Functions {
         stationId = stations[i].id
       }
     }
-    if (minDist >= 1000) {
-      let km = minDist / 1000
-      this.nearestStation = km.toFixed(1) +'km'
-    }else {
-      this.nearestStation = minDist.toFixed(0)+'m'
-    }
     this.found = {
       id: stationId,
       lat: nearest_text[0],
@@ -70,14 +63,23 @@ export default class Functions {
     }
   }
 
-  async getStationDetails (id, stations) {
+  async getStationDetails (id, stations, userLocation) {
     let stationId  = id
     let station = await stations.find(({ id }) => id === stationId)
     this.stationDetails = {
       stationName: station.stationName,
       city: station.city,
-      sensors: await this.stationsService.getStation(station.id)
+      sensors: await this.stationsService.getStation(station.id),
+      stationDistance: this.roundStationDistance(this.getDistance(station.coordinates, userLocation))
     }
+  }
+  roundStationDistance (stationDistance) {
+    if (stationDistance >= 1000) {
+      stationDistance = (stationDistance / 1000).toFixed(1)+'km'
+    } else {
+      stationDistance = stationDistance.toFixed(0)+'m'
+    }
+    return stationDistance
   }
   async getSensorDetails (id) {
     let response = await this.stationsService.getSensor(id)
@@ -187,4 +189,34 @@ export default class Functions {
     }
     return colorArray
   }
+  average (values) {
+    let sum = null
+    values.forEach((value) => {
+      sum = sum+value
+    })
+    return sum/values.length
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
