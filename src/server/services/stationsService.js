@@ -17,10 +17,10 @@ module.exports = {
   getSensor: async (sensorID) => {
     const sensorsData = await axios.get(`${apiGiosBaseUrl}/data/getData/${sensorID}`)
       .then(functions.getData)
-
     return {
       key: sensorsData.key,
-      measurements: sensorsData.values.filter(({ value }) => value !== null)
+      measurements: sensorsData.values.filter(({ value }) => value !== null),
+      lastMeasurement: sensorsData.values[values.length-1].map(({value}) => value)
     }
   }
 }

@@ -239,6 +239,9 @@ export default {
     }
   },
   watch: {
+    'functions.sensorDetails' (value) {
+      console.log(value)
+    },
     'functions.stationDetails' () {
       this.functions.sensorDetails = null
     },

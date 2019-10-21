@@ -1,5 +1,6 @@
 import StationsService from '@/services/StationsService'
 import sensorNames from '@/libs/sensorNames'
+import pollutionLevels from '@/libs/pollutionLevels'
 import { forEach } from 'ramda'
 
 
@@ -83,10 +84,19 @@ export default class Functions {
   }
   async getSensorDetails (id) {
     let response = await this.stationsService.getSensor(id)
+    console.log(response.lastMeasurement)
+    let filteredMeasurements = (response.measurements.filter(({date}) => date >= this.date+' 00:00:00')).reverse()
+    let averageMeasurement = this.average(filteredMeasurements.map(({value}) => value))
     this.sensorDetails = {
       name: sensorNames[response.key],
       symbol: response.key,
-      measurements: (response.measurements.filter(({date}) => date >= this.date+' 00:00:00')).reverse()
+      measurements: filteredMeasurements,
+      backgroundColor: this.setBackgroundColor(filteredMeasurements, response.key),
+      averageMeasurement: {
+        measurement: averageMeasurement,
+        backgroundColor: this.setBackgroundColor(averageMeasurement, response.key)[0],
+        pollutionLevel: pollutionLevels[this.setBackgroundColor(averageMeasurement, response.key)[0]]
+      }
     }
     this.fillDatacollection(this.sensorDetails)
   }
@@ -97,7 +107,7 @@ export default class Functions {
       datasets: [
         {
           label: sensor.name+' ('+sensor.symbol+')',
-          backgroundColor: this.setBackgroundColor(sensor),
+          backgroundColor: sensor.backgroundColor,
           data: sensor.measurements.map(({value}) => value)
         },
       ],
@@ -117,7 +127,7 @@ export default class Functions {
     return [year, month, day].join('-');
   }
 
-  setBackgroundColor (sensor) {
+  setBackgroundColor (measurements, symbol) {
     let colorArray = []
     let sensorValue = null
     let compartment = {}
@@ -175,10 +185,10 @@ export default class Functions {
       '#990000'
     ]
     for (let i=0; i<compartments.length; i+=1) {
-      if (sensor.symbol === compartments[i].symbol) {
+      if (symbol === compartments[i].symbol) {
         compartment = compartments[i]
-        for (let i=0; i<sensor.measurements.length; i+=1) {
-          sensorValue = sensor.measurements[i].value
+        for (let i=0; i<measurements.length; i+=1) {
+          sensorValue = measurements[i].value
           for (let i=0; i<compartment.limits.length; i+=1) {
             if (compartment.limits[i][0] <= sensorValue && sensorValue <= compartment.limits[i][1]) {
               colorArray.push(colors[i])
@@ -194,7 +204,11 @@ export default class Functions {
     values.forEach((value) => {
       sum = sum+value
     })
-    return sum/values.length
+    return  [
+      {
+        value: sum/values.length
+      }
+    ]
   }
 }
 
