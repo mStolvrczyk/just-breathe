@@ -96,7 +96,11 @@ export default class Functions {
         measurement: averageMeasurement,
         backgroundColor: this.setBackgroundColor(averageMeasurement, response.key)[0],
         pollutionLevel: pollutionLevels[this.setBackgroundColor(averageMeasurement, response.key)[0]]
-      }
+      },
+      // lastMeasurement: {
+      //   measurement: response.lastMeasurement,
+      //   pollutionLevel: pollutionLevels[this.setBackgroundColor()]
+      // }
     }
     this.fillDatacollection(this.sensorDetails)
   }
