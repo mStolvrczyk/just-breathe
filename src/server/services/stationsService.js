@@ -20,7 +20,6 @@ module.exports = {
     return {
       key: sensorsData.key,
       measurements: sensorsData.values.filter(({ value }) => value !== null),
-      lastMeasurement: sensorsData.values[sensorsData.values.length-1]
     }
   }
 }

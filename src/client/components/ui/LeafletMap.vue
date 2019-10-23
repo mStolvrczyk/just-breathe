@@ -97,7 +97,7 @@
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </template>
-            <span>Show closest location</span>
+            <span>Close window</span>
           </v-tooltip>
         </div>
       </div>
@@ -150,20 +150,38 @@
             <div v-else>
               <bar-chart
                 v-if="chartSwitch"
-                :chart-data="functions.datacollection"
+                :chart-data="functions.barDataColllection"
                 :height="170"
               />
               <line-chart
                 v-else
-                :chart-data="functions.datacollection"
+                :chart-data="functions.lineDataCollection"
                 :height="170"
               />
             </div>
           </v-card>
-          <v-btn @click="chartSwitch = false">
-          </v-btn>
-          <v-btn @click="chartSwitch = true">
-          </v-btn>
+          <div align="right">
+            <div class="my-2">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn @click="chartSwitch = true" fab small color="white" v-on="on">
+                    <v-icon style="font-size:23px;color: teal">mdi-chart-bar</v-icon>
+                  </v-btn>
+                </template>
+                <span>Bar chart</span>
+              </v-tooltip>
+            </div>
+            <div class="my-2">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn @click="chartSwitch = false" fab small color="white" v-on="on">
+                    <v-icon style="font-size:23px;color: teal">mdi-chart-bell-curve</v-icon>
+                  </v-btn>
+                </template>
+                <span>Line chart</span>
+              </v-tooltip>
+            </div>
+          </div>
         </v-card>
       </div>
     </transition>
@@ -240,6 +258,7 @@ export default {
   },
   watch: {
     'functions.sensorDetails' (value) {
+      this.chartSwitch = true
       console.log(value)
     },
     'functions.stationDetails' () {
