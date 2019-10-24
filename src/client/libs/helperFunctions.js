@@ -97,7 +97,7 @@ export default class Functions {
       measurements: filteredMeasurements,
       backgroundColor: this.setBackgroundColor(filteredValues, response.key),
       averageMeasurement: {
-        measurement: averageMeasurement[0],
+        measurement: averageMeasurement[0].toFixed(2),
         backgroundColor: this.setBackgroundColor(averageMeasurement, response.key)[0],
         pollutionLevel: pollutionLevels[this.setBackgroundColor(averageMeasurement, response.key)[0]]
       },

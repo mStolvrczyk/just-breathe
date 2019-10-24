@@ -81,7 +81,7 @@
               bottom
             >
               <template v-slot:activator="{ on }">
-                <v-btn @click="functions.getSensorDetails(sensor.id)" rounded color="teal lighten-2"
+                <v-btn @click="functions.getSensorDetails(sensor.id)" rounded color="teal lighten-2" block
                        class="white--text" v-on="on">
                   {{sensor.paramTwo}}
                 </v-btn>
@@ -136,51 +136,79 @@
           color="teal lighten-4"
           width="600"
         >
-          <v-card
-            color="white"
-          >
-            <v-card-text
-              align="center"
-              v-if="functions.sensorDetails.measurements.length === 0"
+          <div align="center">
+            <v-card
+              color="white"
             >
-              <strong>
-                Brak pomiarów
-              </strong>
-            </v-card-text>
-            <div v-else>
-              <bar-chart
-                v-if="chartSwitch"
-                :chart-data="functions.barDataColllection"
-                :height="170"
-              />
-              <line-chart
-                v-else
-                :chart-data="functions.lineDataCollection"
-                :height="170"
-              />
-            </div>
-          </v-card>
-          <div align="right">
+              <v-card-text
+                align="center"
+                v-if="functions.sensorDetails.measurements.length === 0"
+              >
+                <strong>
+                  Brak pomiarów
+                </strong>
+              </v-card-text>
+              <div v-else>
+                <bar-chart
+                  v-if="chartSwitch"
+                  :chart-data="functions.barDataColllection"
+                  :height="170"
+                />
+                <line-chart
+                  v-else
+                  :chart-data="functions.lineDataCollection"
+                  :height="170"
+                />
+              </div>
+            </v-card>
             <div class="my-2">
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                  <v-btn @click="chartSwitch = true" fab small color="white" v-on="on">
-                    <v-icon style="font-size:23px;color: teal">mdi-chart-bar</v-icon>
-                  </v-btn>
-                </template>
-                <span>Bar chart</span>
-              </v-tooltip>
+              <v-btn x-small fab color="white" dark>
+                <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
+              </v-btn>
             </div>
-            <div class="my-2">
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                  <v-btn @click="chartSwitch = false" fab small color="white" v-on="on">
-                    <v-icon style="font-size:23px;color: teal">mdi-chart-bell-curve</v-icon>
-                  </v-btn>
-                </template>
-                <span>Line chart</span>
-              </v-tooltip>
-            </div>
+            <v-container fluid class="pa-0">
+              <v-row align="center">
+                <v-col cols="12" sm="10">
+                  <div class="text-center">
+                    <v-card
+                      color="teal lighten-3"
+                    >
+                      <v-card-text class="white--text">
+                        <strong>uśredniony pomiar z dziś: {{functions.sensorDetails.averageMeasurement.measurement}} - {{functions.sensorDetails.averageMeasurement.pollutionLevel}}</strong><br>
+                        <strong>ostatni pomiar: {{functions.sensorDetails.lastMeasurement.measurement}} - {{functions.sensorDetails.lastMeasurement.pollutionLevel}}</strong>
+
+                      </v-card-text>
+                    </v-card>
+                  </div>
+                </v-col>
+                <v-col cols="12" sm="2">
+                  <div align="right">
+                    <div class="my-2">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                          <v-btn @click="chartSwitch = true" fab small color="white" v-on="on">
+                            <v-icon style="font-size:23px;color: teal">mdi-chart-bar</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Bar chart</span>
+                      </v-tooltip>
+                    </div>
+                    <div>
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                          <v-btn @click="chartSwitch = false" fab small color="white" v-on="on">
+                            <v-icon style="font-size:23px;color: teal">mdi-chart-bell-curve</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Line chart</span>
+                      </v-tooltip>
+                    </div>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-container>
+  <!--          <div align="right">-->
+  <!--          </div>-->
           </div>
         </v-card>
       </div>
@@ -259,7 +287,6 @@ export default {
   watch: {
     'functions.sensorDetails' (value) {
       this.chartSwitch = true
-      console.log(value)
     },
     'functions.stationDetails' () {
       this.functions.sensorDetails = null
@@ -346,7 +373,7 @@ export default {
 
   }
   #chart_card {
-    top: 160px;
+    top: 100px;
     left: 260px;
     position: absolute;
   }
