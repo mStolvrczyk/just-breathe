@@ -161,14 +161,37 @@
                 />
               </div>
             </v-card>
-            <div class="my-2">
-              <v-btn x-small fab color="white" dark>
-                <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
-              </v-btn>
+            <div class="text-center pa-2">
+              <v-btn-toggle rounded mandatory>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-btn @click="chartSwitch = true" color="white" v-on="on">
+                      <v-icon style="font-size:23px;color: teal">mdi-chart-bar</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Bar chart</span>
+                </v-tooltip>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-btn @click="chartSwitch = false" color="white" v-on="on">
+                      <v-icon style="font-size:23px;color: teal">mdi-chart-bell-curve</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Line chart</span>
+                </v-tooltip>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-btn color="white" v-on="on">
+                      <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Compare with yesterday</span>
+                </v-tooltip>
+              </v-btn-toggle>
             </div>
             <v-container fluid class="pa-0">
               <v-row align="center">
-                <v-col cols="12" sm="10">
+                <v-col cols="12" sm="12">
                   <div class="text-center">
                     <v-card
                       color="teal lighten-3"
@@ -179,30 +202,6 @@
 
                       </v-card-text>
                     </v-card>
-                  </div>
-                </v-col>
-                <v-col cols="12" sm="2">
-                  <div align="right">
-                    <div class="my-2">
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on }">
-                          <v-btn @click="chartSwitch = true" fab small color="white" v-on="on">
-                            <v-icon style="font-size:23px;color: teal">mdi-chart-bar</v-icon>
-                          </v-btn>
-                        </template>
-                        <span>Bar chart</span>
-                      </v-tooltip>
-                    </div>
-                    <div>
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on }">
-                          <v-btn @click="chartSwitch = false" fab small color="white" v-on="on">
-                            <v-icon style="font-size:23px;color: teal">mdi-chart-bell-curve</v-icon>
-                          </v-btn>
-                        </template>
-                        <span>Line chart</span>
-                      </v-tooltip>
-                    </div>
                   </div>
                 </v-col>
               </v-row>
