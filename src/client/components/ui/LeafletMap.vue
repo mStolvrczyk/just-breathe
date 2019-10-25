@@ -162,7 +162,7 @@
               </div>
             </v-card>
             <div class="text-center pa-2">
-              <v-btn-toggle rounded mandatory>
+              <v-btn-toggle rounded v-model="alignment">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
                     <v-btn @click="chartSwitch = true" color="white" v-on="on">
@@ -181,7 +181,7 @@
                 </v-tooltip>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
-                    <v-btn color="white" v-on="on">
+                    <v-btn @click="functions.compareWithYesterday(functions.sensorDetails.id, functions.sensorDetails)" color="white" v-on="on">
                       <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
                     </v-btn>
                   </template>
@@ -256,6 +256,7 @@ export default {
   },
   data () {
     return {
+      alignment: 0,
       options: {zoomControl: false},
       zoom: 6,
       center: [
@@ -284,8 +285,9 @@ export default {
     }
   },
   watch: {
-    'functions.sensorDetails' (value) {
+    'functions.sensorDetails' () {
       this.chartSwitch = true
+      this.alignment = 0
     },
     'functions.stationDetails' () {
       this.functions.sensorDetails = null
