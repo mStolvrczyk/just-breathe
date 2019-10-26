@@ -242,19 +242,20 @@ export default class Functions {
   let lastMeasurementsTime = sensorDetails.measurements[sensorDetails.measurements.length-1].date.substring(11)
   let yesterdaysMeasurements = (response.measurements.filter(({date}) => date >= yesterdaysDate+' 00:00:00' && date <= yesterdaysDate+' '+lastMeasurementsTime )).reverse()
   let yesterdayValues = yesterdaysMeasurements.map(({value}) => value)
+  let yesterdaysAverage = this.getAverage(yesterdayValues)
     if( sensorDetails.measurements.length === yesterdaysMeasurements.length) {
       this.barDataColllection = {
         labels: sensorDetails.measurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
-            label: sensorDetails.name+' ('+sensorDetails.symbol+')',
-            backgroundColor: sensorDetails.backgroundColor,
-            data: sensorDetails.measurements.map(({value}) => value)
-          },
-          {
             label: yesterdaysDate,
             backgroundColor: this.setBackgroundColor(yesterdayValues, response.key),
             data: yesterdayValues
+          },
+          {
+            label: this.date,
+            backgroundColor: sensorDetails.backgroundColor,
+            data: sensorDetails.measurements.map(({value}) => value)
           }
         ],
       }
@@ -262,14 +263,14 @@ export default class Functions {
         labels: sensorDetails.measurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
-            label: sensorDetails.name+' ('+sensorDetails.symbol+')',
-            backgroundColor: sensorDetails.backgroundColor,
-            data: sensorDetails.measurements.map(({value}) => value)
+            label: yesterdaysDate,
+            backgroundColor: this.setBackgroundColor(yesterdayValues, response.key)[0],
+            data: yesterdayValues
           },
           {
-            label: yesterdaysDate,
-            backgroundColor: this.setBackgroundColor(yesterdayValues, response.key),
-            data: yesterdayValues
+            label: this.date,
+            backgroundColor: this.setBackgroundColor(yesterdaysAverage, response.key)[0],
+            data: sensorDetails.measurements.map(({value}) => value)
           }
         ],
       }
