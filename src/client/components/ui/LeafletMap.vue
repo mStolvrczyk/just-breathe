@@ -13,7 +13,7 @@
         :key="station.id"
         v-for="station in stations"
         :lat-lng="functions.getMark(station)"
-        @click="functions.getStationDetails(station.id, stations)"
+        @click="functions.getStationDetails(station.id, stations, userLocation)"
       >
         <l-icon
           v-if="centerStationId === station.id"
@@ -69,7 +69,7 @@
           <v-card-text align="center" class="white--text">
             <strong>{{functions.stationDetails.stationName}}</strong><br>
             {{functions.stationDetails.city}}<br>
-            <strong>{{'odległość: '+functions.nearestStation}}</strong>
+            <strong>{{'odległość: '+functions.stationDetails.stationDistance}}</strong>
           </v-card-text>
         </v-card>
         <div id="sensor_panel" align="center">
@@ -81,7 +81,7 @@
               bottom
             >
               <template v-slot:activator="{ on }">
-                <v-btn @click="functions.getSensorDetails(sensor.id)" rounded color="teal lighten-2"
+                <v-btn @click="functions.getSensorDetails(sensor.id)" rounded color="teal lighten-2" block
                        class="white--text" v-on="on">
                   {{sensor.paramTwo}}
                 </v-btn>
@@ -97,7 +97,7 @@
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </template>
-            <span>Show closest location</span>
+            <span>Close window</span>
           </v-tooltip>
         </div>
       </div>
@@ -136,24 +136,79 @@
           color="teal lighten-4"
           width="600"
         >
-          <v-card
-            color="white"
-          >
-            <v-card-text
-              align="center"
-              v-if="functions.sensorDetails.measurements.length === 0"
+          <div align="center">
+            <v-card
+              color="white"
             >
-              <strong>
-                Brak pomiarów
-              </strong>
-            </v-card-text>
-            <line-chart
-              v-else
-              :chart-data="functions.datacollection"
-              :height="170"
-            >
-            </line-chart>
-          </v-card>
+              <v-card-text
+                align="center"
+                v-if="functions.sensorDetails.measurements.length === 0"
+              >
+                <strong>
+                  Brak pomiarów
+                </strong>
+              </v-card-text>
+              <div v-else>
+                <bar-chart
+                  v-if="chartSwitch"
+                  :chart-data="functions.barDataColllection"
+                  :height="170"
+                />
+                <line-chart
+                  v-else
+                  :chart-data="functions.lineDataCollection"
+                  :height="170"
+                />
+              </div>
+            </v-card>
+            <div class="text-center pa-2" v-if="functions.sensorDetails.measurements.length !== 0">
+              <v-btn-toggle rounded v-model="alignment">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-btn @click="chartSwitch = true" color="white" v-on="on">
+                      <v-icon style="font-size:23px;color: teal">mdi-chart-bar</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Bar chart</span>
+                </v-tooltip>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-btn @click="chartSwitch = false" color="white" v-on="on">
+                      <v-icon style="font-size:23px;color: teal">mdi-chart-bell-curve</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Line chart</span>
+                </v-tooltip>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-btn @click="functions.compareWithYesterday(functions.sensorDetails.id, functions.sensorDetails)" color="white" v-on="on">
+                      <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Compare with yesterday</span>
+                </v-tooltip>
+              </v-btn-toggle>
+            </div>
+            <v-container fluid class="pa-0" v-if="functions.sensorDetails.measurements.length !== 0">
+              <v-row align="center">
+                <v-col cols="12" sm="12">
+                  <div class="text-center">
+                    <v-card
+                      color="teal lighten-3"
+                    >
+                      <v-card-text class="white--text">
+                        <strong>uśredniony pomiar z dziś: {{functions.sensorDetails.averageMeasurement.measurement}} - {{functions.sensorDetails.averageMeasurement.pollutionLevel}}</strong><br>
+                        <strong>ostatni pomiar: {{functions.sensorDetails.lastMeasurement.measurement}} - {{functions.sensorDetails.lastMeasurement.pollutionLevel}}</strong>
+
+                      </v-card-text>
+                    </v-card>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-container>
+  <!--          <div align="right">-->
+  <!--          </div>-->
+          </div>
         </v-card>
       </div>
     </transition>
@@ -164,7 +219,8 @@
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
 import Functions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
-import LineChart from '@/components/vue-chartjs/BarChart'
+import BarChart from '@/components/vue-chartjs/BarChart'
+import LineChart from '@/components/vue-chartjs/LineChart'
 
 export default {
   name: 'LeafletMap',
@@ -174,10 +230,10 @@ export default {
     LMarker,
     LPopup,
     LIcon,
+    BarChart,
     LineChart
   },
   props: {
-    // selectedStation: Object,
     stations: Array,
     visibility: Boolean
   },
@@ -200,6 +256,7 @@ export default {
   },
   data () {
     return {
+      alignment: 0,
       options: {zoomControl: false},
       zoom: 6,
       center: [
@@ -223,10 +280,15 @@ export default {
       sensorDetails: null,
       functions: new Functions(),
       stationsService: new StationsService(),
-      selectedStation: null
+      selectedStation: null,
+      chartSwitch: true
     }
   },
   watch: {
+    'functions.sensorDetails' () {
+      this.chartSwitch = true
+      this.alignment = 0
+    },
     'functions.stationDetails' () {
       this.functions.sensorDetails = null
     },
@@ -235,7 +297,7 @@ export default {
         lat: value.coordinates[0],
         lng: value.coordinates[1]
       }
-      this.functions.getStationDetails(value.id, this.stations)
+      this.functions.getStationDetails(value.id, this.stations, this.userLocation)
       this.centerStationId = value.id
       this.zoom = 10
     },
@@ -244,7 +306,7 @@ export default {
         lat: value.lat,
         lng: value.lng
       }
-      this.functions.getStationDetails(value.id, this.stations)
+      this.functions.getStationDetails(value.id, this.stations, this.userLocation)
       this.centerStationId = value.id
       this.zoom = 10
     },
@@ -312,7 +374,7 @@ export default {
 
   }
   #chart_card {
-    top: 160px;
+    top: 100px;
     left: 260px;
     position: absolute;
   }
