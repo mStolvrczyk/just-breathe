@@ -161,7 +161,7 @@
                 />
               </div>
             </v-card>
-            <div class="text-center pa-2">
+            <div class="text-center pa-2" v-if="functions.sensorDetails.measurements.length !== 0">
               <v-btn-toggle rounded v-model="alignment">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
@@ -189,7 +189,7 @@
                 </v-tooltip>
               </v-btn-toggle>
             </div>
-            <v-container fluid class="pa-0">
+            <v-container fluid class="pa-0" v-if="functions.sensorDetails.measurements.length !== 0">
               <v-row align="center">
                 <v-col cols="12" sm="12">
                   <div class="text-center">

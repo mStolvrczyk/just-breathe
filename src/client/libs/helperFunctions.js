@@ -241,6 +241,8 @@ export default class Functions {
   let response = await this.stationsService.getSensor(measurementsId)
   let lastMeasurementsTime = sensorDetails.measurements[sensorDetails.measurements.length-1].date.substring(11)
   let yesterdaysMeasurements = (response.measurements.filter(({date}) => date >= yesterdaysDate+' 00:00:00' && date <= yesterdaysDate+' '+lastMeasurementsTime )).reverse()
+    console.log(yesterdaysMeasurements)
+    console.log(sensorDetails.measurements)
   let yesterdayValues = yesterdaysMeasurements.map(({value}) => value)
   let yesterdaysAverage = this.getAverage(yesterdayValues)
     if( sensorDetails.measurements.length === yesterdaysMeasurements.length) {
@@ -264,12 +266,12 @@ export default class Functions {
         datasets: [
           {
             label: yesterdaysDate,
-            backgroundColor: this.setBackgroundColor(yesterdayValues, response.key)[0],
+            backgroundColor: this.setBackgroundColor(yesterdaysAverage, response.key)[0],
             data: yesterdayValues
           },
           {
             label: this.date,
-            backgroundColor: this.setBackgroundColor(yesterdaysAverage, response.key)[0],
+            backgroundColor: sensorDetails.averageMeasurement.backgroundColor,
             data: sensorDetails.measurements.map(({value}) => value)
           }
         ],
