@@ -16,11 +16,6 @@
             </v-toolbar-title>
         </div>
         <v-spacer/>
-<!--        <v-btn icon>-->
-<!--            <v-icon>-->
-<!--                apps-->
-<!--            </v-icon>-->
-<!--        </v-btn>-->
         <v-btn icon>
             <v-icon>
                 notifications
@@ -34,34 +29,26 @@
         </v-btn>
     </v-app-bar>
     <v-content>
-<!--        <v-container fluid class="pa-0">-->
-<!--                <v-img-->
-<!--                        :src="appImage"-->
-<!--                        :gradient="`${'rgba(0, 128, 128, 0.6)'}, ${'rgba(0, 128, 128, 0.6)'}`"-->
-<!--                >-->
-<!--                </v-img>-->
-                <router-view/>
-<!--        </v-container>-->
+      <router-view/>
     </v-content>
-    <DetailsDialog :visibility.sync="visibility"
-                   v-on:updateVisibility="updateDetailsDialogVisibility"></DetailsDialog>
+<!--    <DetailsDialog :visibility.sync="visibility"-->
+<!--                   v-on:updateVisibility="updateDetailsDialogVisibility"></DetailsDialog>-->
   </v-app>
 </template>
 
 <script>
 
-import DetailsDialog from '@/components/ui/DetailsDialog'
+// import DetailsDialog from '@/components/ui/DetailsDialog'
 
 export default {
-  components: { DetailsDialog },
+  // components: { DetailsDialog },
   data: () => ({
-    appImage: require('@/assets/appImage.jpg'),
-    visibility: false
+    // visibility: false
   }),
   methods: {
-    updateDetailsDialogVisibility (value) {
-      this.visibility = value
-    }
+    // updateDetailsDialogVisibility (value) {
+    //   this.visibility = value
+    // }
   }
 }
 </script>
