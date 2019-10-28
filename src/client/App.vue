@@ -1,33 +1,40 @@
 <template>
   <v-app>
-    <v-app-bar
-            color='rgba(0, 0, 0, 0.3)'
-            flat
-            persistent
-            dark
-            app
-            fixed
-            :scroll-threshold="1"
-            :scroll-off-screen="true"
-    >
+    <div class="navbar">
+      <v-app-bar
+              flat
+              persistent
+              dark
+              app
+              fixed
+              :scroll-threshold="1"
+              :scroll-off-screen="true"
+              :src="require('@/assets/appImage.jpg')"
+      >
+        <template v-slot:img="{ props }">
+          <v-img
+            v-bind="props"
+            gradient="to top right, rgba(55,236,186,.7), rgba(25,32,72,.7)"
+          ></v-img>
+        </template>
         <div class="v-toolbar-title">
-            <v-toolbar-title>
-                Air Quality Check
-            </v-toolbar-title>
-        </div>
-        <v-spacer/>
-        <v-btn icon>
-            <v-icon>
-                notifications
-            </v-icon>
-        </v-btn>
-        <v-btn @click="updateDetailsDialogVisibility(true)"
-               icon>
-            <v-icon>
-                person
-            </v-icon>
-        </v-btn>
-    </v-app-bar>
+              <v-toolbar-title>
+                  Air Quality Check
+              </v-toolbar-title>
+          </div>
+          <v-spacer/>
+          <v-btn icon>
+              <v-icon>
+                  notifications
+              </v-icon>
+          </v-btn>
+          <v-btn icon>
+              <v-icon>
+                  person
+              </v-icon>
+          </v-btn>
+      </v-app-bar>
+    </div>
     <v-content>
       <router-view/>
     </v-content>
@@ -56,8 +63,7 @@ export default {
 <style>
     #app {
       background-image:
-        linear-gradient(to bottom, rgba(30, 230, 176, 0.5), rgba(30, 230, 176, 0.5)),
-        url('assets/appImage.jpg');
+        linear-gradient(to bottom, rgba(30, 230, 176, 0.5), rgba(30, 230, 176, 0.5))
 
     }
 </style>
