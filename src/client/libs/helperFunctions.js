@@ -147,37 +147,34 @@ export default class Functions {
 
   setBackgroundColor (measurements, symbol) {
     let colorArray = []
-    let sensorValue = null
-    let compartment = {}
-    let infinity = Infinity
     let compartments = [
       {
         symbol: 'PM10',
-        limits: [0.00 , 20.00, 60.00, 100.00, 140.00, 200.00],
+        limits: [20.00, 60.00, 100.00, 140.00, 200.00],
       },
       {
         symbol: 'PM2.5',
-        limits: [0.00, 12.00, 36.00, 60.00, 84.00, 120.00],
+        limits: [12.00, 36.00, 60.00, 84.00, 120.00],
       },
       {
         symbol: 'O3',
-        limits: [0.00, 30.00, 70.00, 120.00, 160.00, 240.00],
+        limits: [30.00, 70.00, 120.00, 160.00, 240.00],
       },
       {
         symbol: 'NO2',
-        limits: [0.00, 40.00, 100.00, 150.00, 200.00, 400.00],
+        limits: [40.00, 100.00, 150.00, 200.00, 400.00],
       },
       {
         symbol: 'SO2',
-        limits: [0.00, 50.00, 100.00, 200.00, 350.00, 500.00],
+        limits: [50.00, 100.00, 200.00, 350.00, 500.00],
       },
       {
         symbol: 'C6H6',
-        limits: [0.00, 5.00, 10.00, 15.00, 20.00, 50.00],
+        limits: [5.00, 10.00, 15.00, 20.00, 50.00],
       },
       {
         symbol: 'CO',
-        limits: [0, 2499, 6499, 10499, 14499, 20499],
+        limits: [2499.00, 6499.00, 10499.00, 14499.00, 20499.00],
       }
     ]
     let colors = [
@@ -192,21 +189,8 @@ export default class Functions {
     measurements.forEach(measurement => {
       let currMeasurementWithLimits = currSymbolLimits.concat([measurement]);
       currMeasurementWithLimits.sort((a,b) => {return a - b});
-      colorArray.push(colors[currMeasurementWithLimits.indexOf(measurement)-1]);
+      colorArray.push(colors[currMeasurementWithLimits.indexOf(measurement)]);
     })
-    // for (let i=0; i<compartments.length; i+=1) {
-    //   if (symbol === compartments[i].symbol) {
-    //     compartment = compartments[i]
-    //     for (let i=0; i<measurements.length; i+=1) {
-    //       sensorValue = measurements[i]
-    //       for (let i=0; i<compartment.limits.length; i+=1) {
-    //         if (compartment.limits[i][0] <= sensorValue && sensorValue <= compartment.limits[i][1]) {
-    //           colorArray.push(colors[i])
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
     return colorArray
   }
   getAverage (values) {
