@@ -81,7 +81,7 @@
               bottom
             >
               <template v-slot:activator="{ on }">
-                <v-btn @click="functions.getSensorDetails(sensor.id)" rounded color="teal lighten-2" block
+                <v-btn @click="functions.fillDatacollection(sensor.id)" rounded color="teal lighten-2" block
                        class="white--text" v-on="on">
                   {{sensor.paramTwo}}
                 </v-btn>
@@ -129,7 +129,7 @@
     <transition name="sensor_popup">
       <div
         id="chart_card"
-        v-if="functions.sensorDetails != null"
+        v-if="functions.barDataColllection != null"
       >
         <v-card
           class="pa-3"
@@ -142,7 +142,7 @@
             >
               <v-card-text
                 align="center"
-                v-if="functions.sensorDetails.measurements.length === 0"
+                v-if="functions.barDataColllection === null"
               >
                 <strong>
                   Brak pomiarów
@@ -161,7 +161,7 @@
                 />
               </div>
             </v-card>
-            <div class="text-center pa-2" v-if="functions.sensorDetails.measurements.length !== 0">
+            <div class="text-center pa-2" v-if="functions.barDataColllection != null">
               <v-btn-toggle rounded v-model="alignment">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
@@ -181,7 +181,7 @@
                 </v-tooltip>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
-                    <v-btn @click="functions.compareWithYesterday(functions.sensorDetails.id, functions.sensorDetails)" color="white" v-on="on">
+                    <v-btn @click="functions.compareWithYesterday()" color="white" v-on="on">
                       <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
                     </v-btn>
                   </template>
@@ -189,7 +189,7 @@
                 </v-tooltip>
               </v-btn-toggle>
             </div>
-            <v-container fluid class="pa-0" v-if="functions.sensorDetails.measurements.length !== 0">
+            <v-container fluid class="pa-0" v-if="functions.barDataColllection != null">
               <v-row align="center">
                 <v-col cols="12" sm="12">
                   <div class="text-center">
@@ -197,8 +197,8 @@
                       color="teal lighten-3"
                     >
                       <v-card-text class="white--text">
-                        <strong>uśredniony pomiar z dziś: {{functions.sensorDetails.averageMeasurement.measurement}} - {{functions.sensorDetails.averageMeasurement.pollutionLevel}}</strong><br>
-                        <strong>ostatni pomiar: {{functions.sensorDetails.lastMeasurement.measurement}} - {{functions.sensorDetails.lastMeasurement.pollutionLevel}}</strong>
+                        <strong>uśredniony pomiar z dziś: {{functions.averageMeasurement.measurement}} - {{functions.averageMeasurement.pollutionLevel}}</strong><br>
+                        <strong>ostatni pomiar: {{functions.lastMeasurement.measurement}} - {{functions.lastMeasurement.pollutionLevel}}</strong>
 
                       </v-card-text>
                     </v-card>
@@ -285,12 +285,13 @@ export default {
     }
   },
   watch: {
-    'functions.sensorDetails' (value) {
+    'functions.barDataColllection' () {
       this.chartSwitch = true
       this.alignment = 0
     },
     'functions.stationDetails' () {
-      this.functions.sensorDetails = null
+      this.functions.barDataColllection = null
+      this.functions.lineDataColllection = null
     },
     'selectedStation' (value) {
       this.center = {

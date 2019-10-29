@@ -8,12 +8,14 @@ export default class Functions {
 
   //LeafletMap.vue functions
 
+  stationId = null
   found = null
   stationsService = new StationsService()
   stationDetails = null
-  sensorDetails = null
-  barDataColllection = {}
-  lineDataCollection = {}
+  averageMeasurement = null
+  lastMeasurement = null
+  barDataColllection = null
+  lineDataCollection = null
   date = this.formatDate(new Date)
 
 
@@ -84,49 +86,63 @@ export default class Functions {
     }
     return stationDistance
   }
-  async getSensorDetails (id) {
+  // async getSensorDetails (id) {
+  //   let response = await this.stationsService.getSensor(id)
+  //   let filteredMeasurements = (response.measurements.filter(({date}) => date >= this.date+' 00:00:00')).reverse()
+  //   let filteredValues = filteredMeasurements.map(({value}) => value)
+  //   let averageMeasurement = this.getAverage(filteredValues)
+  //   let lastMeasurement = this.getLastMeasurement(filteredValues)
+  //   this.sensorDetails = {
+  //     id: response.id,
+  //     name: sensorNames[response.key],
+  //     symbol: response.key,
+  //     measurements: filteredMeasurements,
+  //     backgroundColor: this.setBackgroundColor(filteredValues, response.key),
+  //     averageMeasurement: {
+  //       measurement: averageMeasurement[0].toFixed(2),
+  //       backgroundColor: this.setBackgroundColor(averageMeasurement, response.key)[0],
+  //       pollutionLevel: pollutionLevels[this.setBackgroundColor(averageMeasurement, response.key)[0]]
+  //     },
+  //     lastMeasurement: {
+  //       measurement: lastMeasurement[0],
+  //       pollutionLevel: pollutionLevels[this.setBackgroundColor(lastMeasurement, response.key)[0]]
+  //     }
+  //   }
+  //   this.fillDatacollection(this.sensorDetails)
+  // }
+
+  async fillDatacollection (id) {
     let response = await this.stationsService.getSensor(id)
     let filteredMeasurements = (response.measurements.filter(({date}) => date >= this.date+' 00:00:00')).reverse()
     let filteredValues = filteredMeasurements.map(({value}) => value)
     let averageMeasurement = this.getAverage(filteredValues)
     let lastMeasurement = this.getLastMeasurement(filteredValues)
-    this.sensorDetails = {
-      id: response.id,
-      name: sensorNames[response.key],
-      symbol: response.key,
-      measurements: filteredMeasurements,
-      backgroundColor: this.setBackgroundColor(filteredValues, response.key),
-      averageMeasurement: {
-        measurement: averageMeasurement[0].toFixed(2),
-        backgroundColor: this.setBackgroundColor(averageMeasurement, response.key)[0],
-        pollutionLevel: pollutionLevels[this.setBackgroundColor(averageMeasurement, response.key)[0]]
-      },
-      lastMeasurement: {
-        measurement: lastMeasurement[0],
-        pollutionLevel: pollutionLevels[this.setBackgroundColor(lastMeasurement, response.key)[0]]
-      }
-    }
-    this.fillDatacollection(this.sensorDetails)
-  }
-
-  fillDatacollection (sensor) {
+    this.stationId = response.id
+    this.averageMeasurement = {
+      measurement: averageMeasurement[0].toFixed(2),
+      pollutionLevel: pollutionLevels[this.setBackgroundColor(averageMeasurement, response.key)[0]]
+    },
+    this.lastMeasurement = {
+      measurement: lastMeasurement[0].toFixed(2),
+      pollutionLevel: pollutionLevels[this.setBackgroundColor(lastMeasurement, response.key)[0]]
+    },
     this.barDataColllection = {
-      labels: sensor.measurements.map(({ date }) => date.substring(11, 16)),
+      labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
       datasets: [
         {
-          label: sensor.name+' ('+sensor.symbol+')',
-          backgroundColor: sensor.backgroundColor,
-          data: sensor.measurements.map(({value}) => value)
+          label: sensorNames[response.key]+' ('+response.key+')',
+          backgroundColor: this.setBackgroundColor(filteredValues, response.key),
+          data: filteredMeasurements.map(({value}) => value)
         },
       ],
     }
     this.lineDataCollection = {
-      labels: sensor.measurements.map(({ date }) => date.substring(11, 16)),
+      labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
       datasets: [
         {
-          label: sensor.name+' ('+sensor.symbol+')',
-          backgroundColor: sensor.averageMeasurement.backgroundColor,
-          data: sensor.measurements.map(({value}) => value)
+          label: sensorNames[response.key]+' ('+response.key+')',
+          backgroundColor: this.setBackgroundColor(averageMeasurement, response.key)[0],
+          data: filteredMeasurements.map(({value}) => value)
         },
       ],
     }
