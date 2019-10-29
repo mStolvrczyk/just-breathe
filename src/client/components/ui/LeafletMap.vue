@@ -285,7 +285,7 @@ export default {
     }
   },
   watch: {
-    'functions.sensorDetails' () {
+    'functions.sensorDetails' (value) {
       this.chartSwitch = true
       this.alignment = 0
     },
