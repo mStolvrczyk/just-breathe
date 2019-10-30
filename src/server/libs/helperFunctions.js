@@ -1,3 +1,27 @@
+// module.exports = {
+//   getData: function ({ data }) {
+//     return data
+//   },
+//   stationsFilter: function ({ id, stationName, city, gegrLat, gegrLon }) {
+//     return {
+//       id,
+//       stationName: stationName.replace('_', ' '),
+//       city: city ? city.name : '',
+//       coordinates: [
+//         gegrLat,
+//         gegrLon
+//       ],
+//     }
+//   },
+//   stationFilter: function ({ id, param }) {
+//     return {
+//       id,
+//       param: param ? param.paramName : '',
+//       paramTwo: param ? param.paramFormula : ''
+//     }
+//   }
+// }
+
 module.exports = {
   getData: function ({ data }) {
     return data
@@ -5,7 +29,7 @@ module.exports = {
   stationsFilter: function ({ id, stationName, city, gegrLat, gegrLon }) {
     return {
       id,
-      stationName: stationName.replace('_', ' '),
+      stationName,
       city: city ? city.name : '',
       coordinates: [
         gegrLat,
@@ -13,7 +37,7 @@ module.exports = {
       ],
     }
   },
-  stationFilter: function ({ id, param }) {
+  sensorsFilter: function ({ id, param }) {
     return {
       id,
       param: param ? param.paramName : '',

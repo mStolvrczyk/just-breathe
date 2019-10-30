@@ -74,7 +74,7 @@ export default class Functions {
     this.stationDetails = {
       stationName: station.stationName,
       city: station.city,
-      sensors: await this.stationsService.getStation(station.id),
+      // sensors: await this.stationsService.getStation(station.id),
       stationDistance: this.roundStationDistance(this.getDistance(station.coordinates, userLocation))
     }
   }
@@ -85,6 +85,10 @@ export default class Functions {
       stationDistance = stationDistance.toFixed(0)+'m'
     }
     return stationDistance
+  }
+  async testing (id) {
+    let response = await this.stationsService.getStation(id)
+    console.log(response)
   }
   // async getSensorDetails (id) {
   //   let response = await this.stationsService.getSensor(id)

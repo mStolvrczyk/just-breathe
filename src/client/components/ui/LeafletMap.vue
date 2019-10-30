@@ -13,7 +13,7 @@
         :key="station.id"
         v-for="station in stations"
         :lat-lng="functions.getMark(station)"
-        @click="functions.getStationDetails(station.id, stations, userLocation)"
+        @click="functions.testing(station.id)"
       >
         <l-icon
           v-if="centerStationId === station.id"
