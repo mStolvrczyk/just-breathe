@@ -106,7 +106,7 @@
                 <v-col cols="12" lg="2">
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
-                      <v-btn @click="functions.fillDatacollection()" fab x-small color="teal lighten-2" v-on="on">
+                      <v-btn @click="functions.fillDatacollection(sensor.id, functions.apiResponse)" fab x-small color="teal lighten-2" v-on="on">
                         <v-icon style="font-size:18px;color: white">mdi-dots-horizontal</v-icon>
                       </v-btn>
                     </template>
@@ -318,6 +318,10 @@ export default {
     'functions.stationDetails' (value) {
       this.functions.barDataColllection = null
       this.functions.lineDataColllection = null
+      // console.log(value)
+    },
+    'functions.apiResponse' (value) {
+      console.log(value)
     },
     'selectedStation' (value) {
       this.center = {

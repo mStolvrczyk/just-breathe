@@ -9,7 +9,7 @@ export default class Functions {
 
   //LeafletMap.vue functions
   apiResponse = null
-  stationId = null
+  sensorId = null
   found = null
   stationsService = new StationsService()
   stationDetails = null
@@ -71,7 +71,6 @@ export default class Functions {
 
   async getStationDetails (id, stations, userLocation) {
     let response = (await this.stationsService.getStation(id)).filter(({measurement}) => measurement.length>0)
-    console.log(response)
     this.apiResponse = response
     let stationId  = id
     let station = await stations.find(({ id }) => id === stationId)
@@ -117,28 +116,28 @@ export default class Functions {
   //   this.fillDatacollection(this.sensorDetails)
   // }
 
-  async fillDatacollection (id) {
-    let response = await this.stationsService.getSensor(id)
-    let filteredMeasurements = (response.measurements.filter(({date}) => date >= this.date+' 00:00:00')).reverse()
+  async fillDatacollection (id, apiResponse) {
+    let sensor = apiResponse.find(sensor => sensor.details.id === id)
+    let filteredMeasurements = sensor.measurement.filter(({date}) => date >= this.date+' 00:00:00')
     let filteredValues = filteredMeasurements.map(({value}) => value)
     let averageMeasurement = this.getAverage(filteredValues)
     let lastMeasurement = this.getLastMeasurement(filteredValues)
-    this.stationId = response.id
+    this.sensorId = sensor.details.id
     this.averageMeasurement = {
       measurement: averageMeasurement[0].toFixed(2),
-      pollutionLevel: pollutionLevels[this.setBackgroundColor(averageMeasurement, response.key)[0]]
+      pollutionLevel: pollutionLevels[this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo)[0]]
     },
     this.lastMeasurement = {
       measurement: lastMeasurement[0].toFixed(2),
-      pollutionLevel: pollutionLevels[this.setBackgroundColor(lastMeasurement, response.key)[0]]
+      pollutionLevel: pollutionLevels[this.setBackgroundColor(lastMeasurement, sensor.details.paramTwo)[0]]
     },
     this.barDataColllection = {
       labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
       datasets: [
         {
-          label: sensorNames[response.key]+' ('+response.key+')',
-          backgroundColor: this.setBackgroundColor(filteredValues, response.key),
-          data: filteredMeasurements.map(({value}) => value)
+          label: sensor.details.param+' ('+sensor.details.paramTwo+')',
+          backgroundColor: this.setBackgroundColor(filteredValues, sensor.details.paramTwo),
+          data: filteredMeasurements.map(({value}) => value.toFixed(2))
         },
       ],
     }
@@ -146,9 +145,9 @@ export default class Functions {
       labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
       datasets: [
         {
-          label: sensorNames[response.key]+' ('+response.key+')',
-          backgroundColor: this.setBackgroundColor(averageMeasurement, response.key)[0],
-          data: filteredMeasurements.map(({value}) => value)
+          label: sensor.details.param+' ('+sensor.details.paramTwo+')',
+          backgroundColor: this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo)[0],
+          data: filteredMeasurements.map(({value}) => value.toFixed(2))
         },
       ],
     }
