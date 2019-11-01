@@ -13,7 +13,7 @@
         :key="station.id"
         v-for="station in stations"
         :lat-lng="functions.getMark(station)"
-        @click="functions.testing(station.id)"
+        @click="functions.getStationDetails(station.id, stations, userLocation)"
       >
         <l-icon
           v-if="centerStationId === station.id"
@@ -73,22 +73,48 @@
           </v-card-text>
         </v-card>
         <div id="sensor_panel" align="center">
-          <div
-            class="my-2"
-            v-for="sensor in functions.stationDetails.sensors"
-          >
-            <v-tooltip
-              bottom
+            <v-container
+              fluid class="pa-0"
+              v-for="sensor in functions.stationDetails.sensors"
             >
-              <template v-slot:activator="{ on }">
-                <v-btn @click="functions.fillDatacollection(sensor.id)" rounded color="teal lighten-2" block
-                       class="white--text" v-on="on">
-                  {{sensor.paramTwo}}
-                </v-btn>
-              </template>
-              <span>{{sensor.param}}</span>
-            </v-tooltip>
-          </div>
+              <v-row align="center" dense>
+                <v-col cols="12" lg="5">
+                    <v-tooltip
+                      bottom
+                    >
+                      <template v-slot:activator="{ on }">
+                        <v-card rounded color="teal lighten-2" block
+                               class="white--text" v-on="on">
+                          {{sensor.symbol}}
+                        </v-card>
+                      </template>
+                      <span>{{sensor.name}}</span>
+                    </v-tooltip>
+                </v-col>
+                <v-col cols="12" lg="5">
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                      <v-card
+                        class="white--text"
+                        :style="{'background-color': sensor.backgroundColor}" v-on="on">
+                            <strong>{{sensor.pollutionLimit+'%'}}</strong>
+                      </v-card>
+                    </template>
+                      <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
+                  </v-tooltip>
+                </v-col>
+                <v-col cols="12" lg="2">
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                      <v-btn @click="functions.fillDatacollection()" fab x-small color="teal lighten-2" v-on="on">
+                        <v-icon style="font-size:18px;color: white">mdi-dots-horizontal</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Show closest location</span>
+                  </v-tooltip>
+                </v-col>
+              </v-row>
+            </v-container>
         </div>
         <div id="close_button">
           <v-tooltip bottom>
@@ -289,7 +315,7 @@ export default {
       this.chartSwitch = true
       this.alignment = 0
     },
-    'functions.stationDetails' () {
+    'functions.stationDetails' (value) {
       this.functions.barDataColllection = null
       this.functions.lineDataColllection = null
     },

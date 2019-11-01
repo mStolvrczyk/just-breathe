@@ -1,13 +1,14 @@
 import StationsService from '@/services/StationsService'
 import sensorNames from '@/libs/sensorNames'
 import pollutionLevels from '@/libs/pollutionLevels'
+import pollutionLimits from '@/libs/pollutionLimits'
 import { forEach } from 'ramda'
 
 
 export default class Functions {
 
   //LeafletMap.vue functions
-
+  apiResponse = null
   stationId = null
   found = null
   stationsService = new StationsService()
@@ -69,12 +70,17 @@ export default class Functions {
   }
 
   async getStationDetails (id, stations, userLocation) {
+    let response = (await this.stationsService.getStation(id)).filter(({measurement}) => measurement.length>0)
+    console.log(response)
+    this.apiResponse = response
     let stationId  = id
     let station = await stations.find(({ id }) => id === stationId)
+    let sensorsDetails = response.map(({details}) => details)
+    let lastSensorsValues = this.mapLastValues(response)
     this.stationDetails = {
       stationName: station.stationName,
       city: station.city,
-      // sensors: await this.stationsService.getStation(station.id),
+      sensors: this.mapSensors(sensorsDetails, lastSensorsValues),
       stationDistance: this.roundStationDistance(this.getDistance(station.coordinates, userLocation))
     }
   }
@@ -85,10 +91,6 @@ export default class Functions {
       stationDistance = stationDistance.toFixed(0)+'m'
     }
     return stationDistance
-  }
-  async testing (id) {
-    let response = await this.stationsService.getStation(id)
-    console.log(response)
   }
   // async getSensorDetails (id) {
   //   let response = await this.stationsService.getSensor(id)
@@ -198,12 +200,12 @@ export default class Functions {
       }
     ]
     let colors = [
-      'rgba(87, 177, 8, 0.5)',
-      'rgba(176, 221, 16, 0.5)',
-      'rgba(255, 217, 17, 0.5)',
-      'rgba(229, 129, 0, 0.5)',
-      'rgba(229, 0, 0, 0.5)',
-      'rgba(153, 0, 0, 0.5)',
+      'rgba(87, 177, 8, 0.6)',
+      'rgba(176, 221, 16, 0.6)',
+      'rgba(255, 217, 17, 0.6)',
+      'rgba(229, 129, 0, 0.6)',
+      'rgba(229, 0, 0, 0.6)',
+      'rgba(153, 0, 0, 0.6)',
     ]
     let currSymbolLimits = compartments.find(test => test.symbol === symbol).limits;
     measurements.forEach(measurement => {
@@ -271,6 +273,34 @@ export default class Functions {
         ],
       }
     // }
+  }
+  mapLastValues (response) {
+    let values = response.map(({measurement}) => measurement)
+    let valuesArray = []
+    values.forEach(value => {
+      value.reverse()
+      valuesArray.push(value[value.length-1].value)
+    })
+    return valuesArray
+  }
+  mapSensors (sensorsDetails, lastSensorsValues) {
+    let sensorsArray = []
+    for(let i = 0; i<sensorsDetails.length && i<lastSensorsValues.length; i++) {
+      let currentValue = [lastSensorsValues[i]]
+      sensorsArray.push({
+        id: sensorsDetails[i].id,
+        name: sensorsDetails[i].param,
+        symbol: sensorsDetails[i].paramTwo,
+        lastValue: (lastSensorsValues[i]).toFixed(1),
+        backgroundColor: this.setBackgroundColor(currentValue, sensorsDetails[i].paramTwo)[0],
+        pollutionLimit: this.getPollutionLimit(sensorsDetails[i].paramTwo, (lastSensorsValues[i]).toFixed(1))
+      })
+    }
+    return sensorsArray
+  }
+  getPollutionLimit (symbol, value) {
+    let limit = pollutionLimits[symbol]
+    return ((value*100)/limit).toFixed(1)
   }
 }
 
