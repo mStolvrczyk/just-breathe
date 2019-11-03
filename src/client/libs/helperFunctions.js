@@ -233,41 +233,44 @@ export default class Functions {
     yesterdayDate.setDate(yesterdayDate.getDate() - 1)
     return this.formatDate(yesterdayDate)
   }
-  async compareWithYesterday (measurementsId, sensorDetails) {
+  async compareWithYesterday (id, apiResponse) {
   let yesterdaysDate = this.getYesterdaysDate()
-  let response = await this.stationsService.getSensor(measurementsId)
-  let lastMeasurementsTime = sensorDetails.measurements[sensorDetails.measurements.length-1].date.substring(11)
-  let yesterdaysMeasurements = (response.measurements.filter(({date}) => date >= yesterdaysDate+' 00:00:00' && date <= yesterdaysDate+' '+lastMeasurementsTime )).reverse()
+  let sensor = apiResponse.find(sensor => sensor.details.id === id)
+  let filteredMeasurements = sensor.measurement.filter(({date}) => date >= this.date+' 00:00:00')
+  let filteredValues = filteredMeasurements.map(({value}) => value)
+  let averageMeasurement = this.getAverage(filteredValues)
+  let lastMeasurementsTime = filteredMeasurements[filteredMeasurements.length-1].date.substring(11)
+  let yesterdaysMeasurements = (sensor.measurement.filter(({date}) => date >= yesterdaysDate+' 00:00:00' && date <= yesterdaysDate+' '+lastMeasurementsTime )).reverse()
   let yesterdayValues = yesterdaysMeasurements.map(({value}) => value)
-  let yesterdaysAverage = this.getAverage(yesterdayValues)
+  let yesterdaysAverageMeasurement = this.getAverage(yesterdayValues)
     // if( sensorDetails.measurements.length === yesterdaysMeasurements.length) {
       this.barDataColllection = {
-        labels: sensorDetails.measurements.map(({ date }) => date.substring(11, 16)),
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
             label: yesterdaysDate,
-            backgroundColor: this.setBackgroundColor(yesterdayValues, response.key),
+            backgroundColor: this.setBackgroundColor(yesterdayValues, sensor.details.paramTwo),
             data: yesterdayValues
           },
           {
             label: this.date,
-            backgroundColor: sensorDetails.backgroundColor,
-            data: sensorDetails.measurements.map(({value}) => value)
+            backgroundColor: this.setBackgroundColor(filteredValues, sensor.details.paramTwo),
+            data: filteredMeasurements.map(({value}) => value)
           }
         ],
       }
       this.lineDataCollection = {
-        labels: sensorDetails.measurements.map(({ date }) => date.substring(11, 16)),
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
             label: yesterdaysDate,
-            backgroundColor: this.setBackgroundColor(yesterdaysAverage, response.key)[0],
+            backgroundColor: this.setBackgroundColor(yesterdaysAverageMeasurement, sensor.details.paramTwo)[0],
             data: yesterdayValues
           },
           {
             label: this.date,
-            backgroundColor: sensorDetails.averageMeasurement.backgroundColor,
-            data: sensorDetails.measurements.map(({value}) => value)
+            backgroundColor: this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo)[0],
+            data: filteredMeasurements.map(({value}) => value)
           }
         ],
       }

@@ -35,7 +35,7 @@
                 <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
               </v-btn>
             </template>
-            <span>Show closest location</span>
+            <span>Pokaż najbliższą stację</span>
           </v-tooltip>
         </div>
         <div class="my-2">
@@ -45,7 +45,7 @@
                 <v-icon style="font-size:23px;color: white">mdi-earth</v-icon>
               </v-btn>
             </template>
-            <span>Polution map</span>
+            <span>W trakcie...</span>
            </v-tooltip>
         </div>
         <div class="my-2">
@@ -55,7 +55,7 @@
                 <v-icon style="font-size:23px;color: white">mdi-arrow-left</v-icon>
               </v-btn>
             </template>
-            <span>Go back</span>
+            <span>Wróć</span>
           </v-tooltip>
         </div>
       </div>
@@ -110,7 +110,7 @@
                         <v-icon style="font-size:18px;color: white">mdi-dots-horizontal</v-icon>
                       </v-btn>
                     </template>
-                    <span>Show closest location</span>
+                    <span>Pokaż szczegóły</span>
                   </v-tooltip>
                 </v-col>
               </v-row>
@@ -123,7 +123,7 @@
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </template>
-            <span>Close window</span>
+            <span>Zamknij okno</span>
           </v-tooltip>
         </div>
       </div>
@@ -195,7 +195,7 @@
                       <v-icon style="font-size:23px;color: teal">mdi-chart-bar</v-icon>
                     </v-btn>
                   </template>
-                  <span>Bar chart</span>
+                  <span>Wykres słupkowy</span>
                 </v-tooltip>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
@@ -203,15 +203,15 @@
                       <v-icon style="font-size:23px;color: teal">mdi-chart-bell-curve</v-icon>
                     </v-btn>
                   </template>
-                  <span>Line chart</span>
+                  <span>Wykres liniowy</span>
                 </v-tooltip>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
-                    <v-btn @click="functions.compareWithYesterday()" color="white" v-on="on">
+                    <v-btn @click="functions.compareWithYesterday(functions.sensorId, functions.apiResponse)" color="white" v-on="on">
                       <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
                     </v-btn>
                   </template>
-                  <span>Compare with yesterday</span>
+                  <span>Porównaj z wczoraj</span>
                 </v-tooltip>
               </v-btn-toggle>
             </div>
@@ -312,16 +312,15 @@ export default {
   },
   watch: {
     'functions.barDataColllection' () {
-      this.chartSwitch = true
-      this.alignment = 0
     },
-    'functions.stationDetails' (value) {
+    'functions.sensorId' () {
+      this.alignment = 0
+      this.chartSwitch = true
+    },
+    'functions.stationDetails' () {
       this.functions.barDataColllection = null
       this.functions.lineDataColllection = null
       // console.log(value)
-    },
-    'functions.apiResponse' (value) {
-      console.log(value)
     },
     'selectedStation' (value) {
       this.center = {
