@@ -1,7 +1,7 @@
 import Vue from 'vue'
 
 // Plugins
-import './plugins'
+import vuetify from './plugins/vuetify'
 
 // Leaflet
 import { Icon } from 'leaflet'
@@ -31,6 +31,7 @@ Icon.Default.mergeOptions({
 })
 
 new Vue({
+  vuetify,
   router,
   store,
   render: h => h(App)
