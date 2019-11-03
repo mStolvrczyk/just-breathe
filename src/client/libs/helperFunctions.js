@@ -1,19 +1,22 @@
 import StationsService from '@/services/StationsService'
 import sensorNames from '@/libs/sensorNames'
 import pollutionLevels from '@/libs/pollutionLevels'
+import pollutionLimits from '@/libs/pollutionLimits'
 import { forEach } from 'ramda'
 
 
 export default class Functions {
 
   //LeafletMap.vue functions
-
+  apiResponse = null
+  sensorId = null
   found = null
   stationsService = new StationsService()
   stationDetails = null
-  sensorDetails = null
-  barDataColllection = {}
-  lineDataCollection = {}
+  averageMeasurement = null
+  lastMeasurement = null
+  barDataColllection = null
+  lineDataCollection = null
   date = this.formatDate(new Date)
 
 
@@ -67,12 +70,16 @@ export default class Functions {
   }
 
   async getStationDetails (id, stations, userLocation) {
+    let response = (await this.stationsService.getStation(id)).filter(({measurement}) => measurement.length>0)
+    this.apiResponse = response
     let stationId  = id
     let station = await stations.find(({ id }) => id === stationId)
+    let sensorsDetails = response.map(({details}) => details)
+    let lastSensorsValues = this.mapLastValues(response)
     this.stationDetails = {
       stationName: station.stationName,
       city: station.city,
-      sensors: await this.stationsService.getStation(station.id),
+      sensors: this.mapSensors(sensorsDetails, lastSensorsValues),
       stationDistance: this.roundStationDistance(this.getDistance(station.coordinates, userLocation))
     }
   }
@@ -84,49 +91,63 @@ export default class Functions {
     }
     return stationDistance
   }
-  async getSensorDetails (id) {
-    let response = await this.stationsService.getSensor(id)
-    let filteredMeasurements = (response.measurements.filter(({date}) => date >= this.date+' 00:00:00')).reverse()
+  // async getSensorDetails (id) {
+  //   let response = await this.stationsService.getSensor(id)
+  //   let filteredMeasurements = (response.measurements.filter(({date}) => date >= this.date+' 00:00:00')).reverse()
+  //   let filteredValues = filteredMeasurements.map(({value}) => value)
+  //   let averageMeasurement = this.getAverage(filteredValues)
+  //   let lastMeasurement = this.getLastMeasurement(filteredValues)
+  //   this.sensorDetails = {
+  //     id: response.id,
+  //     name: sensorNames[response.key],
+  //     symbol: response.key,
+  //     measurements: filteredMeasurements,
+  //     backgroundColor: this.setBackgroundColor(filteredValues, response.key),
+  //     averageMeasurement: {
+  //       measurement: averageMeasurement[0].toFixed(2),
+  //       backgroundColor: this.setBackgroundColor(averageMeasurement, response.key)[0],
+  //       pollutionLevel: pollutionLevels[this.setBackgroundColor(averageMeasurement, response.key)[0]]
+  //     },
+  //     lastMeasurement: {
+  //       measurement: lastMeasurement[0],
+  //       pollutionLevel: pollutionLevels[this.setBackgroundColor(lastMeasurement, response.key)[0]]
+  //     }
+  //   }
+  //   this.fillDatacollection(this.sensorDetails)
+  // }
+
+  async fillDatacollection (id, apiResponse) {
+    let sensor = apiResponse.find(sensor => sensor.details.id === id)
+    let filteredMeasurements = sensor.measurement.filter(({date}) => date >= this.date+' 00:00:00')
     let filteredValues = filteredMeasurements.map(({value}) => value)
     let averageMeasurement = this.getAverage(filteredValues)
     let lastMeasurement = this.getLastMeasurement(filteredValues)
-    this.sensorDetails = {
-      id: response.id,
-      name: sensorNames[response.key],
-      symbol: response.key,
-      measurements: filteredMeasurements,
-      backgroundColor: this.setBackgroundColor(filteredValues, response.key),
-      averageMeasurement: {
-        measurement: averageMeasurement[0].toFixed(2),
-        backgroundColor: this.setBackgroundColor(averageMeasurement, response.key)[0],
-        pollutionLevel: pollutionLevels[this.setBackgroundColor(averageMeasurement, response.key)[0]]
-      },
-      lastMeasurement: {
-        measurement: lastMeasurement[0],
-        pollutionLevel: pollutionLevels[this.setBackgroundColor(lastMeasurement, response.key)[0]]
-      }
-    }
-    this.fillDatacollection(this.sensorDetails)
-  }
-
-  fillDatacollection (sensor) {
+    this.sensorId = sensor.details.id
+    this.averageMeasurement = {
+      measurement: averageMeasurement[0].toFixed(2),
+      pollutionLevel: pollutionLevels[this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo)[0]]
+    },
+    this.lastMeasurement = {
+      measurement: lastMeasurement[0].toFixed(2),
+      pollutionLevel: pollutionLevels[this.setBackgroundColor(lastMeasurement, sensor.details.paramTwo)[0]]
+    },
     this.barDataColllection = {
-      labels: sensor.measurements.map(({ date }) => date.substring(11, 16)),
+      labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
       datasets: [
         {
-          label: sensor.name+' ('+sensor.symbol+')',
-          backgroundColor: sensor.backgroundColor,
-          data: sensor.measurements.map(({value}) => value)
+          label: sensor.details.param+' ('+sensor.details.paramTwo+')',
+          backgroundColor: this.setBackgroundColor(filteredValues, sensor.details.paramTwo),
+          data: filteredMeasurements.map(({value}) => value.toFixed(2))
         },
       ],
     }
     this.lineDataCollection = {
-      labels: sensor.measurements.map(({ date }) => date.substring(11, 16)),
+      labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
       datasets: [
         {
-          label: sensor.name+' ('+sensor.symbol+')',
-          backgroundColor: sensor.averageMeasurement.backgroundColor,
-          data: sensor.measurements.map(({value}) => value)
+          label: sensor.details.param+' ('+sensor.details.paramTwo+')',
+          backgroundColor: this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo)[0],
+          data: filteredMeasurements.map(({value}) => value.toFixed(2))
         },
       ],
     }
@@ -147,74 +168,50 @@ export default class Functions {
 
   setBackgroundColor (measurements, symbol) {
     let colorArray = []
-    let sensorValue = null
-    let compartment = {}
-    let infinity = Infinity
     let compartments = [
       {
         symbol: 'PM10',
-        limits: [
-          [0,20], [20, 60], [60,100], [100, 140], [140, 200], [200, infinity]
-        ],
+        limits: [20.00, 60.00, 100.00, 140.00, 200.00],
       },
       {
         symbol: 'PM2.5',
-        limits: [
-          [0,12], [12, 36], [36,60], [60, 84], [84, 120], [120, infinity]
-        ],
+        limits: [12.00, 36.00, 60.00, 84.00, 120.00],
       },
       {
         symbol: 'O3',
-        limits: [
-          [0,30], [30, 70], [70,120], [120, 160], [160, 240], [240, infinity]
-        ],
+        limits: [30.00, 70.00, 120.00, 160.00, 240.00],
       },
       {
         symbol: 'NO2',
-        limits: [
-          [0,40], [40, 100], [100,150], [150, 200], [200, 400], [400, infinity]
-        ],
+        limits: [40.00, 100.00, 150.00, 200.00, 400.00],
       },
       {
         symbol: 'SO2',
-        limits: [
-          [0,50], [50, 100], [100,200], [200, 350], [350, 500], [500, infinity]
-        ],
+        limits: [50.00, 100.00, 200.00, 350.00, 500.00],
       },
       {
         symbol: 'C6H6',
-        limits: [
-          [0,5], [5,10], [10,15], [15, 20], [20, 50], [50, infinity]
-        ],
+        limits: [5.00, 10.00, 15.00, 20.00, 50.00],
       },
       {
         symbol: 'CO',
-        limits: [
-          [0,2499], [2499, 6499], [6499,10499], [10499, 14499], [14499, 20499], [20499, infinity]
-        ],
+        limits: [2499.00, 6499.00, 10499.00, 14499.00, 20499.00],
       }
     ]
     let colors = [
-      '#57b108',
-      '#b0dd10',
-      '#ffd911',
-      '#e58100',
-      '#e50000',
-      '#990000'
+      'rgba(87, 177, 8, 0.6)',
+      'rgba(176, 221, 16, 0.6)',
+      'rgba(255, 217, 17, 0.6)',
+      'rgba(229, 129, 0, 0.6)',
+      'rgba(229, 0, 0, 0.6)',
+      'rgba(153, 0, 0, 0.6)',
     ]
-    for (let i=0; i<compartments.length; i+=1) {
-      if (symbol === compartments[i].symbol) {
-        compartment = compartments[i]
-        for (let i=0; i<measurements.length; i+=1) {
-          sensorValue = measurements[i]
-          for (let i=0; i<compartment.limits.length; i+=1) {
-            if (compartment.limits[i][0] <= sensorValue && sensorValue <= compartment.limits[i][1]) {
-              colorArray.push(colors[i])
-            }
-          }
-        }
-      }
-    }
+    let currSymbolLimits = compartments.find(test => test.symbol === symbol).limits;
+    measurements.forEach(measurement => {
+      let currMeasurementWithLimits = currSymbolLimits.concat([measurement]);
+      currMeasurementWithLimits.sort((a,b) => {return a - b});
+      colorArray.push(colors[currMeasurementWithLimits.indexOf(measurement)]);
+    })
     return colorArray
   }
   getAverage (values) {
@@ -236,47 +233,76 @@ export default class Functions {
     yesterdayDate.setDate(yesterdayDate.getDate() - 1)
     return this.formatDate(yesterdayDate)
   }
-  async compareWithYesterday (measurementsId, sensorDetails) {
+  async compareWithYesterday (id, apiResponse) {
   let yesterdaysDate = this.getYesterdaysDate()
-  let response = await this.stationsService.getSensor(measurementsId)
-  let lastMeasurementsTime = sensorDetails.measurements[sensorDetails.measurements.length-1].date.substring(11)
-  let yesterdaysMeasurements = (response.measurements.filter(({date}) => date >= yesterdaysDate+' 00:00:00' && date <= yesterdaysDate+' '+lastMeasurementsTime )).reverse()
-    console.log(yesterdaysMeasurements)
-    console.log(sensorDetails.measurements)
+  let sensor = apiResponse.find(sensor => sensor.details.id === id)
+  let filteredMeasurements = sensor.measurement.filter(({date}) => date >= this.date+' 00:00:00')
+  let filteredValues = filteredMeasurements.map(({value}) => value)
+  let averageMeasurement = this.getAverage(filteredValues)
+  let lastMeasurementsTime = filteredMeasurements[filteredMeasurements.length-1].date.substring(11)
+  let yesterdaysMeasurements = (sensor.measurement.filter(({date}) => date >= yesterdaysDate+' 00:00:00' && date <= yesterdaysDate+' '+lastMeasurementsTime )).reverse()
   let yesterdayValues = yesterdaysMeasurements.map(({value}) => value)
-  let yesterdaysAverage = this.getAverage(yesterdayValues)
-    if( sensorDetails.measurements.length === yesterdaysMeasurements.length) {
+  let yesterdaysAverageMeasurement = this.getAverage(yesterdayValues)
+    // if( sensorDetails.measurements.length === yesterdaysMeasurements.length) {
       this.barDataColllection = {
-        labels: sensorDetails.measurements.map(({ date }) => date.substring(11, 16)),
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
             label: yesterdaysDate,
-            backgroundColor: this.setBackgroundColor(yesterdayValues, response.key),
+            backgroundColor: this.setBackgroundColor(yesterdayValues, sensor.details.paramTwo),
             data: yesterdayValues
           },
           {
             label: this.date,
-            backgroundColor: sensorDetails.backgroundColor,
-            data: sensorDetails.measurements.map(({value}) => value)
+            backgroundColor: this.setBackgroundColor(filteredValues, sensor.details.paramTwo),
+            data: filteredMeasurements.map(({value}) => value)
           }
         ],
       }
       this.lineDataCollection = {
-        labels: sensorDetails.measurements.map(({ date }) => date.substring(11, 16)),
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
             label: yesterdaysDate,
-            backgroundColor: this.setBackgroundColor(yesterdaysAverage, response.key)[0],
+            backgroundColor: this.setBackgroundColor(yesterdaysAverageMeasurement, sensor.details.paramTwo)[0],
             data: yesterdayValues
           },
           {
             label: this.date,
-            backgroundColor: sensorDetails.averageMeasurement.backgroundColor,
-            data: sensorDetails.measurements.map(({value}) => value)
+            backgroundColor: this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo)[0],
+            data: filteredMeasurements.map(({value}) => value)
           }
         ],
       }
+    // }
+  }
+  mapLastValues (response) {
+    let values = response.map(({measurement}) => measurement)
+    let valuesArray = []
+    values.forEach(value => {
+      value.reverse()
+      valuesArray.push(value[value.length-1].value)
+    })
+    return valuesArray
+  }
+  mapSensors (sensorsDetails, lastSensorsValues) {
+    let sensorsArray = []
+    for(let i = 0; i<sensorsDetails.length && i<lastSensorsValues.length; i++) {
+      let currentValue = [lastSensorsValues[i]]
+      sensorsArray.push({
+        id: sensorsDetails[i].id,
+        name: sensorsDetails[i].param,
+        symbol: sensorsDetails[i].paramTwo,
+        lastValue: (lastSensorsValues[i]).toFixed(1),
+        backgroundColor: this.setBackgroundColor(currentValue, sensorsDetails[i].paramTwo)[0],
+        pollutionLimit: this.getPollutionLimit(sensorsDetails[i].paramTwo, (lastSensorsValues[i]).toFixed(1))
+      })
     }
+    return sensorsArray
+  }
+  getPollutionLimit (symbol, value) {
+    let limit = pollutionLimits[symbol]
+    return ((value*100)/limit).toFixed(1)
   }
 }
 

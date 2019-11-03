@@ -35,7 +35,7 @@
                 <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
               </v-btn>
             </template>
-            <span>Show closest location</span>
+            <span>Pokaż najbliższą stację</span>
           </v-tooltip>
         </div>
         <div class="my-2">
@@ -45,7 +45,7 @@
                 <v-icon style="font-size:23px;color: white">mdi-earth</v-icon>
               </v-btn>
             </template>
-            <span>Polution map</span>
+            <span>W trakcie...</span>
            </v-tooltip>
         </div>
         <div class="my-2">
@@ -55,7 +55,7 @@
                 <v-icon style="font-size:23px;color: white">mdi-arrow-left</v-icon>
               </v-btn>
             </template>
-            <span>Go back</span>
+            <span>Wróć</span>
           </v-tooltip>
         </div>
       </div>
@@ -73,22 +73,48 @@
           </v-card-text>
         </v-card>
         <div id="sensor_panel" align="center">
-          <div
-            class="my-2"
-            v-for="sensor in functions.stationDetails.sensors"
-          >
-            <v-tooltip
-              bottom
+            <v-container
+              fluid class="pa-0"
+              v-for="sensor in functions.stationDetails.sensors"
             >
-              <template v-slot:activator="{ on }">
-                <v-btn @click="functions.getSensorDetails(sensor.id)" rounded color="teal lighten-2" block
-                       class="white--text" v-on="on">
-                  {{sensor.paramTwo}}
-                </v-btn>
-              </template>
-              <span>{{sensor.param}}</span>
-            </v-tooltip>
-          </div>
+              <v-row align="center" dense>
+                <v-col cols="12" lg="5">
+                    <v-tooltip
+                      bottom
+                    >
+                      <template v-slot:activator="{ on }">
+                        <v-card rounded color="teal lighten-2" block
+                               class="white--text" v-on="on">
+                          {{sensor.symbol}}
+                        </v-card>
+                      </template>
+                      <span>{{sensor.name}}</span>
+                    </v-tooltip>
+                </v-col>
+                <v-col cols="12" lg="5">
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                      <v-card
+                        class="white--text"
+                        :style="{'background-color': sensor.backgroundColor}" v-on="on">
+                            <strong>{{sensor.pollutionLimit+'%'}}</strong>
+                      </v-card>
+                    </template>
+                      <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
+                  </v-tooltip>
+                </v-col>
+                <v-col cols="12" lg="2">
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                      <v-btn @click="functions.fillDatacollection(sensor.id, functions.apiResponse)" fab x-small color="teal lighten-2" v-on="on">
+                        <v-icon style="font-size:18px;color: white">mdi-dots-horizontal</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Pokaż szczegóły</span>
+                  </v-tooltip>
+                </v-col>
+              </v-row>
+            </v-container>
         </div>
         <div id="close_button">
           <v-tooltip bottom>
@@ -97,7 +123,7 @@
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </template>
-            <span>Close window</span>
+            <span>Zamknij okno</span>
           </v-tooltip>
         </div>
       </div>
@@ -129,7 +155,7 @@
     <transition name="sensor_popup">
       <div
         id="chart_card"
-        v-if="functions.sensorDetails != null"
+        v-if="functions.barDataColllection != null"
       >
         <v-card
           class="pa-3"
@@ -142,7 +168,7 @@
             >
               <v-card-text
                 align="center"
-                v-if="functions.sensorDetails.measurements.length === 0"
+                v-if="functions.barDataColllection === null"
               >
                 <strong>
                   Brak pomiarów
@@ -161,7 +187,7 @@
                 />
               </div>
             </v-card>
-            <div class="text-center pa-2" v-if="functions.sensorDetails.measurements.length !== 0">
+            <div class="text-center pa-2" v-if="functions.barDataColllection != null">
               <v-btn-toggle rounded v-model="alignment">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
@@ -169,7 +195,7 @@
                       <v-icon style="font-size:23px;color: teal">mdi-chart-bar</v-icon>
                     </v-btn>
                   </template>
-                  <span>Bar chart</span>
+                  <span>Wykres słupkowy</span>
                 </v-tooltip>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
@@ -177,19 +203,19 @@
                       <v-icon style="font-size:23px;color: teal">mdi-chart-bell-curve</v-icon>
                     </v-btn>
                   </template>
-                  <span>Line chart</span>
+                  <span>Wykres liniowy</span>
                 </v-tooltip>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
-                    <v-btn @click="functions.compareWithYesterday(functions.sensorDetails.id, functions.sensorDetails)" color="white" v-on="on">
+                    <v-btn @click="functions.compareWithYesterday(functions.sensorId, functions.apiResponse)" color="white" v-on="on">
                       <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
                     </v-btn>
                   </template>
-                  <span>Compare with yesterday</span>
+                  <span>Porównaj z wczoraj</span>
                 </v-tooltip>
               </v-btn-toggle>
             </div>
-            <v-container fluid class="pa-0" v-if="functions.sensorDetails.measurements.length !== 0">
+            <v-container fluid class="pa-0" v-if="functions.barDataColllection != null">
               <v-row align="center">
                 <v-col cols="12" sm="12">
                   <div class="text-center">
@@ -197,8 +223,8 @@
                       color="teal lighten-3"
                     >
                       <v-card-text class="white--text">
-                        <strong>uśredniony pomiar z dziś: {{functions.sensorDetails.averageMeasurement.measurement}} - {{functions.sensorDetails.averageMeasurement.pollutionLevel}}</strong><br>
-                        <strong>ostatni pomiar: {{functions.sensorDetails.lastMeasurement.measurement}} - {{functions.sensorDetails.lastMeasurement.pollutionLevel}}</strong>
+                        <strong>uśredniony pomiar z dziś: {{functions.averageMeasurement.measurement}} - {{functions.averageMeasurement.pollutionLevel}}</strong><br>
+                        <strong>ostatni pomiar: {{functions.lastMeasurement.measurement}} - {{functions.lastMeasurement.pollutionLevel}}</strong>
 
                       </v-card-text>
                     </v-card>
@@ -285,12 +311,16 @@ export default {
     }
   },
   watch: {
-    'functions.sensorDetails' () {
-      this.chartSwitch = true
+    'functions.barDataColllection' () {
+    },
+    'functions.sensorId' () {
       this.alignment = 0
+      this.chartSwitch = true
     },
     'functions.stationDetails' () {
-      this.functions.sensorDetails = null
+      this.functions.barDataColllection = null
+      this.functions.lineDataColllection = null
+      // console.log(value)
     },
     'selectedStation' (value) {
       this.center = {
