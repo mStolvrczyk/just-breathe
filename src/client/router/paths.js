@@ -2,7 +2,7 @@ import DashboardView from '@/views/Dashboard'
 
 export default [
   {
-    path: '/dashboard',
+    path: '',
     alias: '',
     component: DashboardView,
     name: 'Dashboard',

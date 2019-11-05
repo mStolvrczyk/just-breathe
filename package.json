@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "nodemon --watch src/server --exec vue-cli-service serve",
+    "start": "node src/server",
+    "dev": "nodemon --watch src/server --exec vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test:unit": "vue-cli-service test:unit",
-    "unit": "jest"
+    "unit": "jest",
+    "heroku-postbuild": "npm install && npm run build"
   },
   "dependencies": {
     "@mdi/font": "^3.9.97",
