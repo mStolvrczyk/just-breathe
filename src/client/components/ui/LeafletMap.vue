@@ -63,8 +63,8 @@
       <div id="station_card" v-if="functions.stationDetails != null">
         <v-card
           color="teal lighten-2"
-          class="pa-3"
-          width="170"
+          class="pa-2"
+          width="220"
         >
           <v-card-text align="center" class="white--text">
             <strong>{{functions.stationDetails.stationName}}</strong><br>
@@ -395,7 +395,7 @@ export default {
   }
   #close_button {
     top: 3px;
-    left: 137px;
+    left: 190px;
     position: absolute;
   }
   #v-btn_close {
@@ -405,7 +405,7 @@ export default {
   }
   #chart_card {
     top: 100px;
-    left: 260px;
+    left: 290px;
     position: absolute;
   }
   .custom-popup .leaflet-popup-content-wrapper {
