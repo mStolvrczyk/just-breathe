@@ -223,8 +223,8 @@
                       color="teal lighten-1"
                     >
                       <v-card-text class="white--text">
-                        <strong>uśredniony pomiar z dziś: {{functions.averageMeasurement.measurement}} - {{functions.averageMeasurement.pollutionLevel}}</strong><br>
-                        <strong>ostatni pomiar: {{functions.lastMeasurement.measurement}} - {{functions.lastMeasurement.pollutionLevel}}</strong>
+                        <strong>uśredniony pomiar z dziś: {{functions.averageMeasurement.procentValue + '%'}} ({{functions.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) - {{functions.averageMeasurement.pollutionLevel}}</strong><br>
+                        <strong>ostatni pomiar: {{functions.lastMeasurement.procentValue + '%'}} ({{functions.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) - {{functions.lastMeasurement.pollutionLevel}}</strong>
 
                       </v-card-text>
                     </v-card>
