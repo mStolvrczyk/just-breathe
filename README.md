@@ -9,7 +9,7 @@ Air Quality Check is a Vue.js SPA application that allows you to monitor air qua
 
 ```
 $ npm install
-$ npm run serve
+$ npm run dev
 ```
 ### Build project
 ```
@@ -30,9 +30,8 @@ npm run lint
 ```
 npm run test:unit
 ```
+### Live example
+<a href="https://air-quality-check-app.herokuapp.com/">Go here</a> to check out live example
 ## Future plans:
-* "find me" function
-* polution map 
-* adding charts with vue-chartjs
 * firebase for storing data and authentication
 * adding User Panel that will contain information such as last measurements or average of them
