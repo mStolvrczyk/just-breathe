@@ -17,13 +17,12 @@ export default class Functions {
   lastMeasurement = null
   barDataColllection = null
   lineDataCollection = null
-  date = this.formatDate(new Date)
-
+  date = this.formatDate(new Date())
 
   getMark (station) {
     return {
       lat: station.coordinates[0],
-      lng: station.coordinates[1],
+      lng: station.coordinates[1]
     }
   }
 
@@ -72,9 +71,9 @@ export default class Functions {
   async getStationDetails (id, stations, userLocation) {
     let response = (await this.stationsService.getStation(id)).filter(({measurement}) => measurement.length>0)
     this.apiResponse = response
-    let stationId  = id
+    let stationId = id
     let station = await stations.find(({ id }) => id === stationId)
-    let sensorsDetails = response.map(({details}) => details)
+    let sensorsDetails = response.map(({ details }) => details)
     let lastSensorsValues = this.mapLastValues(response)
     this.stationDetails = {
       stationName: station.stationName,
