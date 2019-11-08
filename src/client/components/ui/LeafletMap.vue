@@ -31,27 +31,27 @@
         <div class="my-2">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn @click="functions.closestStation(stations, userLocation)" fab small color="teal lighten-2" v-on="on">
+              <v-btn @click="functions.closestStation(stations, userLocation)" fab small color="teal lighten-1" v-on="on">
                 <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
               </v-btn>
             </template>
             <span>Pokaż najbliższą stację</span>
           </v-tooltip>
         </div>
-        <div class="my-2">
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn fab small color="teal lighten-2" v-on="on">
-                <v-icon style="font-size:23px;color: white">mdi-earth</v-icon>
-              </v-btn>
-            </template>
-            <span>W trakcie...</span>
-           </v-tooltip>
-        </div>
+<!--        <div class="my-2">-->
+<!--          <v-tooltip bottom>-->
+<!--            <template v-slot:activator="{ on }">-->
+<!--              <v-btn fab small color="teal lighten-2" v-on="on">-->
+<!--                <v-icon style="font-size:23px;color: white">mdi-earth</v-icon>-->
+<!--              </v-btn>-->
+<!--            </template>-->
+<!--            <span>W trakcie...</span>-->
+<!--           </v-tooltip>-->
+<!--        </div>-->
         <div class="my-2">
           <v-tooltip v-if="buttonVisibility" bottom>
             <template v-slot:activator="{ on }">
-              <v-btn @click="zoomReset" fab small color="teal lighten-2" v-on="on">
+              <v-btn @click="zoomReset" fab small color="teal lighten-1" v-on="on">
                 <v-icon style="font-size:23px;color: white">mdi-arrow-left</v-icon>
               </v-btn>
             </template>
@@ -62,7 +62,7 @@
     <transition name="station_popup">
       <div id="station_card" v-if="functions.stationDetails != null">
         <v-card
-          color="teal lighten-2"
+          color="teal lighten-1"
           class="pa-2"
           width="220"
         >
@@ -83,7 +83,7 @@
                       bottom
                     >
                       <template v-slot:activator="{ on }">
-                        <v-card rounded color="teal lighten-2" block
+                        <v-card rounded color="teal lighten-1" block
                                class="white--text" v-on="on">
                           {{sensor.symbol}}
                         </v-card>
@@ -96,7 +96,7 @@
                     <template v-slot:activator="{ on }">
                       <v-card
                         class="white--text"
-                        :style="{'background-color': sensor.backgroundColor}" v-on="on">
+                        :style="{'background-color': sensor.backgroundColor }" v-on="on">
                             <strong>{{sensor.pollutionLimit+'%'}}</strong>
                       </v-card>
                     </template>
@@ -106,7 +106,7 @@
                 <v-col cols="12" lg="2">
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
-                      <v-btn @click="functions.fillDatacollection(sensor.id, functions.apiResponse)" fab x-small color="teal lighten-2" v-on="on">
+                      <v-btn @click="functions.fillDatacollection(sensor.id, functions.apiResponse)" fab x-small color="teal lighten-1" v-on="on">
                         <v-icon style="font-size:18px;color: white">mdi-dots-horizontal</v-icon>
                       </v-btn>
                     </template>
@@ -130,7 +130,7 @@
     </transition>
     <div id="station_input">
       <v-autocomplete
-        background-color="teal lighten-4"
+        background-color="white"
         v-model="selectedStation"
         :items="stations"
         flat
@@ -220,11 +220,11 @@
                 <v-col cols="12" sm="12">
                   <div class="text-center">
                     <v-card
-                      color="teal lighten-3"
+                      color="teal lighten-1"
                     >
                       <v-card-text class="white--text">
-                        <strong>uśredniony pomiar z dziś: {{functions.averageMeasurement.measurement}} - {{functions.averageMeasurement.pollutionLevel}}</strong><br>
-                        <strong>ostatni pomiar: {{functions.lastMeasurement.measurement}} - {{functions.lastMeasurement.pollutionLevel}}</strong>
+                        <strong>uśredniony pomiar z dziś: {{functions.averageMeasurement.procentValue + '%'}} ({{functions.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) - {{functions.averageMeasurement.pollutionLevel}}</strong><br>
+                        <strong>ostatni pomiar: {{functions.lastMeasurement.procentValue + '%'}} ({{functions.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) - {{functions.lastMeasurement.pollutionLevel}}</strong>
 
                       </v-card-text>
                     </v-card>
@@ -290,8 +290,8 @@ export default {
         19.3
       ],
       buttonVisibility: false,
-      url: 'https://tile.thunderforest.com/mobile-atlas/{z}/{x}/{y}.png?apikey=fc31e976df5a44d7b5164bcbb91c70b0',
-      // url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+      // url: 'https://tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=fc31e976df5a44d7b5164bcbb91c70b0',
+      url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<a/> contributors',
       tealIcon: require('@/assets/tealPin.png'),
       yellowIcon: require('@/assets/yellowPin.png'),
