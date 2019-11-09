@@ -78,7 +78,7 @@
               v-for="sensor in functions.stationDetails.sensors"
             >
               <v-row align="center" dense>
-                <v-col cols="12" lg="5">
+                <v-col cols="5" lg="5" xs="5">
                     <v-tooltip
                       bottom
                     >
@@ -91,7 +91,7 @@
                       <span>{{sensor.name}}</span>
                     </v-tooltip>
                 </v-col>
-                <v-col cols="12" lg="5">
+                <v-col cols="5" lg="5" xs="5">
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
                       <v-card
@@ -103,7 +103,7 @@
                       <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
                   </v-tooltip>
                 </v-col>
-                <v-col cols="12" lg="2">
+                <v-col cols="2" lg="2" xs="2">
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
                       <v-btn @click="functions.fillDatacollection(sensor.id, functions.apiResponse)" fab x-small color="teal lighten-1" v-on="on">
@@ -274,7 +274,7 @@ export default {
       )
     },
     zoomReset () {
-      this.$refs.map.setZoom(6)
+      this.$refs.map.setZoom(this.zoomHolder)
       this.$refs.map.setCenter([52.25, 19.3])
       this.centerStationId = null
       this.functions.stationDetails = null
@@ -282,6 +282,7 @@ export default {
   },
   data () {
     return {
+      zoomHolder: null,
       alignment: 0,
       options: {zoomControl: false},
       zoom: 6,
@@ -298,6 +299,7 @@ export default {
       tealIconSize: [40, 40],
       yellowIconSize: [30, 40],
       initialLocation: [59.93428, 30.335098],
+      width: document.documentElement.clientWidth,
       userLocation: [],
       watcher: navigator.geolocation.watchPosition(this.setLocation),
       centerStationId: null,
@@ -312,6 +314,15 @@ export default {
   },
   watch: {
     'functions.barDataColllection' () {
+    },
+    'functions.apiResponse' (value) {
+      console.log(value)
+    },
+    'functions.lastMeasurement' (value) {
+      console.log(value)
+    },
+    'functions.averageMeasurement' (value) {
+      console.log(value)
     },
     'functions.sensorId' () {
       this.alignment = 0
@@ -341,9 +352,24 @@ export default {
       this.zoom = 10
     },
     'zoom' (value) {
-      this.buttonVisibility = value !== 6;
-    },
+      if (this.width < 768) {
+        this.buttonVisibility = value !== 5
+      } else {
+        this.buttonVisibility = value !== 6
+      }
+    }
+  },
+  mounted () {
+    if (this.width < 768) {
+      this.zoomHolder = 5
+      this.tealIconSize = [25, 25]
+      this.yellowIconSize = [15, 25]
+      this.$refs.map.setZoom(5)
+    } else {
+      this.zoomHolder = 6
+    }
   }
+
 }
 </script>
 
@@ -377,37 +403,75 @@ export default {
     bottom: 0;
     width: 100%;
   }
+  @media only screen and (max-width: 600px) {
+  }
+  @media only screen and (min-width: 768px) {
+  }
   #button_panel {
     position: absolute;
     top: 120px;
     right: 30px;
   }
-  #station_card {
-    position: absolute;
-    top: 100px;
-    left: 60px;
+  @media only screen and (max-width: 600px) {
+    #station_input {
+      width: 60%;
+      position: absolute;
+      height: 5%;
+      top: 10px;
+      left: 70px;
+    }
+    #station_card {
+      position: absolute;
+      top: 65px;
+      left: 7px;
+      width: 160px;
+    }
+    #close_button {
+      top: 3px;
+      left: 130px;
+      position: absolute;
+    }
+    #chart_card {
+      top: 250px;
+      left: 15px;
+      width: 350px;
+      height: 10%;
+      position: absolute;
+    }
   }
-  #station_input {
-    width: 60%;
-    position: absolute;
-    top: 10px;
-    left: 285px;
-  }
-  #close_button {
-    top: 3px;
-    left: 190px;
-    position: absolute;
+  @media only screen and (min-width: 768px) {
+    #station_input {
+      width: 60%;
+      position: absolute;
+      top: 10px;
+      left: 285px;
+    }
+    #station_card {
+      position: absolute;
+      top: 100px;
+      left: 60px;
+    }
+    #close_button {
+      top: 3px;
+      left: 130px;
+      position: absolute;
+    }
+    #chart_card {
+      top: 100px;
+      left: 290px;
+      position: absolute;
+    }
   }
   #v-btn_close {
     width: 25px;
     height: 25px;
 
   }
-  #chart_card {
-    top: 100px;
-    left: 290px;
-    position: absolute;
-  }
+  /*#chart_card {*/
+  /*  top: 100px;*/
+  /*  left: 290px;*/
+  /*  position: absolute;*/
+  /*}*/
   .custom-popup .leaflet-popup-content-wrapper {
     background: #B2DFDB;
     color: white;
