@@ -62,6 +62,16 @@
             <strong>{{'odległość: '+functions.stationDetails.stationDistance}}</strong>
           </v-card-text>
         </v-card>
+        <div id="desktop_close_button">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn @click="functions.stationDetails = null" text fab x-small color="white" v-on="on" id="desktop_v-btn_close">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </template>
+            <span>Zamknij okno</span>
+          </v-tooltip>
+        </div>
         <div id="desktop_sensor_panel" align="center">
             <v-container
               fluid class="pa-0"
@@ -106,39 +116,28 @@
               </v-row>
             </v-container>
         </div>
-        <div id="desktop_close_button">
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn @click="functions.stationDetails = null" text fab x-small color="white" v-on="on" id="desktop_v-btn_close">
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </template>
-            <span>Zamknij okno</span>
-          </v-tooltip>
-        </div>
       </div>
     </transition>
     <transition name="station_popup">
-      <div id="mobile_station_card" align="center"  v-if="functions.stationDetails != null">
+      <div id="mobile_station_card" v-if="functions.stationDetails != null">
         <v-card
           color="teal lighten-1"
-          class="pa-1"
+          class="pa-0"
         >
           <v-card-text align="center" class="white--text">
             <strong>{{functions.stationDetails.stationName}}</strong><br>
             {{'odległość: '+functions.stationDetails.stationDistance}}
           </v-card-text>
         </v-card>
-        <div id="mobile_close_button">
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn class="pa-5" @click="functions.stationDetails = null" text fab x-small color="white" v-on="on" id="mobile_v-btn_close">
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </template>
-            <span>Zamknij okno</span>
-          </v-tooltip>
-        </div>
+<!--        <div id="mobile_close_button">-->
+<!--          <v-tooltip bottom>-->
+<!--            <template v-slot:activator="{on}">-->
+<!--              <v-btn @click="functions.stationDetails = null" text fab x-small color="white" id="mobile_v-btn_close" v-on="on">-->
+<!--                <v-icon>mdi-close</v-icon>-->
+<!--              </v-btn>-->
+<!--            </template>-->
+<!--          </v-tooltip>-->
+<!--        </div>-->
       </div>
     </transition>
     <transition name="station_popup">
@@ -201,14 +200,9 @@
               </v-tooltip>
             </v-col>
             <v-col cols="2" lg="2" xs="4">
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                  <v-btn id="mobile_details" @click="functions.fillDatacollection(sensor.id, functions.apiResponse)" fab x-small color="teal lighten-1" v-on="on">
-                    <v-icon style="font-size:17px;color: white">mdi-dots-horizontal</v-icon>
-                  </v-btn>
-                </template>
-                <span>Pokaż szczegóły</span>
-              </v-tooltip>
+              <v-btn id="mobile_details" @click="functions.fillDatacollection(sensor.id, functions.apiResponse), visibility === true" fab x-small color="teal lighten-1">
+                <v-icon style="font-size:17px;color: white">mdi-dots-horizontal</v-icon>
+              </v-btn>
             </v-col>
           </v-row>
         </v-container>
@@ -241,7 +235,7 @@
     <transition name="sensor_popup">
       <div
         id="chart_card"
-        v-if="functions.barDataColllection != null"
+        v-if="functions.barDataColllection != null && width > 768"
       >
         <v-card
           class="pa-3"
@@ -345,7 +339,6 @@ export default {
   },
   props: {
     stations: Array,
-    visibility: Boolean
   },
   methods: {
     setLocation (pos) {
@@ -394,26 +387,27 @@ export default {
       functions: new Functions(),
       stationsService: new StationsService(),
       selectedStation: null,
-      chartSwitch: true
+      chartSwitch: true,
+      visibility: false
     }
   },
   watch: {
-    'functions.barDataColllection' () {
-    },
-    'functions.apiResponse' (value) {
-      console.log(value)
-    },
-    'functions.lastMeasurement' (value) {
-      console.log(value)
-    },
-    'functions.averageMeasurement' (value) {
-      console.log(value)
+    'visibility' (value) {
+      if (value === true) {
+        this.$emit('sendBarDataCollection', this.functions.barDataColllection)
+        this.$emit('sendLineDataCollection', this.functions.lineDataColllection)
+        this.$emit('sendAverageMeasurement', this.functions.averageMeasurement)
+        this.$emit('sendLastMeasurement', this.functions.lastMeasurement)
+      }
     },
     'functions.sensorId' () {
       this.alignment = 0
       this.chartSwitch = true
     },
     'functions.stationDetails' () {
+      if (this.width < 768) {
+        this.buttonVisibility = true
+      }
       this.functions.barDataColllection = null
       this.functions.lineDataColllection = null
       // console.log(value)
@@ -495,7 +489,6 @@ export default {
       top: 10px;
       text-align: center;
       left: 20px;
-      /*right: 20px;*/
     }
     #button_panel {
       position: absolute;
@@ -519,8 +512,8 @@ export default {
       height: 25px;
     }
     #mobile_close_button {
-      top: -13px;
-      left: 116px;
+      top: 3px;
+      left: 190px;
       position: absolute;
     }
     #mobile_v-btn_close {
@@ -528,13 +521,13 @@ export default {
       height: 30px;
 
     }
-    #chart_card {
-      top: 250px;
-      left: 15px;
-      width: 350px;
-      height: 10%;
-      position: absolute;
-    }
+    /*#chart_card {*/
+    /*  top: 250px;*/
+    /*  left: 15px;*/
+    /*  width: 350px;*/
+    /*  height: 10%;*/
+    /*  position: absolute;*/
+    /*}*/
   }
   @media only screen and (min-width: 768px) {
     #station_input {
@@ -564,12 +557,12 @@ export default {
       height: 30px;
 
     }
+  }
     #chart_card {
       top: 100px;
       left: 290px;
       position: absolute;
     }
-  }
   /*#chart_card {*/
   /*  top: 100px;*/
   /*  left: 290px;*/
