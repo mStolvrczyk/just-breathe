@@ -29,7 +29,7 @@
     </v-map>
       <div align="center" id="button_panel">
         <div class="my-2">
-          <v-tooltip bottom>
+          <v-tooltip bottom v-if="width > 768">
             <template v-slot:activator="{ on }">
               <v-btn @click="functions.closestStation(stations, userLocation)" fab small color="teal lighten-1" v-on="on">
                 <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
@@ -37,6 +37,9 @@
             </template>
             <span>Pokaż najbliższą stację</span>
           </v-tooltip>
+          <v-btn v-else @click="functions.closestStation(stations, userLocation)" fab small color="teal lighten-1">
+            <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
+          </v-btn>
         </div>
         <div class="my-2">
           <v-tooltip v-if="buttonVisibility" bottom>
