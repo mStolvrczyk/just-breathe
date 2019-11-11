@@ -29,7 +29,7 @@
     </v-map>
       <div align="center" id="button_panel">
         <div class="my-2">
-          <v-tooltip bottom>
+          <v-tooltip bottom v-if="width > 768">
             <template v-slot:activator="{ on }">
               <v-btn @click="functions.closestStation(stations, userLocation)" fab small color="teal lighten-1" v-on="on">
                 <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
@@ -37,17 +37,10 @@
             </template>
             <span>Pokaż najbliższą stację</span>
           </v-tooltip>
+          <v-btn v-else @click="functions.closestStation(stations, userLocation)" fab small color="teal lighten-1">
+            <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
+          </v-btn>
         </div>
-<!--        <div class="my-2">-->
-<!--          <v-tooltip bottom>-->
-<!--            <template v-slot:activator="{ on }">-->
-<!--              <v-btn fab small color="teal lighten-2" v-on="on">-->
-<!--                <v-icon style="font-size:23px;color: white">mdi-earth</v-icon>-->
-<!--              </v-btn>-->
-<!--            </template>-->
-<!--            <span>W trakcie...</span>-->
-<!--           </v-tooltip>-->
-<!--        </div>-->
         <div class="my-2">
           <v-tooltip v-if="buttonVisibility" bottom>
             <template v-slot:activator="{ on }">
@@ -63,8 +56,6 @@
       <div id="station_card" v-if="functions.stationDetails != null">
         <v-card
           color="teal lighten-1"
-          class="pa-2"
-          width="220"
         >
           <v-card-text align="center" class="white--text">
             <strong>{{functions.stationDetails.stationName}}</strong><br>
@@ -72,54 +63,10 @@
             <strong>{{'odległość: '+functions.stationDetails.stationDistance}}</strong>
           </v-card-text>
         </v-card>
-        <div id="sensor_panel" align="center">
-            <v-container
-              fluid class="pa-0"
-              v-for="sensor in functions.stationDetails.sensors"
-            >
-              <v-row align="center" dense>
-                <v-col cols="12" lg="5">
-                    <v-tooltip
-                      bottom
-                    >
-                      <template v-slot:activator="{ on }">
-                        <v-card rounded color="teal lighten-1" block
-                               class="white--text" v-on="on">
-                          {{sensor.symbol}}
-                        </v-card>
-                      </template>
-                      <span>{{sensor.name}}</span>
-                    </v-tooltip>
-                </v-col>
-                <v-col cols="12" lg="5">
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                      <v-card
-                        class="white--text"
-                        :style="{'background-color': sensor.backgroundColor }" v-on="on">
-                            <strong>{{sensor.pollutionLimit+'%'}}</strong>
-                      </v-card>
-                    </template>
-                      <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
-                  </v-tooltip>
-                </v-col>
-                <v-col cols="12" lg="2">
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                      <v-btn @click="functions.fillDatacollection(sensor.id, functions.apiResponse)" fab x-small color="teal lighten-1" v-on="on">
-                        <v-icon style="font-size:18px;color: white">mdi-dots-horizontal</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Pokaż szczegóły</span>
-                  </v-tooltip>
-                </v-col>
-              </v-row>
-            </v-container>
-        </div>
         <div id="close_button">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn @click="functions.stationDetails = null" text fab x-small color="white" v-on="on" id="v-btn_close">
+              <v-btn @click="functions.stationDetails = null" text fab x-small color="white" v-on="on" id="desktop_v-btn_close">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </template>
@@ -128,6 +75,108 @@
         </div>
       </div>
     </transition>
+    <transition name="station_popup">
+      <div id="sensor_panel" align="center" v-if="functions.stationDetails != null">
+          <v-container
+            fluid class="pa-0"
+            v-for="sensor in functions.stationDetails.sensors"
+          >
+            <v-row align="center" dense>
+              <v-col cols="5" lg="5" xs="5">
+                  <v-tooltip
+                    bottom
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-card rounded color="teal lighten-1" block
+                             class="white--text" v-on="on">
+                        {{sensor.symbol}}
+                      </v-card>
+                    </template>
+                    <span>{{sensor.name}}</span>
+                  </v-tooltip>
+              </v-col>
+              <v-col cols="5" lg="5" xs="5">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-card
+                      class="white--text"
+                      :style="{'background-color': sensor.backgroundColor }" v-on="on">
+                          <strong>{{sensor.pollutionLimit+'%'}}</strong>
+                    </v-card>
+                  </template>
+                    <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
+                </v-tooltip>
+              </v-col>
+              <v-col cols="2" lg="2" xs="2">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-btn @click="functions.fillDatacollection(sensor.id, functions.apiResponse)" fab x-small color="teal lighten-1" v-on="on">
+                      <v-icon style="font-size:18px;color: white">mdi-dots-horizontal</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Pokaż szczegóły</span>
+                </v-tooltip>
+              </v-col>
+            </v-row>
+          </v-container>
+      </div>
+    </transition>
+<!--    <transition name="station_popup">-->
+<!--      <div id="mobile_station_card" v-if="functions.stationDetails != null">-->
+<!--        <v-card-->
+<!--          color="teal lighten-1"-->
+<!--          class="pa-0"-->
+<!--        >-->
+<!--          <v-card-text align="center" class="white&#45;&#45;text">-->
+<!--            <strong>{{functions.stationDetails.stationName}}</strong><br>-->
+<!--            {{'odległość: '+functions.stationDetails.stationDistance}}-->
+<!--          </v-card-text>-->
+<!--        </v-card>-->
+<!--      </div>-->
+<!--    </transition>-->
+<!--    <transition name="station_popup">-->
+<!--      <div id="mobile_sensor_panel" align="center" v-if="functions.stationDetails != null">-->
+<!--        <v-container-->
+<!--          fluid class="pa-0"-->
+<!--          v-for="sensor in functions.stationDetails.sensors"-->
+<!--        >-->
+<!--          <v-row align="center" dense>-->
+<!--            <v-col cols="3" lg="5" xs="4">-->
+<!--              <v-tooltip-->
+<!--                bottom-->
+<!--              >-->
+<!--                <template v-slot:activator="{ on }">-->
+<!--                  <v-card rounded color="teal lighten-1" block-->
+<!--                    class="white&#45;&#45;text" v-on="on"-->
+<!--                    :style="{'font-size': '13px'}"-->
+<!--                  >-->
+<!--                    {{sensor.symbol}}-->
+<!--                  </v-card>-->
+<!--                </template>-->
+<!--                <span>{{sensor.name}}</span>-->
+<!--              </v-tooltip>-->
+<!--            </v-col>-->
+<!--            <v-col cols="3" lg="5" xs="4">-->
+<!--              <v-tooltip bottom>-->
+<!--                <template v-slot:activator="{ on }">-->
+<!--                  <v-card-->
+<!--                    class="white&#45;&#45;text"-->
+<!--                    :style="{'background-color': sensor.backgroundColor, 'font-size': '13px' }" v-on="on">-->
+<!--                    <strong>{{sensor.pollutionLimit+'%'}}</strong>-->
+<!--                  </v-card>-->
+<!--                </template>-->
+<!--                <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>-->
+<!--              </v-tooltip>-->
+<!--            </v-col>-->
+<!--            <v-col cols="2" lg="2" xs="4">-->
+<!--              <v-btn id="mobile_details" @click="functions.fillDatacollection(sensor.id, functions.apiResponse), visibility === true" fab x-small color="teal lighten-1">-->
+<!--                <v-icon style="font-size:17px;color: white">mdi-dots-horizontal</v-icon>-->
+<!--              </v-btn>-->
+<!--            </v-col>-->
+<!--          </v-row>-->
+<!--        </v-container>-->
+<!--      </div>-->
+<!--    </transition>-->
     <div id="station_input">
       <v-autocomplete
         background-color="white"
@@ -155,7 +204,7 @@
     <transition name="sensor_popup">
       <div
         id="chart_card"
-        v-if="functions.barDataColllection != null"
+        v-if="functions.barDataColllection != null && width > 768"
       >
         <v-card
           class="pa-3"
@@ -232,8 +281,6 @@
                 </v-col>
               </v-row>
             </v-container>
-  <!--          <div align="right">-->
-  <!--          </div>-->
           </div>
         </v-card>
       </div>
@@ -261,7 +308,6 @@ export default {
   },
   props: {
     stations: Array,
-    visibility: Boolean
   },
   methods: {
     setLocation (pos) {
@@ -274,14 +320,16 @@ export default {
       )
     },
     zoomReset () {
-      this.$refs.map.setZoom(6)
+      this.$refs.map.setZoom(this.zoomHolder)
       this.$refs.map.setCenter([52.25, 19.3])
       this.centerStationId = null
       this.functions.stationDetails = null
+      this.selectedStation = null
     }
   },
   data () {
     return {
+      zoomHolder: null,
       alignment: 0,
       options: {zoomControl: false},
       zoom: 6,
@@ -298,6 +346,7 @@ export default {
       tealIconSize: [40, 40],
       yellowIconSize: [30, 40],
       initialLocation: [59.93428, 30.335098],
+      width: document.documentElement.clientWidth,
       userLocation: [],
       watcher: navigator.geolocation.watchPosition(this.setLocation),
       centerStationId: null,
@@ -307,17 +356,27 @@ export default {
       functions: new Functions(),
       stationsService: new StationsService(),
       selectedStation: null,
-      chartSwitch: true
+      chartSwitch: true,
+      visibility: false
     }
   },
   watch: {
-    'functions.barDataColllection' () {
+    'visibility' (value) {
+      if (value === true) {
+        this.$emit('sendBarDataCollection', this.functions.barDataColllection)
+        this.$emit('sendLineDataCollection', this.functions.lineDataColllection)
+        this.$emit('sendAverageMeasurement', this.functions.averageMeasurement)
+        this.$emit('sendLastMeasurement', this.functions.lastMeasurement)
+      }
     },
     'functions.sensorId' () {
       this.alignment = 0
       this.chartSwitch = true
     },
     'functions.stationDetails' () {
+      if (this.width < 768) {
+        this.buttonVisibility = true
+      }
       this.functions.barDataColllection = null
       this.functions.lineDataColllection = null
       // console.log(value)
@@ -341,9 +400,24 @@ export default {
       this.zoom = 10
     },
     'zoom' (value) {
-      this.buttonVisibility = value !== 6;
-    },
+      if (this.width < 768) {
+        this.buttonVisibility = value !== 5
+      } else {
+        this.buttonVisibility = value !== 6
+      }
+    }
+  },
+  mounted () {
+    if (this.width < 768) {
+      this.zoomHolder = 5
+      this.tealIconSize = [25, 25]
+      this.yellowIconSize = [15, 25]
+      this.$refs.map.setZoom(5)
+    } else {
+      this.zoomHolder = 6
+    }
   }
+
 }
 </script>
 
@@ -377,37 +451,89 @@ export default {
     bottom: 0;
     width: 100%;
   }
-  #button_panel {
-    position: absolute;
-    top: 120px;
-    right: 30px;
+  @media only screen and (max-width: 767px) {
+    #station_input {
+      width: 90%;
+      position: absolute;
+      top: 10px;
+      text-align: center;
+      left: 20px;
+    }
+    #button_panel {
+      position: absolute;
+      top: 140px;
+      right: 23px;
+    }
+    #station_card {
+      position: absolute;
+      top: 140px;
+      left: 100px;
+      width: 50%;
+    }
+    #sensor_panel {
+      position: absolute;
+      top: 410px;
+      left: 110px;
+      width: 200px;
+    }
+    #details {
+      width: 25px;
+      height: 25px;
+    }
+    /*#chart_card {*/
+    /*  top: 250px;*/
+    /*  left: 15px;*/
+    /*  width: 350px;*/
+    /*  height: 10%;*/
+    /*  position: absolute;*/
+    /*}*/
   }
-  #station_card {
-    position: absolute;
-    top: 100px;
-    left: 60px;
-  }
-  #station_input {
-    width: 60%;
-    position: absolute;
-    top: 10px;
-    left: 285px;
-  }
-  #close_button {
-    top: 3px;
-    left: 190px;
-    position: absolute;
-  }
-  #v-btn_close {
-    width: 25px;
-    height: 25px;
+  @media only screen and (min-width: 768px) {
+    #station_input {
+      width: 60%;
+      position: absolute;
+      top: 10px;
+      /*left: 285px;*/
+      right: 285px;
+    }
+    #button_panel {
+      position: absolute;
+      top: 120px;
+      right: 30px;
+    }
+    #station_card {
+      position: absolute;
+      top: 100px;
+      left: 60px;
+      width: 220px
+    }
+    #sensor_panel {
+      position: absolute;
+      top: 230px;
+      left: 60px;
+      width: 220px;
+    }
+    #close_button {
+      top: 3px;
+      left: 190px;
+      position: absolute;
+    }
+    #desktop_v-btn_close {
+      width: 30px;
+      height: 30px;
 
+    }
+    #chart_card {
+      top: 100px;
+      left: 290px;
+      position: absolute;
+    }
   }
-  #chart_card {
-    top: 100px;
-    left: 290px;
-    position: absolute;
-  }
+  /*#chart_card {*/
+  /*  top: 100px;*/
+  /*  left: 290px;*/
+  /*  position: absolute;*/
+  /*}*/
   .custom-popup .leaflet-popup-content-wrapper {
     background: #B2DFDB;
     color: white;
