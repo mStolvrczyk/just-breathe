@@ -455,26 +455,26 @@ export default {
     #station_input {
       width: 90%;
       position: absolute;
-      top: 10px;
+      top: 2%;
       text-align: center;
-      left: 20px;
+      left: 5%;
     }
     #button_panel {
       position: absolute;
-      top: 140px;
-      right: 23px;
+      top: 25%;
+      right: 8%;
     }
     #station_card {
       position: absolute;
-      top: 140px;
-      left: 100px;
+      top: 25%;
+      left: 25%;
       width: 50%;
     }
     #sensor_panel {
       position: absolute;
-      top: 350px;
-      left: 100px;
-      width: 200px;
+      top: 60%;
+      left: 25%;
+      width: 50%;
     }
     #details {
       width: 25px;
