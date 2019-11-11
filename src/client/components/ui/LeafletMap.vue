@@ -63,7 +63,7 @@
             <strong>{{'odległość: '+functions.stationDetails.stationDistance}}</strong>
           </v-card-text>
         </v-card>
-        <div id="close_button">
+        <div id="close_button" v-if="width > 768">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
               <v-btn @click="functions.stationDetails = null" text fab x-small color="white" v-on="on" id="desktop_v-btn_close">
@@ -472,7 +472,7 @@ export default {
     }
     #sensor_panel {
       position: absolute;
-      top: 410px;
+      top: 350px;
       left: 100px;
       width: 200px;
     }
