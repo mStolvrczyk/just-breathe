@@ -2,10 +2,6 @@
   <div id="dashboard">
     <LeafletMap
       :stations="stations"
-      v-on:sendBarDataCollection="saveBarDataCollection"
-      v-on:sendLineDataCollection="savePieDataCollection"
-      v-on:sendAverageMeasurement="savePieDataCollection"
-      v-on:sendbarDataCollection="savePieDataCollection"
     />
     <ChartDialog
       :visibility.sync="visibility"

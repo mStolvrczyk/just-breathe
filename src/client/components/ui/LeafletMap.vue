@@ -50,11 +50,9 @@
         </div>
       </div>
     <transition name="station_popup">
-      <div id="desktop_station_card" v-if="functions.stationDetails != null">
+      <div id="station_card" v-if="functions.stationDetails != null">
         <v-card
           color="teal lighten-1"
-          class="pa-2"
-          width="220"
         >
           <v-card-text align="center" class="white--text">
             <strong>{{functions.stationDetails.stationName}}</strong><br>
@@ -62,7 +60,7 @@
             <strong>{{'odległość: '+functions.stationDetails.stationDistance}}</strong>
           </v-card-text>
         </v-card>
-        <div id="desktop_close_button">
+        <div id="close_button">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
               <v-btn @click="functions.stationDetails = null" text fab x-small color="white" v-on="on" id="desktop_v-btn_close">
@@ -72,142 +70,110 @@
             <span>Zamknij okno</span>
           </v-tooltip>
         </div>
-        <div id="desktop_sensor_panel" align="center">
-            <v-container
-              fluid class="pa-0"
-              v-for="sensor in functions.stationDetails.sensors"
-            >
-              <v-row align="center" dense>
-                <v-col cols="5" lg="5" xs="5">
-                    <v-tooltip
-                      bottom
-                    >
-                      <template v-slot:activator="{ on }">
-                        <v-card rounded color="teal lighten-1" block
-                               class="white--text" v-on="on">
-                          {{sensor.symbol}}
-                        </v-card>
-                      </template>
-                      <span>{{sensor.name}}</span>
-                    </v-tooltip>
-                </v-col>
-                <v-col cols="5" lg="5" xs="5">
-                  <v-tooltip bottom>
+      </div>
+    </transition>
+    <transition name="station_popup">
+      <div id="sensor_panel" align="center" v-if="functions.stationDetails != null">
+          <v-container
+            fluid class="pa-0"
+            v-for="sensor in functions.stationDetails.sensors"
+          >
+            <v-row align="center" dense>
+              <v-col cols="5" lg="5" xs="5">
+                  <v-tooltip
+                    bottom
+                  >
                     <template v-slot:activator="{ on }">
-                      <v-card
-                        class="white--text"
-                        :style="{'background-color': sensor.backgroundColor }" v-on="on">
-                            <strong>{{sensor.pollutionLimit+'%'}}</strong>
+                      <v-card rounded color="teal lighten-1" block
+                             class="white--text" v-on="on">
+                        {{sensor.symbol}}
                       </v-card>
                     </template>
-                      <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
+                    <span>{{sensor.name}}</span>
                   </v-tooltip>
-                </v-col>
-                <v-col cols="2" lg="2" xs="2">
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                      <v-btn @click="functions.fillDatacollection(sensor.id, functions.apiResponse)" fab x-small color="teal lighten-1" v-on="on">
-                        <v-icon style="font-size:18px;color: white">mdi-dots-horizontal</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Pokaż szczegóły</span>
-                  </v-tooltip>
-                </v-col>
-              </v-row>
-            </v-container>
-        </div>
+              </v-col>
+              <v-col cols="5" lg="5" xs="5">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-card
+                      class="white--text"
+                      :style="{'background-color': sensor.backgroundColor }" v-on="on">
+                          <strong>{{sensor.pollutionLimit+'%'}}</strong>
+                    </v-card>
+                  </template>
+                    <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
+                </v-tooltip>
+              </v-col>
+              <v-col cols="2" lg="2" xs="2">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-btn @click="functions.fillDatacollection(sensor.id, functions.apiResponse)" fab x-small color="teal lighten-1" v-on="on">
+                      <v-icon style="font-size:18px;color: white">mdi-dots-horizontal</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Pokaż szczegóły</span>
+                </v-tooltip>
+              </v-col>
+            </v-row>
+          </v-container>
       </div>
     </transition>
-    <transition name="station_popup">
-      <div id="mobile_station_card" v-if="functions.stationDetails != null">
-        <v-card
-          color="teal lighten-1"
-          class="pa-0"
-        >
-          <v-card-text align="center" class="white--text">
-            <strong>{{functions.stationDetails.stationName}}</strong><br>
-            {{'odległość: '+functions.stationDetails.stationDistance}}
-          </v-card-text>
-        </v-card>
-<!--        <div id="mobile_close_button">-->
-<!--          <v-tooltip bottom>-->
-<!--            <template v-slot:activator="{on}">-->
-<!--              <v-btn @click="functions.stationDetails = null" text fab x-small color="white" id="mobile_v-btn_close" v-on="on">-->
-<!--                <v-icon>mdi-close</v-icon>-->
-<!--              </v-btn>-->
-<!--            </template>-->
-<!--          </v-tooltip>-->
-<!--        </div>-->
-      </div>
-    </transition>
-    <transition name="station_popup">
-      <div id="mobile_sensor_panel" align="center" v-if="functions.stationDetails != null">
+<!--    <transition name="station_popup">-->
+<!--      <div id="mobile_station_card" v-if="functions.stationDetails != null">-->
+<!--        <v-card-->
+<!--          color="teal lighten-1"-->
+<!--          class="pa-0"-->
+<!--        >-->
+<!--          <v-card-text align="center" class="white&#45;&#45;text">-->
+<!--            <strong>{{functions.stationDetails.stationName}}</strong><br>-->
+<!--            {{'odległość: '+functions.stationDetails.stationDistance}}-->
+<!--          </v-card-text>-->
+<!--        </v-card>-->
+<!--      </div>-->
+<!--    </transition>-->
+<!--    <transition name="station_popup">-->
+<!--      <div id="mobile_sensor_panel" align="center" v-if="functions.stationDetails != null">-->
 <!--        <v-container-->
 <!--          fluid class="pa-0"-->
 <!--          v-for="sensor in functions.stationDetails.sensors"-->
 <!--        >-->
 <!--          <v-row align="center" dense>-->
-<!--            <v-col cols="6" lg="5" xs="5">-->
-<!--              <v-btn @click="functions.fillDatacollection(sensor.id, functions.apiResponse)" fab x-small color="teal lighten-1">-->
-<!--                <v-icon style="font-size:18px;color: white">mdi-dots-horizontal</v-icon>-->
-<!--              </v-btn>-->
+<!--            <v-col cols="3" lg="5" xs="4">-->
+<!--              <v-tooltip-->
+<!--                bottom-->
+<!--              >-->
+<!--                <template v-slot:activator="{ on }">-->
+<!--                  <v-card rounded color="teal lighten-1" block-->
+<!--                    class="white&#45;&#45;text" v-on="on"-->
+<!--                    :style="{'font-size': '13px'}"-->
+<!--                  >-->
+<!--                    {{sensor.symbol}}-->
+<!--                  </v-card>-->
+<!--                </template>-->
+<!--                <span>{{sensor.name}}</span>-->
+<!--              </v-tooltip>-->
 <!--            </v-col>-->
-<!--            <v-col cols="6" lg="5" xs="5">-->
-<!--&lt;!&ndash;              <v-tooltip bottom>&ndash;&gt;-->
-<!--&lt;!&ndash;                <template v-slot:activator="{ on }">&ndash;&gt;-->
-<!--                  <v-btn-->
-<!--                    fab x-small-->
+<!--            <v-col cols="3" lg="5" xs="4">-->
+<!--              <v-tooltip bottom>-->
+<!--                <template v-slot:activator="{ on }">-->
+<!--                  <v-card-->
 <!--                    class="white&#45;&#45;text"-->
-<!--                    :style="{'background-color': sensor.backgroundColor, 'font-size': '9px'}">-->
-<!--                    <strong>{{sensor.symbol}}</strong>-->
-<!--                  </v-btn>-->
-<!--&lt;!&ndash;                </template>&ndash;&gt;-->
-<!--&lt;!&ndash;                <span>{{sensor.pollutionLimit+'%'}}<sup>3</sup></span>&ndash;&gt;-->
-<!--&lt;!&ndash;              </v-tooltip>&ndash;&gt;-->
+<!--                    :style="{'background-color': sensor.backgroundColor, 'font-size': '13px' }" v-on="on">-->
+<!--                    <strong>{{sensor.pollutionLimit+'%'}}</strong>-->
+<!--                  </v-card>-->
+<!--                </template>-->
+<!--                <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>-->
+<!--              </v-tooltip>-->
+<!--            </v-col>-->
+<!--            <v-col cols="2" lg="2" xs="4">-->
+<!--              <v-btn id="mobile_details" @click="functions.fillDatacollection(sensor.id, functions.apiResponse), visibility === true" fab x-small color="teal lighten-1">-->
+<!--                <v-icon style="font-size:17px;color: white">mdi-dots-horizontal</v-icon>-->
+<!--              </v-btn>-->
 <!--            </v-col>-->
 <!--          </v-row>-->
 <!--        </v-container>-->
-        <v-container
-          fluid class="pa-0"
-          v-for="sensor in functions.stationDetails.sensors"
-        >
-          <v-row align="center" dense>
-            <v-col cols="3" lg="5" xs="4">
-              <v-tooltip
-                bottom
-              >
-                <template v-slot:activator="{ on }">
-                  <v-card rounded color="teal lighten-1" block
-                    class="white--text" v-on="on"
-                    :style="{'font-size': '13px'}"
-                  >
-                    {{sensor.symbol}}
-                  </v-card>
-                </template>
-                <span>{{sensor.name}}</span>
-              </v-tooltip>
-            </v-col>
-            <v-col cols="3" lg="5" xs="4">
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                  <v-card
-                    class="white--text"
-                    :style="{'background-color': sensor.backgroundColor, 'font-size': '13px' }" v-on="on">
-                    <strong>{{sensor.pollutionLimit+'%'}}</strong>
-                  </v-card>
-                </template>
-                <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
-              </v-tooltip>
-            </v-col>
-            <v-col cols="2" lg="2" xs="4">
-              <v-btn id="mobile_details" @click="functions.fillDatacollection(sensor.id, functions.apiResponse), visibility === true" fab x-small color="teal lighten-1">
-                <v-icon style="font-size:17px;color: white">mdi-dots-horizontal</v-icon>
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-container>
-      </div>
-    </transition>
+<!--      </div>-->
+<!--    </transition>-->
     <div id="station_input">
       <v-autocomplete
         background-color="white"
@@ -492,34 +458,24 @@ export default {
     }
     #button_panel {
       position: absolute;
-      top: 150px;
+      top: 140px;
       right: 23px;
     }
-    #mobile_station_card {
+    #station_card {
       position: absolute;
-      top: 65px;
+      top: 140px;
       left: 100px;
-      width: 40%;
+      width: 50%;
     }
-    #mobile_sensor_panel {
+    #sensor_panel {
       position: absolute;
-      top: 230px;
-      left: 10px;
-      width: 210px;
+      top: 410px;
+      left: 110px;
+      width: 200px;
     }
-    #mobile_details {
+    #details {
       width: 25px;
       height: 25px;
-    }
-    #mobile_close_button {
-      top: 3px;
-      left: 190px;
-      position: absolute;
-    }
-    #mobile_v-btn_close {
-      width: 30px;
-      height: 30px;
-
     }
     /*#chart_card {*/
     /*  top: 250px;*/
@@ -542,12 +498,19 @@ export default {
       top: 120px;
       right: 30px;
     }
-    #desktop_station_card {
+    #station_card {
       position: absolute;
       top: 100px;
       left: 60px;
+      width: 220px
     }
-    #desktop_close_button {
+    #sensor_panel {
+      position: absolute;
+      top: 230px;
+      left: 60px;
+      width: 220px;
+    }
+    #close_button {
       top: 3px;
       left: 190px;
       position: absolute;
@@ -557,12 +520,12 @@ export default {
       height: 30px;
 
     }
-  }
     #chart_card {
       top: 100px;
       left: 290px;
       position: absolute;
     }
+  }
   /*#chart_card {*/
   /*  top: 100px;*/
   /*  left: 290px;*/
