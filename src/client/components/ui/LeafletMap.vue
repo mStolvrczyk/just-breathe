@@ -473,7 +473,7 @@ export default {
     #sensor_panel {
       position: absolute;
       top: 410px;
-      left: 110px;
+      left: 100px;
       width: 200px;
     }
     #details {
