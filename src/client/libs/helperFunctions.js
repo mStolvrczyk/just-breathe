@@ -4,10 +4,8 @@ import pollutionLevels from '@/libs/pollutionLevels'
 import pollutionLimits from '@/libs/pollutionLimits'
 import { forEach } from 'ramda'
 
-
 export default class Functions {
-
-  //LeafletMap.vue functions
+  // LeafletMap.vue functions
   apiResponse = null
   sensorId = null
   found = null
@@ -149,8 +147,8 @@ export default class Functions {
           label: sensor.details.param+' ('+sensor.details.paramTwo+')',
           backgroundColor: this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, true)[0],
           data: filteredMeasurements.map(({value}) => value.toFixed(2))
-        },
-      ],
+        }
+      ]
     }
   }
   formatDate (date) {
