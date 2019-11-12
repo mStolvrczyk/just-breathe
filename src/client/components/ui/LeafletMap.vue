@@ -56,6 +56,7 @@
       <div id="station_card" v-if="functions.stationDetails != null">
         <v-card
           color="teal lighten-1"
+          class="pa-1"
         >
           <v-card-text align="center" class="white--text">
             <strong>{{functions.stationDetails.stationName}}</strong><br>
@@ -63,10 +64,10 @@
             <strong>{{'odległość: '+functions.stationDetails.stationDistance}}</strong>
           </v-card-text>
         </v-card>
-        <div id="close_button" v-if="width > 768">
+        <div id="close_button">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn @click="functions.stationDetails = null" text fab x-small color="white" v-on="on" id="desktop_v-btn_close">
+              <v-btn @click="functions.stationDetails = null" text fab x-small color="white" v-on="on" id="v-btn_close">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </template>
@@ -361,34 +362,41 @@ export default {
     }
   },
   watch: {
-    'visibility' (value) {
-      if (value === true) {
-        this.$emit('sendBarDataCollection', this.functions.barDataColllection)
-        this.$emit('sendLineDataCollection', this.functions.lineDataColllection)
-        this.$emit('sendAverageMeasurement', this.functions.averageMeasurement)
-        this.$emit('sendLastMeasurement', this.functions.lastMeasurement)
-      }
+    'center' () {
+      this.functions.stationDetails = null
     },
+    // 'visibility' (value) {
+    //   if (value === true) {
+    //     this.$emit('sendBarDataCollection', this.functions.barDataColllection)
+    //     this.$emit('sendLineDataCollection', this.functions.lineDataColllection)
+    //     this.$emit('sendAverageMeasurement', this.functions.averageMeasurement)
+    //     this.$emit('sendLastMeasurement', this.functions.lastMeasurement)
+    //   }
+    // },
     'functions.sensorId' () {
       this.alignment = 0
       this.chartSwitch = true
     },
-    'functions.stationDetails' () {
-      if (this.width < 768) {
+    'functions.stationDetails' (value) {
+      if (this.width < 768 && value !== null) {
         this.buttonVisibility = true
+      } else if (this.width < 768 && value === null) {
+        this.buttonVisibility = false
       }
       this.functions.barDataColllection = null
       this.functions.lineDataColllection = null
       // console.log(value)
     },
     'selectedStation' (value) {
-      this.center = {
-        lat: value.coordinates[0],
-        lng: value.coordinates[1]
+      if (value !== null) {
+        this.center = {
+          lat: value.coordinates[0],
+          lng: value.coordinates[1]
+        }
+        this.functions.getStationDetails(value.id, this.stations, this.userLocation)
+        this.centerStationId = value.id
+        this.zoom = 10
       }
-      this.functions.getStationDetails(value.id, this.stations, this.userLocation)
-      this.centerStationId = value.id
-      this.zoom = 10
     },
     'functions.found' (value) {
       this.center = {
@@ -461,20 +469,26 @@ export default {
     }
     #button_panel {
       position: absolute;
-      top: 25%;
-      right: 8%;
+      bottom: 58.5%;
+      right: 23px;
     }
     #station_card {
       position: absolute;
-      top: 25%;
+      bottom: 60%;
       left: 25%;
       width: 50%;
     }
     #sensor_panel {
       position: absolute;
-      top: 60%;
+      top: 58%;
       left: 25%;
-      width: 50%;
+      width: 53%;
+    }
+    #close_button {
+      visibility: hidden;
+      top: 1%;
+      right: 1%;
+      position: absolute;
     }
     #details {
       width: 25px;
@@ -492,40 +506,40 @@ export default {
     #station_input {
       width: 60%;
       position: absolute;
-      top: 10px;
+      top: 2%;
       /*left: 285px;*/
-      right: 285px;
+      right: 20%;
     }
     #button_panel {
       position: absolute;
-      top: 120px;
-      right: 30px;
+      top: 20%;
+      right: 3%;
     }
     #station_card {
       position: absolute;
-      top: 100px;
-      left: 60px;
-      width: 220px
+      top: 15%;
+      left: 40px;
+      width: 220px;
     }
     #sensor_panel {
       position: absolute;
-      top: 230px;
-      left: 60px;
+      top: 40%;
+      left: 40px;
       width: 220px;
     }
     #close_button {
-      top: 3px;
-      left: 190px;
+      top: 1%;
+      right: 1%;
       position: absolute;
     }
-    #desktop_v-btn_close {
+    #v-btn_close {
       width: 30px;
       height: 30px;
 
     }
     #chart_card {
-      top: 100px;
-      left: 290px;
+      top: 15%;
+      left: 20%;
       position: absolute;
     }
   }
