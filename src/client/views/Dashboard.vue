@@ -2,6 +2,8 @@
   <div id="dashboard">
     <LeafletMap
       :stations="stations"
+      v-on:sendVisibility="updateDetailsDialogVisibility"
+      v-on:sendBarDataCollection="saveBarDataCollection"
     />
     <ChartDialog
       :visibility.sync="visibility"
@@ -25,18 +27,17 @@ export default {
   data: () => ({
     stationsService: new StationsService(),
     stations: [],
-    visibility: false
+    visibility: false,
   }),
   methods: {
     async getAllStations () {
       this.stations = await this.stationsService.getAll()
     },
-    savePieDataCollection (value) {
-      this.pieDataCollection = value
-      this.visibility = true
-    },
     updateDetailsDialogVisibility (value) {
       this.visibility = value
+    },
+    saveBarDataCollection (value) {
+
     }
   },
   mounted () {

@@ -365,22 +365,17 @@ export default {
     'center' () {
       this.functions.stationDetails = null
     },
-    // 'visibility' (value) {
-    //   if (value === true) {
-    //     this.$emit('sendBarDataCollection', this.functions.barDataColllection)
-    //     this.$emit('sendLineDataCollection', this.functions.lineDataColllection)
-    //     this.$emit('sendAverageMeasurement', this.functions.averageMeasurement)
-    //     this.$emit('sendLastMeasurement', this.functions.lastMeasurement)
-    //   }
-    // },
     'functions.sensorId' () {
       this.alignment = 0
       this.chartSwitch = true
+      if (this.width < 768) {
+        this.$emit('sendVisibility', true)
+      }
     },
     'functions.stationDetails' (value) {
-      if (this.width < 768 && value !== null) {
+      if (value !== null) {
         this.buttonVisibility = true
-      } else if (this.width < 768 && value === null) {
+      } else if (this.zoom === 5 || this.zoom === 6) {
         this.buttonVisibility = false
       }
       this.functions.barDataColllection = null
