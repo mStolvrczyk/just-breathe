@@ -27,7 +27,7 @@ export default {
   data: () => ({
     stationsService: new StationsService(),
     stations: [],
-    visibility: false,
+    visibility: false
   }),
   methods: {
     async getAllStations () {
