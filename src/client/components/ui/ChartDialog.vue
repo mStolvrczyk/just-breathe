@@ -106,7 +106,8 @@ export default {
   name: 'ChartDialog',
   components: { BarChart, LineChart },
   props: {
-    visibility: Boolean
+    visibility: Boolean,
+    mobileData: Object
   },
   methods: {
     closeDialog () {
