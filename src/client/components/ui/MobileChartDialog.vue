@@ -4,12 +4,12 @@
       <div
         id="chart_card">
         <v-card
-          height="100%"
           class="pa-3"
           color="teal lighten-4"
         >
           <div align="center">
             <v-card
+              id="charts"
               color="white"
             >
               <v-card-text
@@ -20,21 +20,18 @@
                   Brak pomiarów
                 </strong>
               </v-card-text>
-              <v-row>
-                <v-col cols="12">
+              <div v-else>
                   <bar-chart
                     v-if="chartSwitch"
                     :chart-data="barDataCollection"
-                    :height="330"
+                    :height="310"
                   />
                   <line-chart
                     v-else
                     :chart-data="lineDataCollection"
-                    :height="330"
+                    :height="310"
                   />
-                </v-col>
-              </v-row>
-<!--              </div>-->
+              </div>
             </v-card>
             <div class="text-center pa-2" v-if="barDataCollection != null">
               <v-btn-toggle rounded v-model="alignment">
@@ -82,9 +79,9 @@
               </v-row>
             </v-container>
           </div>
-<!--          <div class="text-center">-->
-<!--            <v-btn class="teal&#45;&#45;text" small rounded color="white" dark>Return</v-btn>-->
-<!--          </div>-->
+          <div class="text-center">
+            <v-btn @click="closeDialog" class="teal--text" small rounded color="white" dark>Return</v-btn>
+          </div>
         </v-card>
       </div>
     </v-dialog>
@@ -119,6 +116,9 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style>
+#charts {
+  width: 320px;
+  overflow-x: auto;
+}
 </style>
