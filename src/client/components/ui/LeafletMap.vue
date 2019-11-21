@@ -204,7 +204,7 @@
                 </v-tooltip>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
-                    <v-btn @click="compareWithYesterday(sensorId, apiResponse)" color="white" v-on="on">
+                    <v-btn @click="compareWithYesterday(sensorDetails.sensorId, apiResponse)" color="white" v-on="on">
                       <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
                     </v-btn>
                   </template>
@@ -710,7 +710,7 @@ export default {
     #button_panel {
       position: absolute;
       bottom: 55%;
-      right: 23px;
+      right: 2%;
     }
     #station_card {
       position: absolute;
