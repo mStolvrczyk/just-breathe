@@ -1,24 +1,19 @@
 <template>
   <div id="dashboard">
     <LeafletMap
+      :autocompleteInput.sync="autocompleteInput"
       :stations="stations"
-      v-on:sendVisibility="updateDetailsDialogVisibility"
-      v-on:sendBarDataCollection="saveBarDataCollection"
-    />
-    <ChartDialog
-      :visibility.sync="visibility"
-      v-on:updateVisibility="updateDetailsDialogVisibility"
+      v-on:closeAutocompleteDialog="sendVisibility"
     />
   </div>
 </template>
 <script>
 import LeafletMap from '@/components/ui/LeafletMap'
 import StationsService from '@/services/StationsService'
-import ChartDialog from '@/components/ui/ChartDialog'
 
 export default {
   name: 'Dashboard',
-  components: { ChartDialog, LeafletMap },
+  components: { LeafletMap },
   watch: {
     'pieDataCollection' (value) {
       console.log(value)
@@ -26,18 +21,17 @@ export default {
   },
   data: () => ({
     stationsService: new StationsService(),
-    stations: [],
-    visibility: false
+    stations: []
   }),
+  props: {
+    autocompleteInput: Boolean
+  },
   methods: {
     async getAllStations () {
       this.stations = await this.stationsService.getAll()
     },
-    updateDetailsDialogVisibility (value) {
-      this.visibility = value
-    },
-    saveBarDataCollection (value) {
-
+    sendVisibility (value) {
+      this.$emit('closeAutocompleteDialog', value)
     }
   },
   mounted () {

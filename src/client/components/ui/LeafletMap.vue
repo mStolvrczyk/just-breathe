@@ -122,30 +122,32 @@
           </v-container>
       </div>
     </transition>
-    <div id="station_input">
-      <v-autocomplete
-        background-color="white"
-        v-model="selectedStation"
-        :items="stations"
-        flat
-        search="searchValue"
-        hide-no-data
-        clearable
-        item-value="id"
-        item-text="stationName"
-        label="Wybierz stację"
-        solo
-        return-object
-      >
-        <template v-slot:no-data>
-          <v-list-tile>
-            <v-list-tile-title>
-              Brak stacji
-            </v-list-tile-title>
-          </v-list-tile>
-        </template>
-      </v-autocomplete>
-    </div>
+    <transition name="station_popup">
+      <div id="station_input" v-if="autocompleteInput">
+        <v-autocomplete
+          background-color="white"
+          v-model="selectedStation"
+          :items="stations"
+          flat
+          search="searchValue"
+          hide-no-data
+          clearable
+          item-value="id"
+          item-text="stationName"
+          label="Wybierz stację"
+          solo
+          return-object
+        >
+          <template v-slot:no-data>
+            <v-list-tile>
+              <v-list-tile-title>
+                Brak stacji
+              </v-list-tile-title>
+            </v-list-tile>
+          </template>
+        </v-autocomplete>
+      </div>
+    </transition>
     <transition name="sensor_popup">
       <div
         id="chart_card"
@@ -217,8 +219,11 @@
                       color="teal lighten-1"
                     >
                       <v-card-text class="white--text">
-                        <strong>uśredniony pomiar z dziś: {{averageMeasurement.procentValue + '%'}} ({{averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) - {{averageMeasurement.pollutionLevel}}</strong><br>
-                        <strong>ostatni pomiar: {{lastMeasurement.procentValue + '%'}} ({{lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) - {{lastMeasurement.pollutionLevel}}</strong>
+                        <strong>uśredniony pomiar z dziś: {{sensorDetails.averageMeasurement.procentValue + '%'}} ({{sensorDetails.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
+                          {{sensorDetails.averageMeasurement.pollutionLevel}}</strong><br>
+                        <strong>ostatni pomiar: {{sensorDetails.lastMeasurement.procentValue + '%'}}
+                          ({{sensorDetails.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
+                          {{sensorDetails.lastMeasurement.pollutionLevel}}</strong>
 
                       </v-card-text>
                     </v-card>
@@ -231,7 +236,7 @@
       </div>
     </transition>
   <MobileChartDialog
-    :mobileData="mobileData"
+    :sensorDetails="sensorDetails"
     :barDataCollection="barDataColllection"
     :lineDataCollection="lineDataCollection"
     :mobileDialogVisibility.sync="mobileDialogVisibility"
@@ -252,17 +257,15 @@ export default {
   name: 'LeafletMap',
   data () {
     return {
-      mobileData: {
+      sensorDetails: {
         sensorId: null,
         averageMeasurement: null,
         lastMeasurement: null
       },
       mobileDialogVisibility: false,
-      lastMeasurement: null,
       barDataColllection: null,
       lineDataCollection: null,
       date: this.formatDate(new Date()),
-      averageMeasurement: null,
       sensorId: null,
       apiResponse: null,
       found: null,
@@ -288,8 +291,6 @@ export default {
       centerStationId: null,
       searchValue: '',
       stationDetails: null,
-      sensorDetails: null,
-      // functions: new Functions(),
       stationsService: new StationsService(),
       selectedStation: null,
       chartSwitch: true,
@@ -307,7 +308,8 @@ export default {
     LineChart
   },
   props: {
-    stations: Array
+    stations: Array,
+    autocompleteInput: Boolean
   },
   methods: {
     closeMobileDialog (value) {
@@ -391,9 +393,9 @@ export default {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
-            label: sensor.details.param+' ('+sensor.details.paramTwo+')',
+            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
             backgroundColor: this.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
-            data: filteredMeasurements.map(({value}) => value.toFixed(2))
+            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
           }
         ]
       }
@@ -401,38 +403,26 @@ export default {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
-            label: sensor.details.param+' ('+sensor.details.paramTwo+')',
+            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
             backgroundColor: this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, true)[0],
-            data: filteredMeasurements.map(({value}) => value.toFixed(2))
+            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
           }
         ]
       }
-      if (this.width > 768) {
-        this.sensorId = sensor.details.id
-        this.averageMeasurement = {
-          value: averageMeasurement[0].toFixed(2),
-          procentValue: this.getPollutionLimit(sensor.details.paramTwo, averageMeasurement[0]),
-          pollutionLevel: pollutionLevels[this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, false)[0]]
-        }
-        this.lastMeasurement = {
-          value: lastMeasurement[0].toFixed(2),
-          procentValue: this.getPollutionLimit(sensor.details.paramTwo, lastMeasurement[0]),
-          pollutionLevel: pollutionLevels[this.setBackgroundColor(lastMeasurement, sensor.details.paramTwo, false)[0]]
-        }
-      } else {
+      if (this.width < 768) {
         this.mobileDialogVisibility = true
-        this.mobileData.averageMeasurement = {
-          value: averageMeasurement[0].toFixed(2),
-          procentValue: this.getPollutionLimit(sensor.details.paramTwo, averageMeasurement[0]),
-          pollutionLevel: pollutionLevels[this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, false)[0]]
-        }
-        this.mobileData.lastMeasurement = {
-          value: lastMeasurement[0].toFixed(2),
-          procentValue: this.getPollutionLimit(sensor.details.paramTwo, lastMeasurement[0]),
-          pollutionLevel: pollutionLevels[this.setBackgroundColor(lastMeasurement, sensor.details.paramTwo, false)[0]]
-        }
-        this.mobileData.sensorId = sensor.details.id
       }
+      this.sensorDetails.averageMeasurement = {
+        value: averageMeasurement[0].toFixed(2),
+        procentValue: this.getPollutionLimit(sensor.details.paramTwo, averageMeasurement[0]),
+        pollutionLevel: pollutionLevels[this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, false)[0]]
+      }
+      this.sensorDetails.lastMeasurement = {
+        value: lastMeasurement[0].toFixed(2),
+        procentValue: this.getPollutionLimit(sensor.details.paramTwo, lastMeasurement[0]),
+        pollutionLevel: pollutionLevels[this.setBackgroundColor(lastMeasurement, sensor.details.paramTwo, false)[0]]
+      }
+      this.sensorDetails.sensorId = sensor.details.id
     },
     formatDate (date) {
       let d = date,
@@ -615,6 +605,7 @@ export default {
   watch: {
     'center' () {
       this.stationDetails = null
+      this.$emit('closeAutocompleteDialog', false)
     },
     'sensorId' () {
       this.alignment = 0
@@ -643,6 +634,8 @@ export default {
         this.centerStationId = value.id
         this.zoom = 10
       }
+      this.$emit('closeAutocompleteDialog', false)
+      this.selectedStation = null
     },
     'found' (value) {
       this.center = {
@@ -709,26 +702,28 @@ export default {
     #station_input {
       width: 90%;
       position: absolute;
-      top: 2%;
+      top: 5px;
       text-align: center;
-      left: 5%;
+      left: 20px;
     }
     #button_panel {
       position: absolute;
-      bottom: 58.5%;
+      bottom: 55%;
       right: 23px;
     }
     #station_card {
       position: absolute;
-      bottom: 60%;
-      left: 25%;
-      width: 50%;
+      bottom: 55%;
+      left: 20%;
+      width: 60%;
     }
     #sensor_panel {
       position: absolute;
-      top: 58%;
-      left: 25%;
-      width: 53%;
+      height: 38%;
+      top: 56%;
+      left: 20%;
+      width: 60%;
+      overflow: scroll;
     }
     #close_button {
       visibility: hidden;
