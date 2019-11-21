@@ -604,7 +604,9 @@ export default {
   },
   watch: {
     'center' () {
-      this.stationDetails = null
+      setTimeout(function () { this.stationDetails = null }
+        .bind(this),
+      2000)
     },
     'sensorId' () {
       this.alignment = 0
