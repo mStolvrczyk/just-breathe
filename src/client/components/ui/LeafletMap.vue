@@ -1,6 +1,7 @@
 <template>
   <div class="custom-popup" id="map">
     <v-map
+      @click="hideStation"
       ref="map"
       :zoom.sync="zoom"
       :center.sync="center"
@@ -312,6 +313,10 @@ export default {
     autocompleteInput: Boolean
   },
   methods: {
+    hideStation () {
+      this.$emit('closeAutocompleteDialog', false)
+      this.stationDetails = null
+    },
     closeMobileDialog (value) {
       this.mobileDialogVisibility = value
     },
@@ -603,11 +608,6 @@ export default {
     }
   },
   watch: {
-    'center' () {
-      setTimeout(function () { this.stationDetails = null }
-        .bind(this),
-      2000)
-    },
     'sensorId' () {
       this.alignment = 0
       this.chartSwitch = true
@@ -621,7 +621,6 @@ export default {
       } else if (this.zoom === 5 || this.zoom === 6) {
         this.buttonVisibility = false
       }
-      this.$emit('closeAutocompleteDialog', false)
       this.barDataColllection = null
       this.lineDataColllection = null
       // console.log(value)
