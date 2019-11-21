@@ -23,9 +23,9 @@
               </v-toolbar-title>
           </div>
           <v-spacer/>
-          <v-btn icon>
+          <v-btn @click="autocompleteInput = !autocompleteInput" icon>
               <v-icon>
-                  notifications
+                  search
               </v-icon>
           </v-btn>
           <v-btn icon>
@@ -36,10 +36,10 @@
       </v-app-bar>
     </div>
     <v-content>
-      <router-view/>
+      <Dashboard
+        :autocompleteInput.sync="autocompleteInput"
+      />
     </v-content>
-<!--    <DetailsDialog :visibility.sync="visibility"-->
-<!--                   v-on:updateVisibility="updateDetailsDialogVisibility"></DetailsDialog>-->
   </v-app>
 </template>
 
@@ -47,10 +47,12 @@
 
 // import DetailsDialog from '@/components/ui/DetailsDialog'
 
+import Dashboard from '@/views/Dashboard'
 export default {
+  components: { Dashboard },
   // components: { DetailsDialog },
   data: () => ({
-    // visibility: false
+    autocompleteInput: false
   }),
   methods: {
     // updateDetailsDialogVisibility (value) {

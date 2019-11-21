@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center">
-    <v-dialog v-model="mobileDialogVisibility" max-width="1000px">
+    <v-dialog persistent v-model="mobileDialogVisibility" max-width="1000px">
       <div
         id="chart_card">
         <v-card
@@ -24,7 +24,7 @@
                   <bar-chart
                     v-if="chartSwitch"
                     :chart-data="barDataCollection"
-                    :height="310"
+                    :height="290"
                   />
                   <line-chart
                     v-else
@@ -69,8 +69,12 @@
                       color="teal lighten-1"
                     >
                       <v-card-text class="white--text">
-                        <strong>uśredniony pomiar z dziś: {{mobileData.averageMeasurement.procentValue + '%'}} ({{mobileData.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) - {{mobileData.averageMeasurement.pollutionLevel}}</strong><br>
-                        <strong>ostatni pomiar: {{mobileData.lastMeasurement.procentValue + '%'}} ({{mobileData.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) - {{mobileData.lastMeasurement.pollutionLevel}}</strong>
+                        <strong>uśredniony pomiar z dziś:<br> {{sensorDetails.averageMeasurement.procentValue + '%'}}
+                          ({{sensorDetails.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
+                          {{sensorDetails.averageMeasurement.pollutionLevel}}</strong><br>
+                        <strong>ostatni pomiar:<br> {{sensorDetails.lastMeasurement.procentValue + '%'}}
+                          ({{sensorDetails.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
+                          {{sensorDetails.lastMeasurement.pollutionLevel}}</strong>
 
                       </v-card-text>
                     </v-card>
@@ -104,7 +108,7 @@ export default {
   },
   props: {
     mobileDialogVisibility: Boolean,
-    mobileData: Object,
+    sensorDetails: Object,
     barDataCollection: Object,
     lineDataCollection: Object
   },
@@ -118,7 +122,7 @@ export default {
 
 <style>
 #charts {
-  width: 320px;
-  overflow-x: auto;
+  width: 720px;
+  overflow-x: scroll;
 }
 </style>
