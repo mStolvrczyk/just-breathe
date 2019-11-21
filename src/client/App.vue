@@ -38,6 +38,7 @@
     <v-content>
       <Dashboard
         :autocompleteInput.sync="autocompleteInput"
+        v-on:closeAutocompleteDialog="setVisibility"
       />
     </v-content>
   </v-app>
@@ -55,9 +56,9 @@ export default {
     autocompleteInput: false
   }),
   methods: {
-    // updateDetailsDialogVisibility (value) {
-    //   this.visibility = value
-    // }
+    setVisibility (value) {
+      this.autocompleteInput = value
+    }
   }
 }
 </script>

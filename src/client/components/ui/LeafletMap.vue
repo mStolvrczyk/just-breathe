@@ -605,6 +605,7 @@ export default {
   watch: {
     'center' () {
       this.stationDetails = null
+      this.$emit('closeAutocompleteDialog', false)
     },
     'sensorId' () {
       this.alignment = 0
@@ -633,6 +634,8 @@ export default {
         this.centerStationId = value.id
         this.zoom = 10
       }
+      this.$emit('closeAutocompleteDialog', false)
+      this.selectedStation = null
     },
     'found' (value) {
       this.center = {
@@ -699,26 +702,28 @@ export default {
     #station_input {
       width: 90%;
       position: absolute;
-      top: 10px;
+      top: 5px;
       text-align: center;
       left: 20px;
     }
     #button_panel {
       position: absolute;
-      bottom: 58.5%;
+      bottom: 55%;
       right: 23px;
     }
     #station_card {
       position: absolute;
-      bottom: 60%;
-      left: 25%;
-      width: 56%;
+      bottom: 55%;
+      left: 20%;
+      width: 60%;
     }
     #sensor_panel {
       position: absolute;
-      top: 58%;
-      left: 25%;
-      width: 56%;
+      height: 38%;
+      top: 56%;
+      left: 20%;
+      width: 60%;
+      overflow: scroll;
     }
     #close_button {
       visibility: hidden;

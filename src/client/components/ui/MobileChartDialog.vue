@@ -29,7 +29,7 @@
                   <line-chart
                     v-else
                     :chart-data="lineDataCollection"
-                    :height="310"
+                    :height="290"
                   />
               </div>
             </v-card>
