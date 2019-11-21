@@ -605,7 +605,6 @@ export default {
   watch: {
     'center' () {
       this.stationDetails = null
-      this.$emit('closeAutocompleteDialog', false)
     },
     'sensorId' () {
       this.alignment = 0
@@ -620,6 +619,7 @@ export default {
       } else if (this.zoom === 5 || this.zoom === 6) {
         this.buttonVisibility = false
       }
+      this.$emit('closeAutocompleteDialog', false)
       this.barDataColllection = null
       this.lineDataColllection = null
       // console.log(value)
