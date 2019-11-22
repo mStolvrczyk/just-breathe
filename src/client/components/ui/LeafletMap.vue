@@ -149,108 +149,22 @@
         </v-autocomplete>
       </div>
     </transition>
-    <transition name="sensor_popup">
-      <div
-        id="chart_card"
-        v-if="barDataColllection != null && width > 768"
-      >
-        <v-card
-          class="pa-3"
-          color="teal lighten-4"
-          width="600"
-        >
-          <div align="center">
-            <v-card
-              color="white"
-            >
-              <v-card-text
-                align="center"
-                v-if="barDataColllection === null"
-              >
-                <strong>
-                  Brak pomiarów
-                </strong>
-              </v-card-text>
-              <div v-else>
-                <bar-chart
-                  v-if="chartSwitch"
-                  :chart-data="barDataColllection"
-                  :height="170"
-                />
-                <line-chart
-                  v-else
-                  :chart-data="lineDataCollection"
-                  :height="170"
-                />
-              </div>
-            </v-card>
-            <div class="text-center pa-2" v-if="barDataColllection != null">
-              <v-btn-toggle rounded v-model="alignment">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on }">
-                    <v-btn @click="chartSwitch = true" color="white" v-on="on">
-                      <v-icon style="font-size:23px;color: teal">mdi-chart-bar</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Wykres słupkowy</span>
-                </v-tooltip>
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on }">
-                    <v-btn @click="chartSwitch = false" color="white" v-on="on">
-                      <v-icon style="font-size:23px;color: teal">mdi-chart-bell-curve</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Wykres liniowy</span>
-                </v-tooltip>
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on }">
-                    <v-btn @click="compareWithYesterday(sensorDetails.sensorId, apiResponse)" color="white" v-on="on">
-                      <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Porównaj z wczoraj</span>
-                </v-tooltip>
-              </v-btn-toggle>
-            </div>
-            <v-container fluid class="pa-0" v-if="barDataColllection != null">
-              <v-row align="center">
-                <v-col cols="12" sm="12">
-                  <div class="text-center">
-                    <v-card
-                      color="teal lighten-1"
-                    >
-                      <v-card-text class="white--text">
-                        <strong>uśredniony pomiar z dziś: {{sensorDetails.averageMeasurement.procentValue + '%'}} ({{sensorDetails.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
-                          {{sensorDetails.averageMeasurement.pollutionLevel}}</strong><br>
-                        <strong>ostatni pomiar: {{sensorDetails.lastMeasurement.procentValue + '%'}}
-                          ({{sensorDetails.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
-                          {{sensorDetails.lastMeasurement.pollutionLevel}}</strong>
-
-                      </v-card-text>
-                    </v-card>
-                  </div>
-                </v-col>
-              </v-row>
-            </v-container>
-          </div>
-        </v-card>
-      </div>
-    </transition>
-  <MobileChartDialog
-    :sensorDetails="sensorDetails"
-    :barDataCollection="barDataColllection"
-    :lineDataCollection="lineDataCollection"
-    :mobileDialogVisibility.sync="mobileDialogVisibility"
-    v-on:closeMobileDialog="closeMobileDialog"
-  />
+    <MobileChartDialog
+      :sensorDetails="sensorDetails"
+      :apiResponse="apiResponse"
+      :barDataCollection="barDataColllection"
+      :lineDataCollection="lineDataCollection"
+      :mobileDialogVisibility.sync="mobileDialogVisibility"
+      v-on:closeMobileDialog="closeMobileDialog"
+      v-on:updateBarDataCollection="updateBarDataCollection"
+      v-on:updateLineDataCollection="updateLineDataCollection"
+    />
   </div>
 </template>
 
 <script>
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
 import StationsService from '@/services/StationsService'
-import BarChart from '@/components/vue-chartjs/BarChart'
-import LineChart from '@/components/vue-chartjs/LineChart'
 import pollutionLevels from '@/libs/pollutionLevels'
 import pollutionLimits from '@/libs/pollutionLimits'
 import MobileChartDialog from '@/components/ui/MobileChartDialog'
@@ -263,6 +177,7 @@ export default {
         averageMeasurement: null,
         lastMeasurement: null
       },
+      desktopDialogVisibility: false,
       mobileDialogVisibility: false,
       barDataColllection: null,
       lineDataCollection: null,
@@ -305,17 +220,24 @@ export default {
     LMarker,
     LPopup,
     LIcon,
-    BarChart,
-    LineChart
   },
   props: {
     stations: Array,
     autocompleteInput: Boolean
   },
   methods: {
+    updateBarDataCollection (value) {
+      this.barDataColllection = value
+    },
+    updateLineDataCollection (value) {
+      this.lineDataCollection = value
+    },
     hideStation () {
       this.$emit('closeAutocompleteDialog', false)
       this.stationDetails = null
+    },
+    closeDesktopDialog (value) {
+      this.desktopDialogVisibility = value
     },
     closeMobileDialog (value) {
       this.mobileDialogVisibility = value
@@ -414,9 +336,6 @@ export default {
           }
         ]
       }
-      if (this.width < 768) {
-        this.mobileDialogVisibility = true
-      }
       this.sensorDetails.averageMeasurement = {
         value: averageMeasurement[0].toFixed(2),
         procentValue: this.getPollutionLimit(sensor.details.paramTwo, averageMeasurement[0]),
@@ -427,7 +346,12 @@ export default {
         procentValue: this.getPollutionLimit(sensor.details.paramTwo, lastMeasurement[0]),
         pollutionLevel: pollutionLevels[this.setBackgroundColor(lastMeasurement, sensor.details.paramTwo, false)[0]]
       }
+      this.mobileDialogVisibility = true
       this.sensorDetails.sensorId = sensor.details.id
+      // if (this.width < 768) {
+      // } else {
+      //   this.desktopDialogVisibility = true
+      // }
     },
     formatDate (date) {
       let d = date,
@@ -521,47 +445,47 @@ export default {
       yesterdayDate.setDate(yesterdayDate.getDate() - 1)
       return this.formatDate(yesterdayDate)
     },
-    async compareWithYesterday (id, apiResponse) {
-      let yesterdaysDate = this.getYesterdaysDate()
-      let sensor = apiResponse.find(sensor => sensor.details.id === id)
-      let filteredMeasurements = sensor.measurement.filter(({date}) => date >= this.date+' 00:00:00')
-      let filteredValues = filteredMeasurements.map(({value}) => value)
-      let averageMeasurement = this.getAverage(filteredValues)
-      let lastMeasurementsTime = filteredMeasurements[filteredMeasurements.length-1].date.substring(11)
-      let yesterdaysMeasurements = (sensor.measurement.filter(({date}) => date >= yesterdaysDate+' 00:00:00' && date <= yesterdaysDate+' '+lastMeasurementsTime )).reverse()
-      let yesterdayValues = yesterdaysMeasurements.map(({value}) => value)
-      let yesterdaysAverageMeasurement = this.getAverage(yesterdayValues)
-      this.barDataColllection = {
-        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
-        datasets: [
-          {
-            label: yesterdaysDate,
-            backgroundColor: this.setBackgroundColor(yesterdayValues, sensor.details.paramTwo, true),
-            data: yesterdayValues
-          },
-          {
-            label: this.date,
-            backgroundColor: this.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
-            data: filteredMeasurements.map(({value}) => value)
-          }
-        ]
-      }
-      this.lineDataCollection = {
-        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
-        datasets: [
-          {
-            label: yesterdaysDate,
-            backgroundColor: this.setBackgroundColor(yesterdaysAverageMeasurement, sensor.details.paramTwo, true)[0],
-            data: yesterdayValues
-          },
-          {
-            label: this.date,
-            backgroundColor: this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, true)[0],
-            data: filteredMeasurements.map(({value}) => value)
-          }
-        ]
-      }
-    },
+    // async compareWithYesterday (id, apiResponse) {
+    //   let yesterdaysDate = this.getYesterdaysDate()
+    //   let sensor = apiResponse.find(sensor => sensor.details.id === id)
+    //   let filteredMeasurements = sensor.measurement.filter(({date}) => date >= this.date+' 00:00:00')
+    //   let filteredValues = filteredMeasurements.map(({value}) => value)
+    //   let averageMeasurement = this.getAverage(filteredValues)
+    //   let lastMeasurementsTime = filteredMeasurements[filteredMeasurements.length-1].date.substring(11)
+    //   let yesterdaysMeasurements = (sensor.measurement.filter(({date}) => date >= yesterdaysDate+' 00:00:00' && date <= yesterdaysDate+' '+lastMeasurementsTime )).reverse()
+    //   let yesterdayValues = yesterdaysMeasurements.map(({value}) => value)
+    //   let yesterdaysAverageMeasurement = this.getAverage(yesterdayValues)
+    //   this.barDataColllection = {
+    //     labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+    //     datasets: [
+    //       {
+    //         label: yesterdaysDate,
+    //         backgroundColor: this.setBackgroundColor(yesterdayValues, sensor.details.paramTwo, true),
+    //         data: yesterdayValues
+    //       },
+    //       {
+    //         label: this.date,
+    //         backgroundColor: this.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
+    //         data: filteredMeasurements.map(({value}) => value)
+    //       }
+    //     ]
+    //   }
+    //   this.lineDataCollection = {
+    //     labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+    //     datasets: [
+    //       {
+    //         label: yesterdaysDate,
+    //         backgroundColor: this.setBackgroundColor(yesterdaysAverageMeasurement, sensor.details.paramTwo, true)[0],
+    //         data: yesterdayValues
+    //       },
+    //       {
+    //         label: this.date,
+    //         backgroundColor: this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, true)[0],
+    //         data: filteredMeasurements.map(({value}) => value)
+    //       }
+    //     ]
+    //   }
+    // },
     mapLastValues (response) {
       let values = response.map(({measurement}) => measurement)
       let valuesArray = []
