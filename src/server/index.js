@@ -1,17 +1,12 @@
 const express = require('express')
 const path = require('path')
 const app = require('./app')
+const enforce = require('express-sslify')
 const PORT = process.env.PORT || 8000
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('dist/client'))
-  app.get('*', function (req, res, next) {
-    if (req.protocol !== 'https') {
-      res.redirect(`https://${req.header('host')}${req.url}`)
-    } else {
-      next()
-    }
-  })
+  app.use(enforce.https({ trustProtoHeader: true }))
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'dist', 'client', 'index.html'))
   })
