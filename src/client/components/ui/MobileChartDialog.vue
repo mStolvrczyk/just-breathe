@@ -1,6 +1,10 @@
 <template>
   <v-row justify="center">
-    <v-dialog persistent v-model="mobileDialogVisibility" max-width="1000px">
+    <v-dialog
+      persistent
+      v-model="mobileDialogVisibility"
+      max-width="500px"
+    >
       <div
         id="chart_card">
         <v-card
@@ -24,12 +28,12 @@
                   <bar-chart
                     v-if="chartSwitch"
                     :chart-data="barDataCollection"
-                    :height="290"
+                    :height="chartHeight"
                   />
                   <line-chart
                     v-else
                     :chart-data="lineDataCollection"
-                    :height="290"
+                    :height="chartHeight"
                   />
               </div>
             </v-card>
@@ -53,7 +57,7 @@
                 </v-tooltip>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
-                    <v-btn color="white" v-on="on">
+                    <v-btn @click="compareWithYesterday(sensorDetails.sensorId, apiResponse)" color="white" v-on="on">
                       <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
                     </v-btn>
                   </template>
@@ -69,10 +73,10 @@
                       color="teal lighten-1"
                     >
                       <v-card-text class="white--text">
-                        <strong>uśredniony pomiar z dziś:<br> {{sensorDetails.averageMeasurement.procentValue + '%'}}
+                        <strong>uśredniony pomiar z dziś:<br v-if="width < 768">{{sensorDetails.averageMeasurement.procentValue + '%'}}
                           ({{sensorDetails.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
                           {{sensorDetails.averageMeasurement.pollutionLevel}}</strong><br>
-                        <strong>ostatni pomiar:<br> {{sensorDetails.lastMeasurement.procentValue + '%'}}
+                        <strong>ostatni pomiar:<br v-if="width < 768"> {{sensorDetails.lastMeasurement.procentValue + '%'}}
                           ({{sensorDetails.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
                           {{sensorDetails.lastMeasurement.pollutionLevel}}</strong>
 
@@ -84,7 +88,7 @@
             </v-container>
           </div>
           <div class="text-center">
-            <v-btn @click="closeDialog" class="teal--text" small rounded color="white" dark>Return</v-btn>
+            <v-btn @click="closeDialog" class="teal--text font-weight-bold" rounded color="white" dark>Wróć</v-btn>
           </div>
         </v-card>
       </div>
@@ -102,27 +106,186 @@ export default {
   },
   data () {
     return {
+      updatedBarDataCollection: null,
+      updatedLineDataCollection: null,
+      chartHeight: null,
+      width: document.documentElement.clientWidth,
       chartSwitch: true,
-      alignment: 0
+      alignment: 0,
+      date: this.formatDate(new Date())
+
     }
   },
   props: {
     mobileDialogVisibility: Boolean,
     sensorDetails: Object,
+    apiResponse: Array,
     barDataCollection: Object,
     lineDataCollection: Object
   },
   methods: {
+    formatDate (date) {
+      let d = date,
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+      if (month.length < 2)
+        month = '0' + month;
+      if (day.length < 2)
+        day = '0' + day;
+
+      return [year, month, day].join('-');
+    },
     closeDialog () {
       this.$emit('closeMobileDialog', false)
+    },
+    async compareWithYesterday (id, apiResponse) {
+      let yesterdaysDate = this.getYesterdaysDate()
+      let sensor = apiResponse.find(sensor => sensor.details.id === id)
+      let filteredMeasurements = sensor.measurement.filter(({date}) => date >= this.date+' 00:00:00')
+      let filteredValues = filteredMeasurements.map(({value}) => value)
+      let averageMeasurement = this.getAverage(filteredValues)
+      let lastMeasurementsTime = filteredMeasurements[filteredMeasurements.length-1].date.substring(11)
+      let yesterdaysMeasurements = (sensor.measurement.filter(({date}) => date >= yesterdaysDate+' 00:00:00' && date <= yesterdaysDate+' '+lastMeasurementsTime )).reverse()
+      let yesterdayValues = yesterdaysMeasurements.map(({value}) => value)
+      let yesterdaysAverageMeasurement = this.getAverage(yesterdayValues)
+      this.updatedBarDataCollection = {
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: yesterdaysDate,
+            backgroundColor: this.setBackgroundColor(yesterdayValues, sensor.details.paramTwo, true),
+            data: yesterdayValues
+          },
+          {
+            label: this.date,
+            backgroundColor: this.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
+            data: filteredMeasurements.map(({value}) => value)
+          }
+        ]
+      }
+      this.$emit('updateBarDataCollection', this.updatedBarDataCollection)
+      this.updatedLineDataCollection = {
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: yesterdaysDate,
+            backgroundColor: this.setBackgroundColor(yesterdaysAverageMeasurement, sensor.details.paramTwo, true)[0],
+            data: yesterdayValues
+          },
+          {
+            label: this.date,
+            backgroundColor: this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, true)[0],
+            data: filteredMeasurements.map(({value}) => value)
+          }
+        ]
+      }
+      this.$emit('updateLineDataCollection', this.updatedLineDataCollection)
+    },
+    getYesterdaysDate () {
+      let yesterdayDate = new Date()
+      yesterdayDate.setDate(yesterdayDate.getDate() - 1)
+      return this.formatDate(yesterdayDate)
+    },
+    getAverage (values) {
+      let sum = null
+      values.forEach((value) => {
+        sum = sum + value
+      })
+      return [
+        sum / values.length
+      ]
+    },
+    setBackgroundColor (measurements, symbol, opacity) {
+      let colorArray = []
+      let compartments = [
+        {
+          symbol: 'PM10',
+          limits: [20.00, 60.00, 100.00, 140.00, 200.00],
+        },
+        {
+          symbol: 'PM2.5',
+          limits: [12.00, 36.00, 60.00, 84.00, 120.00],
+        },
+        {
+          symbol: 'O3',
+          limits: [30.00, 70.00, 120.00, 160.00, 240.00],
+        },
+        {
+          symbol: 'NO2',
+          limits: [40.00, 100.00, 150.00, 200.00, 400.00],
+        },
+        {
+          symbol: 'SO2',
+          limits: [50.00, 100.00, 200.00, 350.00, 500.00],
+        },
+        {
+          symbol: 'C6H6',
+          limits: [5.00, 10.00, 15.00, 20.00, 50.00],
+        },
+        {
+          symbol: 'CO',
+          limits: [2499.00, 6499.00, 10499.00, 14499.00, 20499.00],
+        }
+      ]
+      let colors = [
+        'rgba(87, 177, 8)',
+        'rgba(176, 221, 16)',
+        'rgba(255, 217, 17)',
+        'rgba(229, 129, 0)',
+        'rgba(229, 0, 0)',
+        'rgba(153, 0, 0)'
+      ]
+      let opacityColors = [
+        'rgba(87, 177, 8, 0.6)',
+        'rgba(176, 221, 16, 0.6)',
+        'rgba(255, 217, 17, 0.6)',
+        'rgba(229, 129, 0, 0.6)',
+        'rgba(229, 0, 0, 0.6)',
+        'rgba(153, 0, 0, 0.6)'
+      ]
+      let currSymbolLimits = compartments.find(test => test.symbol === symbol).limits;
+      measurements.forEach(measurement => {
+        let currMeasurementWithLimits = currSymbolLimits.concat([measurement])
+        currMeasurementWithLimits.sort((a, b) => { return a - b })
+        if (opacity) {
+          colorArray.push(opacityColors[currMeasurementWithLimits.indexOf(measurement)])
+        } else {
+          colorArray.push(colors[currMeasurementWithLimits.indexOf(measurement)])
+        }
+      })
+      return colorArray
+    }
+  },
+  watch: {
+    'sensorDetails.sensorId' () {
+      this.alignment = 0
+      this.chartSwitch = true
+    }
+  },
+  mounted () {
+    if (this.width < 411) {
+      this.chartHeight = 290
+    } else {
+      this.chartHeight = 190
     }
   }
 }
 </script>
 
 <style>
-#charts {
-  width: 720px;
-  overflow-x: scroll;
-}
+  @media only screen and (min-width: 768px) {
+    #chart_card {
+      top: 5%;
+      width: 60%;
+      left: 20%;
+    }
+  }
+  @media only screen and (min-width: 411px) and (max-width: 767px) {
+    #chart_card {
+      top: 5%;
+      left: 20%;
+    }
+  }
 </style>
