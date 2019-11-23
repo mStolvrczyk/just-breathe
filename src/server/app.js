@@ -7,7 +7,6 @@ app.all('/*', function (req, res, next) {
   res.header('Access-Control-Allow-Headers', 'X-Requested-With')
   next()
 })
-// do usuniecia
 
 app.use('/api', userController)
 
