@@ -57,7 +57,7 @@
                 </v-tooltip>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
-                    <v-btn @click="compareWithYesterday(sensorDetails.sensorId, apiResponse)" color="white" v-on="on">
+                    <v-btn @click="compareWithYesterday(sensorDetails.sensorId, apiResponse), comparison = !comparison" color="white" v-on="on">
                       <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
                     </v-btn>
                   </template>
@@ -110,7 +110,9 @@ export default {
       updatedLineDataCollection: null,
       chartHeight: null,
       width: document.documentElement.clientWidth,
+      height: document.documentElement.clientHeight,
       chartSwitch: true,
+      comparison: false,
       alignment: 0,
       date: this.formatDate(new Date())
 
@@ -165,7 +167,7 @@ export default {
           }
         ]
       }
-      this.$emit('updateBarDataCollection', this.updatedBarDataCollection)
+      this.$emit('barDataComparison', this.updatedBarDataCollection)
       this.updatedLineDataCollection = {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
@@ -181,7 +183,7 @@ export default {
           }
         ]
       }
-      this.$emit('updateLineDataCollection', this.updatedLineDataCollection)
+      this.$emit('lineDataComparison', this.updatedLineDataCollection)
     },
     getYesterdaysDate () {
       let yesterdayDate = new Date()
@@ -259,17 +261,23 @@ export default {
     }
   },
   watch: {
+    'comparison' (value) {
+      if (value === false) {
+        this.$emit('withoutComparison', this.sensorDetails.sensorId)
+      }
+    },
     'sensorDetails.sensorId' () {
       this.alignment = 0
       this.chartSwitch = true
     }
   },
   mounted () {
-    if (this.width < 411) {
+    if (this.width < 415) {
       this.chartHeight = 290
     } else {
-      this.chartHeight = 190
+      this.chartHeight = this.height / 4.3
     }
+    console.log(document.documentElement.clientHeight)
   }
 }
 </script>

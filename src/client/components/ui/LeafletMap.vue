@@ -46,7 +46,7 @@
           <v-tooltip v-if="buttonVisibility" bottom>
             <template v-slot:activator="{ on }">
               <v-btn @click="zoomReset" fab small color="teal lighten-1" v-on="on">
-                <v-icon style="font-size:23px;color: white">mdi-arrow-left</v-icon>
+                <v-icon style="font-size:23px;color: white">mdi-close</v-icon>
               </v-btn>
             </template>
             <span>Wróć</span>
@@ -156,8 +156,9 @@
       :lineDataCollection="lineDataCollection"
       :mobileDialogVisibility.sync="mobileDialogVisibility"
       v-on:closeMobileDialog="closeMobileDialog"
-      v-on:updateBarDataCollection="updateBarDataCollection"
-      v-on:updateLineDataCollection="updateLineDataCollection"
+      v-on:barDataComparison="barDataComparison"
+      v-on:lineDataComparison="lineDataComparison"
+      v-on:withoutComparison="withoutComparison"
     />
   </div>
 </template>
@@ -226,10 +227,13 @@ export default {
     autocompleteInput: Boolean
   },
   methods: {
-    updateBarDataCollection (value) {
+    withoutComparison (value) {
+      this.fillDatacollection(value, this.apiResponse)
+    },
+    barDataComparison (value) {
       this.barDataColllection = value
     },
-    updateLineDataCollection (value) {
+    lineDataComparison (value) {
       this.lineDataCollection = value
     },
     hideStation () {
