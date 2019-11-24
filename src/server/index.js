@@ -8,8 +8,10 @@ if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res) => {
     if (req.headers['x-forwarded-proto'] !== 'https') {
       res.redirect('https://' + req.hostname + req.url)
+      res.sendFile(path.resolve(__dirname, 'dist', 'client', 'index.html'))
+    } else {
+      res.sendFile(path.resolve(__dirname, 'dist', 'client', 'index.html'))
     }
-    res.sendFile(path.resolve(__dirname, 'dist', 'client', 'index.html'))
   })
 }
 app.use(express.static(path.resolve(__dirname, '../client')))
