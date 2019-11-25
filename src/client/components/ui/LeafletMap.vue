@@ -155,6 +155,7 @@
       :barDataCollection="barDataColllection"
       :lineDataCollection="lineDataCollection"
       :mobileDialogVisibility.sync="mobileDialogVisibility"
+      :chartVisibility.sync="chartVisibility"
       v-on:closeMobileDialog="closeMobileDialog"
       v-on:barDataComparison="barDataComparison"
       v-on:lineDataComparison="lineDataComparison"
@@ -180,6 +181,7 @@ export default {
       },
       desktopDialogVisibility: false,
       mobileDialogVisibility: false,
+      chartVisibility: false,
       barDataColllection: null,
       lineDataCollection: null,
       date: this.formatDate(new Date()),
@@ -245,6 +247,7 @@ export default {
     },
     closeMobileDialog (value) {
       this.mobileDialogVisibility = value
+      this.chartVisibility = value
     },
     getMark (station) {
       return {
@@ -449,47 +452,6 @@ export default {
       yesterdayDate.setDate(yesterdayDate.getDate() - 1)
       return this.formatDate(yesterdayDate)
     },
-    // async compareWithYesterday (id, apiResponse) {
-    //   let yesterdaysDate = this.getYesterdaysDate()
-    //   let sensor = apiResponse.find(sensor => sensor.details.id === id)
-    //   let filteredMeasurements = sensor.measurement.filter(({date}) => date >= this.date+' 00:00:00')
-    //   let filteredValues = filteredMeasurements.map(({value}) => value)
-    //   let averageMeasurement = this.getAverage(filteredValues)
-    //   let lastMeasurementsTime = filteredMeasurements[filteredMeasurements.length-1].date.substring(11)
-    //   let yesterdaysMeasurements = (sensor.measurement.filter(({date}) => date >= yesterdaysDate+' 00:00:00' && date <= yesterdaysDate+' '+lastMeasurementsTime )).reverse()
-    //   let yesterdayValues = yesterdaysMeasurements.map(({value}) => value)
-    //   let yesterdaysAverageMeasurement = this.getAverage(yesterdayValues)
-    //   this.barDataColllection = {
-    //     labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
-    //     datasets: [
-    //       {
-    //         label: yesterdaysDate,
-    //         backgroundColor: this.setBackgroundColor(yesterdayValues, sensor.details.paramTwo, true),
-    //         data: yesterdayValues
-    //       },
-    //       {
-    //         label: this.date,
-    //         backgroundColor: this.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
-    //         data: filteredMeasurements.map(({value}) => value)
-    //       }
-    //     ]
-    //   }
-    //   this.lineDataCollection = {
-    //     labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
-    //     datasets: [
-    //       {
-    //         label: yesterdaysDate,
-    //         backgroundColor: this.setBackgroundColor(yesterdaysAverageMeasurement, sensor.details.paramTwo, true)[0],
-    //         data: yesterdayValues
-    //       },
-    //       {
-    //         label: this.date,
-    //         backgroundColor: this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, true)[0],
-    //         data: filteredMeasurements.map(({value}) => value)
-    //       }
-    //     ]
-    //   }
-    // },
     mapLastValues (response) {
       let values = response.map(({measurement}) => measurement)
       let valuesArray = []
@@ -536,6 +498,13 @@ export default {
     }
   },
   watch: {
+    'mobileDialogVisibility' (value) {
+      if (value === true) {
+        setTimeout(function () { this.chartVisibility = true }
+          .bind(this),
+        50)
+      }
+    },
     'sensorId' () {
       this.alignment = 0
       this.chartSwitch = true
