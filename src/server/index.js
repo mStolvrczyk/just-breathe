@@ -3,18 +3,19 @@ const path = require('path')
 const app = require('./app')
 const PORT = process.env.PORT || 8000
 
-// eslint-disable-next-line camelcase
-const https_redirect = function (req, res, next) {
-  if (process.env.NODE_ENV === 'production' && req.headers['x-forwarded-proto'] !== 'https') {
-    return res.redirect('https://' + req.headers.host + req.url)
+app.use('*', function (req, res, next) {
+  if (req.headers['x-forwarded-proto'] !== 'https' && process.env.NODE_ENV === 'production') {
+    res.redirect('https://' + req.hostname + req.url)
+  } else {
+    next()
   }
-}
+})
+
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('dist/client'))
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'dist', 'client', 'index.html'))
   })
 }
-app.use(https_redirect)
-// app.use(express.static(path.resolve(__dirname, '../client')))
+app.use(express.static(path.resolve(__dirname, '../client')))
 app.listen(PORT, () => console.log(`Listening on PORT ${PORT}`))
