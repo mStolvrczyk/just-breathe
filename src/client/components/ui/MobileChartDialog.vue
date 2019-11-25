@@ -274,9 +274,8 @@ export default {
     }
   },
   mounted () {
-    // do usuniecia
     if (this.width < 415) {
-      this.chartHeight = 330
+      this.chartHeight = 290
     } else {
       this.chartHeight = this.height / 4
     }
