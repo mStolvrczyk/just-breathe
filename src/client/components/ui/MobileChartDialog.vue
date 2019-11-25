@@ -3,7 +3,7 @@
     <v-dialog
       persistent
       v-model="mobileDialogVisibility"
-      max-width="800px"
+      max-width="900px"
     >
 <!--        <div-->
           <v-card
@@ -277,7 +277,7 @@ export default {
     if (this.width < 415) {
       this.chartHeight = 290
     } else {
-      this.chartHeight = this.height / 4.3
+      this.chartHeight = this.height / 4
     }
     console.log(document.documentElement.clientHeight)
   }
