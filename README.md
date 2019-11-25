@@ -31,7 +31,7 @@ npm run lint
 npm run test:unit
 ```
 ### Live example
-<a href="https://air-quality-check-app.herokuapp.com/">Go here</a> to check out live example
+<a href="air-quality-check-app.herokuapp.com/">Go here</a> to check out live example
 ## Future plans:
 * firebase for storing data and authentication
 * adding User Panel that will contain information such as last measurements or average of them
