@@ -45,13 +45,9 @@
 </template>
 
 <script>
-
-// import DetailsDialog from '@/components/ui/DetailsDialog'
-
 import Dashboard from '@/views/Dashboard'
 export default {
   components: { Dashboard },
-  // components: { DetailsDialog },
   data: () => ({
     autocompleteInput: false
   }),

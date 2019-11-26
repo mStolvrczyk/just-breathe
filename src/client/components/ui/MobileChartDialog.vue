@@ -5,7 +5,6 @@
       v-model="mobileDialogVisibility"
       max-width="900px"
     >
-<!--        <div-->
           <v-card
             class="pa-3"
             color="teal lighten-4"
@@ -92,7 +91,6 @@
               <v-btn @click="closeDialog" class="teal--text font-weight-bold" rounded color="white" dark>Wróć</v-btn>
             </div>
           </v-card>
-<!--        </div>-->
     </v-dialog>
   </v-row>
 </template>
@@ -263,6 +261,15 @@ export default {
     }
   },
   watch: {
+    'alignment' (value) {
+      if (value === 0 && this.comparison === true && this.chartSwitch === true) {
+        this.$emit('withoutComparison', this.sensorDetails.sensorId)
+        this.comparison = false
+      } else if (value === 2 && this.comparison === true && this.chartSwitch === false) {
+        this.$emit('withoutComparison', this.sensorDetails.sensorId)
+        this.comparison = false
+      }
+    },
     'comparison' (value) {
       if (value === false) {
         this.$emit('withoutComparison', this.sensorDetails.sensorId)
