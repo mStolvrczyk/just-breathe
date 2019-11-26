@@ -3,9 +3,16 @@ const path = require('path')
 const app = require('./app')
 const PORT = process.env.PORT || 8000
 
+app.use('*', function (req, res, next) {
+  if (req.headers['x-forwarded-proto'] !== 'https' && process.env.NODE_ENV === 'production') {
+    res.redirect('https://' + req.hostname + req.url)
+  } else {
+    next()
+  }
+})
+
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('dist/client'))
-
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'dist', 'client', 'index.html'))
   })
