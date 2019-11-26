@@ -50,19 +50,19 @@
                   </v-tooltip>
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
-                      <v-btn @click="chartSwitch = false" color="white" v-on="on">
-                        <v-icon style="font-size:23px;color: teal">mdi-chart-bell-curve</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Wykres liniowy</span>
-                  </v-tooltip>
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
                       <v-btn @click="compareWithYesterday(sensorDetails.sensorId, apiResponse), comparison = !comparison" color="white" v-on="on">
                         <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
                       </v-btn>
                     </template>
                     <span>Porównaj z wczoraj</span>
+                  </v-tooltip>
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                      <v-btn @click="chartSwitch = false" color="white" v-on="on">
+                        <v-icon style="font-size:23px;color: teal">mdi-chart-bell-curve</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Wykres liniowy</span>
                   </v-tooltip>
                 </v-btn-toggle>
               </div>
@@ -277,7 +277,7 @@ export default {
     if (this.width < 415) {
       this.chartHeight = 280
     } else {
-      this.chartHeight = this.height / 4
+      this.chartHeight = this.height / 4.1
     }
     console.log(document.documentElement.clientHeight)
   }
