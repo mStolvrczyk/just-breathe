@@ -180,11 +180,9 @@ export default {
       barDataColllection: null,
       lineDataCollection: null,
       date: this.formatDate(new Date()),
-      sensorId: null,
       apiResponse: null,
       found: null,
       zoomHolder: null,
-      alignment: 0,
       options: { zoomControl: false },
       zoom: 6,
       center: [
@@ -207,8 +205,6 @@ export default {
       stationDetails: null,
       stationsService: new StationsService(),
       selectedStation: null,
-      chartSwitch: true,
-      visibility: false
     }
   },
   components: {
@@ -236,9 +232,6 @@ export default {
       this.$emit('closeAutocompleteDialog', false)
       this.stationDetails = null
     },
-    closeDesktopDialog (value) {
-      this.desktopDialogVisibility = value
-    },
     closeChartDialog (value) {
       this.chartDialogVisibility = value
       this.chartVisibility = value
@@ -250,7 +243,6 @@ export default {
       }
     },
     getDistance (origin, destination) {
-      // return distance in meters
       let lon1 = this.toRadian(origin[1])
       let lat1 = this.toRadian(origin[0])
       let lon2 = this.toRadian(destination[1])
@@ -269,24 +261,21 @@ export default {
     },
     closestStation (stations, userLocation) {
       let minDist = Infinity
-      let nearest_text = '*None*'
+      let nearestText = '*None*'
       let markerDist
       let stationId
-      // get all objects added to the map
-      // iterate over objects and calculate distance between them
       for (let i = 0; i < stations.length; i += 1) {
         markerDist = this.getDistance(stations[i].coordinates.map(Number), userLocation)
         if (markerDist < minDist) {
           minDist = markerDist
-          // eslint-disable-next-line camelcase
-          nearest_text = stations[i].coordinates
+          nearestText = stations[i].coordinates
           stationId = stations[i].id
         }
       }
       this.found = {
         id: stationId,
-        lat: nearest_text[0],
-        lng: nearest_text[1]
+        lat: nearestText[0],
+        lng: nearestText[1]
       }
     },
     async getStationDetails (id, stations, userLocation) {
@@ -313,8 +302,8 @@ export default {
     },
     async fillDatacollection (id, apiResponse) {
       let sensor = apiResponse.find(sensor => sensor.details.id === id)
-      let filteredMeasurements = sensor.measurement.filter(({date}) => date >= this.date + ' 00:00:00')
-      let filteredValues = filteredMeasurements.map(({value}) => value)
+      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.date + ' 00:00:00')
+      let filteredValues = filteredMeasurements.map(({ value }) => value)
       let averageMeasurement = this.getAverage(filteredValues)
       let lastMeasurement = this.getLastMeasurement(filteredValues)
       this.barDataColllection = {
@@ -349,42 +338,39 @@ export default {
       }
       this.chartDialogVisibility = true
       this.sensorDetails.sensorId = sensor.details.id
-      // if (this.width < 768) {
-      // } else {
-      //   this.desktopDialogVisibility = true
-      // }
     },
     formatDate (date) {
-      let d = date,
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
+      let d = date
+      let month = '' + (d.getMonth() + 1)
+      let day = '' + d.getDate()
+      let year = d.getFullYear()
 
-      if (month.length < 2)
-        month = '0' + month;
-      if (day.length < 2)
-        day = '0' + day;
-
-      return [year, month, day].join('-');
+      if (month.length < 2) {
+        month = '0' + month
+      }
+      if (day.length < 2) {
+        day = '0' + day
+      }
+      return [year, month, day].join('-')
     },
     setBackgroundColor (measurements, symbol, opacity) {
       let colorArray = []
       let compartments = [
         {
           symbol: 'PM10',
-          limits: [20.00, 60.00, 100.00, 140.00, 200.00],
+          limits: [20.00, 60.00, 100.00, 140.00, 200.00]
         },
         {
           symbol: 'PM2.5',
-          limits: [12.00, 36.00, 60.00, 84.00, 120.00],
+          limits: [12.00, 36.00, 60.00, 84.00, 120.00]
         },
         {
           symbol: 'O3',
-          limits: [30.00, 70.00, 120.00, 160.00, 240.00],
+          limits: [30.00, 70.00, 120.00, 160.00, 240.00]
         },
         {
           symbol: 'NO2',
-          limits: [40.00, 100.00, 150.00, 200.00, 400.00],
+          limits: [40.00, 100.00, 150.00, 200.00, 400.00]
         },
         {
           symbol: 'SO2',
@@ -497,13 +483,6 @@ export default {
         setTimeout(function () { this.chartVisibility = true }
           .bind(this),
         50)
-      }
-    },
-    'sensorId' () {
-      this.alignment = 0
-      this.chartSwitch = true
-      if (this.width < 768) {
-        this.$emit('sendVisibility', true)
       }
     },
     'stationDetails' (value) {
