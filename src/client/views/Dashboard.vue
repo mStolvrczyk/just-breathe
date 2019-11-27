@@ -14,11 +14,6 @@ import StationsService from '@/services/StationsService'
 export default {
   name: 'Dashboard',
   components: { LeafletMap },
-  watch: {
-    'pieDataCollection' (value) {
-      console.log(value)
-    }
-  },
   data: () => ({
     stationsService: new StationsService(),
     stations: []
@@ -39,7 +34,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>

@@ -2,14 +2,14 @@
   <v-app>
     <div class="navbar">
       <v-app-bar
-              flat
-              persistent
-              dark
-              app
-              fixed
-              :scroll-threshold="1"
-              :scroll-off-screen="true"
-              :src="require('@/assets/appImage.jpg')"
+        flat
+        persistent
+        dark
+        app
+        fixed
+        :scroll-threshold="1"
+        :scroll-off-screen="true"
+        :src="require('@/assets/appImage.jpg')"
       >
         <template v-slot:img="{ props }">
           <v-img
@@ -18,21 +18,21 @@
           ></v-img>
         </template>
         <div class="v-toolbar-title">
-              <v-toolbar-title>
-                  Air Quality Check
-              </v-toolbar-title>
-          </div>
-          <v-spacer/>
-          <v-btn @click="autocompleteInput = !autocompleteInput" icon>
-              <v-icon>
-                  search
-              </v-icon>
-          </v-btn>
-          <v-btn icon>
-              <v-icon>
-                  person
-              </v-icon>
-          </v-btn>
+          <v-toolbar-title>
+            Air Quality Check
+          </v-toolbar-title>
+        </div>
+        <v-spacer/>
+        <v-btn @click="autocompleteInput = !autocompleteInput" icon>
+          <v-icon>
+            search
+          </v-icon>
+        </v-btn>
+        <v-btn icon>
+          <v-icon>
+            person
+          </v-icon>
+        </v-btn>
       </v-app-bar>
     </div>
     <v-content>
@@ -43,9 +43,9 @@
     </v-content>
   </v-app>
 </template>
-
 <script>
 import Dashboard from '@/views/Dashboard'
+
 export default {
   components: { Dashboard },
   data: () => ({
@@ -58,7 +58,6 @@ export default {
   }
 }
 </script>
-
 <style>
     #app {
       background-image:

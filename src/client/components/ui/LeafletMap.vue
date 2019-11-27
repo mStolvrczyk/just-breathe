@@ -1,6 +1,6 @@
 <template>
   <div class="custom-popup" id="map">
-    <v-map
+    <l-map
       @click="hideStation"
       ref="map"
       :zoom.sync="zoom"
@@ -8,8 +8,8 @@
       style="z-index: 0"
       :options="options"
     >
-      <v-tilelayer :url="url"
-                   :attribution="attribution"></v-tilelayer>
+      <l-tile-layer :url="url"
+                   :attribution="attribution"></l-tile-layer>
       <l-marker
         :key="station.id"
         v-for="station in stations"
@@ -27,102 +27,7 @@
           :icon-size="tealIconSize"
         ></l-icon>
       </l-marker>
-    </v-map>
-      <div align="center" id="button_panel">
-        <div class="my-2">
-          <v-tooltip bottom v-if="width > 768">
-            <template v-slot:activator="{ on }">
-              <v-btn @click="closestStation(stations, userLocation)" fab small color="teal lighten-1" v-on="on">
-                <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
-              </v-btn>
-            </template>
-            <span>Pokaż najbliższą stację</span>
-          </v-tooltip>
-          <v-btn v-else @click="closestStation(stations, userLocation)" fab small color="teal lighten-1">
-            <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
-          </v-btn>
-        </div>
-        <div class="my-2">
-          <v-tooltip v-if="buttonVisibility" bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn @click="zoomReset" fab small color="teal lighten-1" v-on="on">
-                <v-icon style="font-size:23px;color: white">mdi-close</v-icon>
-              </v-btn>
-            </template>
-            <span>Wróć</span>
-          </v-tooltip>
-        </div>
-      </div>
-    <transition name="station_popup">
-      <div id="station_card" v-if="stationDetails != null">
-        <v-card
-          color="teal lighten-1"
-          class="pa-1"
-        >
-          <v-card-text align="center" class="white--text">
-            <strong>{{stationDetails.stationName}}</strong><br>
-            {{stationDetails.city}}<br>
-            <strong>{{'odległość: '+stationDetails.stationDistance}}</strong>
-          </v-card-text>
-        </v-card>
-        <div id="close_button">
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn @click="stationDetails = null" text fab x-small color="white" v-on="on" id="v-btn_close">
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </template>
-            <span>Zamknij okno</span>
-          </v-tooltip>
-        </div>
-      </div>
-    </transition>
-    <transition name="station_popup">
-      <div id="sensor_panel" align="center" v-if="stationDetails != null">
-          <v-container
-            fluid class="pa-0"
-            v-for="sensor in stationDetails.sensors"
-          >
-            <v-row align="center" dense>
-              <v-col cols="5" lg="5" xs="5">
-                  <v-tooltip
-                    bottom
-                  >
-                    <template v-slot:activator="{ on }">
-                      <v-card rounded color="teal lighten-1" block
-                             class="white--text" v-on="on">
-                        {{sensor.symbol}}
-                      </v-card>
-                    </template>
-                    <span>{{sensor.name}}</span>
-                  </v-tooltip>
-              </v-col>
-              <v-col cols="5" lg="5" xs="5">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on }">
-                    <v-card
-                      class="white--text"
-                      :style="{'background-color': sensor.backgroundColor }" v-on="on">
-                          <strong>{{sensor.pollutionLimit+'%'}}</strong>
-                    </v-card>
-                  </template>
-                    <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
-                </v-tooltip>
-              </v-col>
-              <v-col cols="2" lg="2" xs="2">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on }">
-                    <v-btn @click="fillDatacollection(sensor.id, apiResponse)" fab x-small color="teal lighten-1" v-on="on">
-                      <v-icon style="font-size:18px;color: white">mdi-dots-horizontal</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Pokaż szczegóły</span>
-                </v-tooltip>
-              </v-col>
-            </v-row>
-          </v-container>
-      </div>
-    </transition>
+    </l-map>
     <transition name="station_popup">
       <div id="station_input" v-if="autocompleteInput">
         <v-autocomplete
@@ -149,14 +54,105 @@
         </v-autocomplete>
       </div>
     </transition>
-    <MobileChartDialog
+    <div align="center" id="button_panel">
+      <div class="my-2">
+        <v-tooltip v-if="width > 768" bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" @click="closestStation(stations, userLocation)" fab small color="teal lighten-1">
+              <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
+            </v-btn>
+          </template>
+          <span>Pokaż najbliższą stację</span>
+        </v-tooltip>
+        <v-btn v-else @click="closestStation(stations, userLocation)" fab small color="teal lighten-1">
+          <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
+        </v-btn>
+      </div>
+      <div class="my-2">
+        <v-tooltip v-if="buttonVisibility && width > 768" bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn @click="zoomReset" v-on="on" fab small color="teal lighten-1">
+              <v-icon style="font-size:23px;color: white">mdi-close</v-icon>
+            </v-btn>
+          </template>
+          <span>Wróć</span>
+        </v-tooltip>
+        <v-btn v-else-if="buttonVisibility" @click="zoomReset" fab small color="teal lighten-1">
+          <v-icon style="font-size:23px;color: white">mdi-close</v-icon>
+        </v-btn>
+      </div>
+    </div>
+    <transition name="station_popup">
+      <div id="station_card" v-if="stationDetails != null">
+        <v-card color="teal lighten-1" class="pa-1">
+          <v-card-text align="center" class="white--text">
+            <strong>{{stationDetails.stationName}}</strong><br>
+            {{stationDetails.city}}<br>
+            <strong>{{'odległość: '+stationDetails.stationDistance}}</strong>
+          </v-card-text>
+        </v-card>
+        <div id="close_button">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn id="v-btn_close" v-on="on" @click="stationDetails = null" text fab x-small color="white">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </template>
+            <span>Zamknij okno</span>
+          </v-tooltip>
+        </div>
+      </div>
+    </transition>
+    <transition name="station_popup">
+      <div id="sensor_panel" align="center" v-if="stationDetails != null">
+        <v-container
+          fluid class="pa-0"
+          v-for="sensor in stationDetails.sensors"
+          :key="sensor.id"
+        >
+          <v-row align="center" dense>
+            <v-col cols="5">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-card v-on="on" rounded color="teal lighten-1" block class="white--text">
+                      {{sensor.symbol}}
+                    </v-card>
+                  </template>
+                  <span>{{sensor.name}}</span>
+                </v-tooltip>
+            </v-col>
+            <v-col cols="5">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-card v-on="on" class="white--text" :style="{ 'background-color': sensor.backgroundColor }">
+                        <strong>{{sensor.pollutionLimit+'%'}}</strong>
+                  </v-card>
+                </template>
+                  <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
+              </v-tooltip>
+            </v-col>
+            <v-col cols="2">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn v-on="on" @click="fillDatacollection(sensor.id, apiResponse)" fab x-small color="teal lighten-1">
+                    <v-icon style="font-size:18px;color: white">mdi-dots-horizontal</v-icon>
+                  </v-btn>
+                </template>
+                <span>Pokaż szczegóły</span>
+              </v-tooltip>
+            </v-col>
+          </v-row>
+        </v-container>
+      </div>
+    </transition>
+    <ChartDialog
       :sensorDetails="sensorDetails"
       :apiResponse="apiResponse"
       :barDataCollection="barDataColllection"
       :lineDataCollection="lineDataCollection"
-      :mobileDialogVisibility.sync="mobileDialogVisibility"
+      :chartDialogVisibility.sync="chartDialogVisibility"
       :chartVisibility.sync="chartVisibility"
-      v-on:closeMobileDialog="closeMobileDialog"
+      v-on:closeChartDialog="closeChartDialog"
       v-on:barDataComparison="barDataComparison"
       v-on:lineDataComparison="lineDataComparison"
       v-on:withoutComparison="withoutComparison"
@@ -165,11 +161,11 @@
 </template>
 
 <script>
-import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
+import { LMap, LTileLayer, LMarker, LIcon } from 'vue2-leaflet'
 import StationsService from '@/services/StationsService'
 import pollutionLevels from '@/libs/pollutionLevels'
 import pollutionLimits from '@/libs/pollutionLimits'
-import MobileChartDialog from '@/components/ui/MobileChartDialog'
+import ChartDialog from '@/components/ui/ChartDialog'
 export default {
   name: 'LeafletMap',
   data () {
@@ -179,8 +175,7 @@ export default {
         averageMeasurement: null,
         lastMeasurement: null
       },
-      desktopDialogVisibility: false,
-      mobileDialogVisibility: false,
+      chartDialogVisibility: false,
       chartVisibility: false,
       barDataColllection: null,
       lineDataCollection: null,
@@ -217,12 +212,11 @@ export default {
     }
   },
   components: {
-    MobileChartDialog,
-    'v-map': LMap,
-    'v-tilelayer': LTileLayer,
+    ChartDialog,
+    LMap,
+    LTileLayer,
     LMarker,
-    LPopup,
-    LIcon,
+    LIcon
   },
   props: {
     stations: Array,
@@ -245,8 +239,8 @@ export default {
     closeDesktopDialog (value) {
       this.desktopDialogVisibility = value
     },
-    closeMobileDialog (value) {
-      this.mobileDialogVisibility = value
+    closeChartDialog (value) {
+      this.chartDialogVisibility = value
       this.chartVisibility = value
     },
     getMark (station) {
@@ -353,7 +347,7 @@ export default {
         procentValue: this.getPollutionLimit(sensor.details.paramTwo, lastMeasurement[0]),
         pollutionLevel: pollutionLevels[this.setBackgroundColor(lastMeasurement, sensor.details.paramTwo, false)[0]]
       }
-      this.mobileDialogVisibility = true
+      this.chartDialogVisibility = true
       this.sensorDetails.sensorId = sensor.details.id
       // if (this.width < 768) {
       // } else {
@@ -498,7 +492,7 @@ export default {
     }
   },
   watch: {
-    'mobileDialogVisibility' (value) {
+    'chartDialogVisibility' (value) {
       if (value === true) {
         setTimeout(function () { this.chartVisibility = true }
           .bind(this),
@@ -629,24 +623,12 @@ export default {
       right: 1%;
       position: absolute;
     }
-    #details {
-      width: 25px;
-      height: 25px;
-    }
-    /*#chart_card {*/
-    /*  top: 250px;*/
-    /*  left: 15px;*/
-    /*  width: 350px;*/
-    /*  height: 10%;*/
-    /*  position: absolute;*/
-    /*}*/
   }
   @media only screen and (min-width: 768px) {
     #station_input {
       width: 60%;
       position: absolute;
       top: 2%;
-      /*left: 285px;*/
       right: 20%;
     }
     #button_panel {
@@ -676,17 +658,7 @@ export default {
       height: 30px;
 
     }
-    #chart_card {
-      top: 15%;
-      left: 20%;
-      position: absolute;
-    }
   }
-  /*#chart_card {*/
-  /*  top: 100px;*/
-  /*  left: 290px;*/
-  /*  position: absolute;*/
-  /*}*/
   .custom-popup .leaflet-popup-content-wrapper {
     background: #B2DFDB;
     color: white;
