@@ -145,12 +145,12 @@ export default {
     async compareWithYesterday (id, apiResponse) {
       let yesterdaysDate = this.getYesterdaysDate()
       let sensor = apiResponse.find(sensor => sensor.details.id === id)
-      let filteredMeasurements = sensor.measurement.filter(({date}) => date >= this.date+' 00:00:00')
-      let filteredValues = filteredMeasurements.map(({value}) => value)
+      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.date + ' 00:00:00')
+      let filteredValues = filteredMeasurements.map(({ value }) => value)
       let averageMeasurement = this.getAverage(filteredValues)
-      let lastMeasurementsTime = filteredMeasurements[filteredMeasurements.length-1].date.substring(11)
-      let yesterdaysMeasurements = (sensor.measurement.filter(({date}) => date >= yesterdaysDate+' 00:00:00' && date <= yesterdaysDate+' '+lastMeasurementsTime )).reverse()
-      let yesterdayValues = yesterdaysMeasurements.map(({value}) => value)
+      let lastMeasurementsTime = filteredMeasurements[filteredMeasurements.length - 1].date.substring(11)
+      let yesterdaysMeasurements = (sensor.measurement.filter(({ date }) => date >= yesterdaysDate + ' 00:00:00' && date <= yesterdaysDate + ' ' + lastMeasurementsTime)).reverse()
+      let yesterdayValues = yesterdaysMeasurements.map(({ value }) => value)
       let yesterdaysAverageMeasurement = this.getAverage(yesterdayValues)
       this.updatedBarDataCollection = {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),

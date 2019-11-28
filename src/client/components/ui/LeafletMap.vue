@@ -28,60 +28,46 @@
         ></l-icon>
       </l-marker>
     </l-map>
-    <transition name="station_popup">
-      <div id="station_input" v-if="autocompleteInput">
-        <v-autocomplete
-          background-color="white"
-          v-model="selectedStation"
-          :items="stations"
-          flat
-          search="searchValue"
-          hide-no-data
-          clearable
-          item-value="id"
-          item-text="stationName"
-          label="Wybierz stację"
-          solo
-          return-object
-        >
-          <template v-slot:no-data>
-            <v-list-tile>
-              <v-list-tile-title>
-                Brak stacji
-              </v-list-tile-title>
-            </v-list-tile>
-          </template>
-        </v-autocomplete>
-      </div>
-    </transition>
-    <div align="center" id="button_panel">
-      <div class="my-2">
-        <v-tooltip v-if="width > 768" bottom>
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" @click="closestStation(stations, userLocation)" fab small color="teal lighten-1">
-              <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
-            </v-btn>
-          </template>
-          <span>Pokaż najbliższą stację</span>
-        </v-tooltip>
-        <v-btn v-else @click="closestStation(stations, userLocation)" fab small color="teal lighten-1">
-          <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
-        </v-btn>
-      </div>
-      <div class="my-2">
-        <v-tooltip v-if="buttonVisibility && width > 768" bottom>
-          <template v-slot:activator="{ on }">
-            <v-btn @click="zoomReset" v-on="on" fab small color="teal lighten-1">
-              <v-icon style="font-size:23px;color: white">mdi-close</v-icon>
-            </v-btn>
-          </template>
-          <span>Wróć</span>
-        </v-tooltip>
-        <v-btn v-else-if="buttonVisibility" @click="zoomReset" fab small color="teal lighten-1">
-          <v-icon style="font-size:23px;color: white">mdi-close</v-icon>
-        </v-btn>
-      </div>
-    </div>
+    <StationInput
+    :stations="stations"
+    :selectedStation="selectedStation"
+    v-on:setSelectedStation="setSelectedStation"
+    :autocompleteInput="autocompleteInput"
+    />
+<!--    <transition name="station_popup">-->
+<!--      <div id="station_input" v-if="autocompleteInput">-->
+<!--        <v-autocomplete-->
+<!--          background-color="white"-->
+<!--          v-model="selectedStation"-->
+<!--          :items="stations"-->
+<!--          flat-->
+<!--          search="searchValue"-->
+<!--          hide-no-data-->
+<!--          clearable-->
+<!--          item-value="id"-->
+<!--          item-text="stationName"-->
+<!--          label="Wybierz stację"-->
+<!--          solo-->
+<!--          return-object-->
+<!--        >-->
+<!--          <template v-slot:no-data>-->
+<!--            <v-list-tile>-->
+<!--              <v-list-tile-title>-->
+<!--                Brak stacji-->
+<!--              </v-list-tile-title>-->
+<!--            </v-list-tile>-->
+<!--          </template>-->
+<!--        </v-autocomplete>-->
+<!--      </div>-->
+<!--    </transition>-->
+    <ButtonPanel
+    :stations="stations"
+    :width:="width"
+    :userLocation="userLocation"
+    :buttonVisibility="buttonVisibility"
+    v-on:zoomReset="zoomReset"
+    v-on:setFound="setFound"
+    />
     <transition name="station_popup">
       <div id="station_card" v-if="stationDetails != null">
         <v-card color="teal lighten-1" class="pa-1">
@@ -166,6 +152,8 @@ import StationsService from '@/services/StationsService'
 import pollutionLevels from '@/libs/pollutionLevels'
 import pollutionLimits from '@/libs/pollutionLimits'
 import ChartDialog from '@/components/ui/ChartDialog'
+import ButtonPanel from '@/components/ui/ButtonPanel'
+import StationInput from '@/components/ui/StationInput'
 export default {
   name: 'LeafletMap',
   data () {
@@ -201,13 +189,14 @@ export default {
       userLocation: [],
       watcher: navigator.geolocation.watchPosition(this.setLocation),
       centerStationId: null,
-      searchValue: '',
       stationDetails: null,
       stationsService: new StationsService(),
-      selectedStation: null,
+      selectedStation: null
     }
   },
   components: {
+    StationInput,
+    ButtonPanel,
     ChartDialog,
     LMap,
     LTileLayer,
@@ -219,6 +208,12 @@ export default {
     autocompleteInput: Boolean
   },
   methods: {
+    setSelectedStation (value) {
+      this.selectedStation = value
+    },
+    setFound (value) {
+      this.found = value
+    },
     withoutComparison (value) {
       this.fillDatacollection(value, this.apiResponse)
     },
@@ -258,25 +253,6 @@ export default {
     },
     toRadian (degree) {
       return degree * Math.PI / 180
-    },
-    closestStation (stations, userLocation) {
-      let minDist = Infinity
-      let nearestText = '*None*'
-      let markerDist
-      let stationId
-      for (let i = 0; i < stations.length; i += 1) {
-        markerDist = this.getDistance(stations[i].coordinates.map(Number), userLocation)
-        if (markerDist < minDist) {
-          minDist = markerDist
-          nearestText = stations[i].coordinates
-          stationId = stations[i].id
-        }
-      }
-      this.found = {
-        id: stationId,
-        lat: nearestText[0],
-        lng: nearestText[1]
-      }
     },
     async getStationDetails (id, stations, userLocation) {
       let response = (await this.stationsService.getStation(id)).filter(({ measurement }) => measurement.length > 0)
@@ -374,15 +350,15 @@ export default {
         },
         {
           symbol: 'SO2',
-          limits: [50.00, 100.00, 200.00, 350.00, 500.00],
+          limits: [50.00, 100.00, 200.00, 350.00, 500.00]
         },
         {
           symbol: 'C6H6',
-          limits: [5.00, 10.00, 15.00, 20.00, 50.00],
+          limits: [5.00, 10.00, 15.00, 20.00, 50.00]
         },
         {
           symbol: 'CO',
-          limits: [2499.00, 6499.00, 10499.00, 14499.00, 20499.00],
+          limits: [2499.00, 6499.00, 10499.00, 14499.00, 20499.00]
         }
       ]
       let colors = [
@@ -401,7 +377,7 @@ export default {
         'rgba(229, 0, 0, 0.6)',
         'rgba(153, 0, 0, 0.6)'
       ]
-      let currSymbolLimits = compartments.find(test => test.symbol === symbol).limits;
+      let currSymbolLimits = compartments.find(test => test.symbol === symbol).limits
       measurements.forEach(measurement => {
         let currMeasurementWithLimits = currSymbolLimits.concat([measurement])
         currMeasurementWithLimits.sort((a, b) => { return a - b })
@@ -433,17 +409,17 @@ export default {
       return this.formatDate(yesterdayDate)
     },
     mapLastValues (response) {
-      let values = response.map(({measurement}) => measurement)
+      let values = response.map(({ measurement }) => measurement)
       let valuesArray = []
       values.forEach(value => {
         value.reverse()
-        valuesArray.push(value[value.length-1].value)
+        valuesArray.push(value[value.length - 1].value)
       })
       return valuesArray
     },
     mapSensors (sensorsDetails, lastSensorsValues) {
       let sensorsArray = []
-      for(let i = 0; i<sensorsDetails.length && i<lastSensorsValues.length; i++) {
+      for (let i = 0; i < sensorsDetails.length && i < lastSensorsValues.length; i++) {
         let currentValue = [lastSensorsValues[i]]
         sensorsArray.push({
           id: sensorsDetails[i].id,
@@ -458,7 +434,7 @@ export default {
     },
     getPollutionLimit (symbol, value) {
       let limit = pollutionLimits[symbol]
-      return ((value*100)/limit).toFixed(1)
+      return ((value * 100) / limit).toFixed(1)
     },
     setLocation (pos) {
       if (this.userLocation.length >= 0) {
@@ -492,8 +468,7 @@ export default {
         this.buttonVisibility = false
       }
       this.barDataColllection = null
-      this.lineDataColllection = null
-      // console.log(value)
+      this.lineDataCollection = null
     },
     'selectedStation' (value) {
       if (value !== null) {
@@ -542,7 +517,6 @@ export default {
 <style>
   @import "~leaflet/dist/leaflet.css";
   @import "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";
-
   .station_popup-enter,
   .station_popup-leave-to{
     transform: rotateY(50deg);
@@ -570,18 +544,6 @@ export default {
     width: 100%;
   }
   @media only screen and (max-width: 767px) {
-    #station_input {
-      width: 90%;
-      position: absolute;
-      top: 5px;
-      text-align: center;
-      left: 20px;
-    }
-    #button_panel {
-      position: absolute;
-      bottom: 55%;
-      right: 2%;
-    }
     #station_card {
       position: absolute;
       bottom: 55%;
@@ -604,17 +566,6 @@ export default {
     }
   }
   @media only screen and (min-width: 768px) {
-    #station_input {
-      width: 60%;
-      position: absolute;
-      top: 2%;
-      right: 20%;
-    }
-    #button_panel {
-      position: absolute;
-      top: 20%;
-      right: 3%;
-    }
     #station_card {
       position: absolute;
       bottom: 65%;
