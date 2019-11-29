@@ -47,60 +47,7 @@
     />
     <SensorPanel
     :stationDetails="stationDetails"
-    />
-<!--    <transition name="station_popup">-->
-<!--      <div id="sensor_panel" align="center" v-if="stationDetails != null">-->
-<!--        <v-container-->
-<!--          fluid class="pa-0"-->
-<!--          v-for="sensor in stationDetails.sensors"-->
-<!--          :key="sensor.id"-->
-<!--        >-->
-<!--          <v-row align="center" dense>-->
-<!--            <v-col cols="5">-->
-<!--                <v-tooltip bottom>-->
-<!--                  <template v-slot:activator="{ on }">-->
-<!--                    <v-card v-on="on" rounded color="teal lighten-1" block class="white&#45;&#45;text">-->
-<!--                      {{sensor.symbol}}-->
-<!--                    </v-card>-->
-<!--                  </template>-->
-<!--                  <span>{{sensor.name}}</span>-->
-<!--                </v-tooltip>-->
-<!--            </v-col>-->
-<!--            <v-col cols="5">-->
-<!--              <v-tooltip bottom>-->
-<!--                <template v-slot:activator="{ on }">-->
-<!--                  <v-card v-on="on" class="white&#45;&#45;text" :style="{ 'background-color': sensor.backgroundColor }">-->
-<!--                        <strong>{{sensor.pollutionLimit+'%'}}</strong>-->
-<!--                  </v-card>-->
-<!--                </template>-->
-<!--                  <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>-->
-<!--              </v-tooltip>-->
-<!--            </v-col>-->
-<!--            <v-col cols="2">-->
-<!--              <v-tooltip bottom>-->
-<!--                <template v-slot:activator="{ on }">-->
-<!--                  <v-btn v-on="on" @click="fillDatacollection(sensor.id, apiResponse)" fab x-small color="teal lighten-1">-->
-<!--                    <v-icon style="font-size:18px;color: white">mdi-dots-horizontal</v-icon>-->
-<!--                  </v-btn>-->
-<!--                </template>-->
-<!--                <span>Pokaż szczegóły</span>-->
-<!--              </v-tooltip>-->
-<!--            </v-col>-->
-<!--          </v-row>-->
-<!--        </v-container>-->
-<!--      </div>-->
-<!--    </transition>-->
-    <ChartDialog
-      :sensorDetails="sensorDetails"
-      :apiResponse="apiResponse"
-      :barDataCollection="barDataColllection"
-      :lineDataCollection="lineDataCollection"
-      :chartDialogVisibility.sync="chartDialogVisibility"
-      :chartVisibility.sync="chartVisibility"
-      v-on:closeChartDialog="closeChartDialog"
-      v-on:barDataComparison="barDataComparison"
-      v-on:lineDataComparison="lineDataComparison"
-      v-on:withoutComparison="withoutComparison"
+    :apiResponse="apiResponse"
     />
   </div>
 </template>
@@ -108,9 +55,7 @@
 <script>
 import { LMap, LTileLayer, LMarker, LIcon } from 'vue2-leaflet'
 import StationsService from '@/services/StationsService'
-import pollutionLevels from '@/libs/pollutionLevels'
 import pollutionLimits from '@/libs/pollutionLimits'
-import ChartDialog from '@/components/ui/ChartDialog'
 import ButtonPanel from '@/components/ui/ButtonPanel'
 import StationInput from '@/components/ui/StationInput'
 import StationCard from '@/components/ui/StationCard'
@@ -119,15 +64,6 @@ export default {
   name: 'LeafletMap',
   data () {
     return {
-      sensorDetails: {
-        sensorId: null,
-        averageMeasurement: null,
-        lastMeasurement: null
-      },
-      chartDialogVisibility: false,
-      chartVisibility: false,
-      barDataColllection: null,
-      lineDataCollection: null,
       date: this.formatDate(new Date()),
       apiResponse: null,
       found: null,
@@ -160,7 +96,6 @@ export default {
     StationCard,
     StationInput,
     ButtonPanel,
-    ChartDialog,
     LMap,
     LTileLayer,
     LMarker,
@@ -190,22 +125,9 @@ export default {
     setFound (value) {
       this.found = value
     },
-    withoutComparison (value) {
-      this.fillDatacollection(value, this.apiResponse)
-    },
-    barDataComparison (value) {
-      this.barDataColllection = value
-    },
-    lineDataComparison (value) {
-      this.lineDataCollection = value
-    },
     hideStation () {
       this.$emit('closeAutocompleteDialog', false)
       this.stationDetails = null
-    },
-    closeChartDialog (value) {
-      this.chartDialogVisibility = value
-      this.chartVisibility = value
     },
     getMark (station) {
       return {
@@ -251,45 +173,6 @@ export default {
         stationDistance = stationDistance.toFixed(0) + 'm'
       }
       return stationDistance
-    },
-    async fillDatacollection (id, apiResponse) {
-      let sensor = apiResponse.find(sensor => sensor.details.id === id)
-      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.date + ' 00:00:00')
-      let filteredValues = filteredMeasurements.map(({ value }) => value)
-      let averageMeasurement = this.getAverage(filteredValues)
-      let lastMeasurement = this.getLastMeasurement(filteredValues)
-      this.barDataColllection = {
-        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
-        datasets: [
-          {
-            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
-            backgroundColor: this.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
-            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
-          }
-        ]
-      }
-      this.lineDataCollection = {
-        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
-        datasets: [
-          {
-            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
-            backgroundColor: this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, true)[0],
-            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
-          }
-        ]
-      }
-      this.sensorDetails.averageMeasurement = {
-        value: averageMeasurement[0].toFixed(2),
-        procentValue: this.getPollutionLimit(sensor.details.paramTwo, averageMeasurement[0]),
-        pollutionLevel: pollutionLevels[this.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, false)[0]]
-      }
-      this.sensorDetails.lastMeasurement = {
-        value: lastMeasurement[0].toFixed(2),
-        procentValue: this.getPollutionLimit(sensor.details.paramTwo, lastMeasurement[0]),
-        pollutionLevel: pollutionLevels[this.setBackgroundColor(lastMeasurement, sensor.details.paramTwo, false)[0]]
-      }
-      this.chartDialogVisibility = true
-      this.sensorDetails.sensorId = sensor.details.id
     },
     formatDate (date) {
       let d = date
@@ -374,16 +257,6 @@ export default {
         sum / values.length
       ]
     },
-    getLastMeasurement (measurements) {
-      return [
-        measurements[measurements.length - 1]
-      ]
-    },
-    getYesterdaysDate () {
-      let yesterdayDate = new Date()
-      yesterdayDate.setDate(yesterdayDate.getDate() - 1)
-      return this.formatDate(yesterdayDate)
-    },
     mapLastValues (response) {
       let values = response.map(({ measurement }) => measurement)
       let valuesArray = []
@@ -430,35 +303,13 @@ export default {
     }
   },
   watch: {
-    'chartDialogVisibility' (value) {
-      if (value === true) {
-        setTimeout(function () { this.chartVisibility = true }
-          .bind(this),
-        50)
-      }
-    },
     'stationDetails' (value) {
       if (value !== null) {
         this.buttonVisibility = true
       } else if (this.zoom === 5 || this.zoom === 6) {
         this.buttonVisibility = false
       }
-      this.barDataColllection = null
-      this.lineDataCollection = null
     },
-    // 'selectedStation' (value) {
-    //   if (value !== null) {
-    //     this.center = {
-    //       lat: value.coordinates[0],
-    //       lng: value.coordinates[1]
-    //     }
-    //     this.getStationDetails(value.id, this.stations, this.userLocation)
-    //     this.centerStationId = value.id
-    //     this.zoom = 10
-    //   }
-    //   this.$emit('closeAutocompleteDialog', false)
-    //   this.selectedStation = null
-    // },
     'found' (value) {
       this.center = {
         lat: value.lat,
