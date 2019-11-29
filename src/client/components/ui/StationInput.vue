@@ -2,8 +2,8 @@
   <transition name="popup">
     <div id="station_input" v-if="autocompleteInput">
       <v-autocomplete
-        @click="sendSelectedStation(selectedStation)"
         background-color="white"
+        v-model="selectedStation"
         :items="stations"
         flat
         search="searchValue"
@@ -32,17 +32,18 @@ export default {
   name: 'StationInput',
   data () {
     return {
+      selectedStation: null,
       searchValue: ''
     }
   },
   props: {
     autocompleteInput: Boolean,
-    stations: Array,
-    selectedStation: String
+    stations: Array
   },
-  methods: {
-    sendSelectedStation (value) {
-      // this.$emit('setSelectedStation', value)
+  watch: {
+    'selectedStation' (value) {
+      this.$emit('setSelectedStation', value)
+      this.selectedStation = null
     }
   }
 }

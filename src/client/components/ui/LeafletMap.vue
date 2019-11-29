@@ -30,36 +30,9 @@
     </l-map>
     <StationInput
     :stations="stations"
-    :selectedStation="selectedStation"
     v-on:setSelectedStation="setSelectedStation"
     :autocompleteInput="autocompleteInput"
     />
-<!--    <transition name="station_popup">-->
-<!--      <div id="station_input" v-if="autocompleteInput">-->
-<!--        <v-autocomplete-->
-<!--          background-color="white"-->
-<!--          v-model="selectedStation"-->
-<!--          :items="stations"-->
-<!--          flat-->
-<!--          search="searchValue"-->
-<!--          hide-no-data-->
-<!--          clearable-->
-<!--          item-value="id"-->
-<!--          item-text="stationName"-->
-<!--          label="Wybierz stację"-->
-<!--          solo-->
-<!--          return-object-->
-<!--        >-->
-<!--          <template v-slot:no-data>-->
-<!--            <v-list-tile>-->
-<!--              <v-list-tile-title>-->
-<!--                Brak stacji-->
-<!--              </v-list-tile-title>-->
-<!--            </v-list-tile>-->
-<!--          </template>-->
-<!--        </v-autocomplete>-->
-<!--      </div>-->
-<!--    </transition>-->
     <ButtonPanel
     :stations="stations"
     :width:="width"
@@ -68,69 +41,55 @@
     v-on:zoomReset="zoomReset"
     v-on:setFound="setFound"
     />
-    <transition name="station_popup">
-      <div id="station_card" v-if="stationDetails != null">
-        <v-card color="teal lighten-1" class="pa-1">
-          <v-card-text align="center" class="white--text">
-            <strong>{{stationDetails.stationName}}</strong><br>
-            {{stationDetails.city}}<br>
-            <strong>{{'odległość: '+stationDetails.stationDistance}}</strong>
-          </v-card-text>
-        </v-card>
-        <div id="close_button">
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn id="v-btn_close" v-on="on" @click="stationDetails = null" text fab x-small color="white">
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </template>
-            <span>Zamknij okno</span>
-          </v-tooltip>
-        </div>
-      </div>
-    </transition>
-    <transition name="station_popup">
-      <div id="sensor_panel" align="center" v-if="stationDetails != null">
-        <v-container
-          fluid class="pa-0"
-          v-for="sensor in stationDetails.sensors"
-          :key="sensor.id"
-        >
-          <v-row align="center" dense>
-            <v-col cols="5">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on }">
-                    <v-card v-on="on" rounded color="teal lighten-1" block class="white--text">
-                      {{sensor.symbol}}
-                    </v-card>
-                  </template>
-                  <span>{{sensor.name}}</span>
-                </v-tooltip>
-            </v-col>
-            <v-col cols="5">
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                  <v-card v-on="on" class="white--text" :style="{ 'background-color': sensor.backgroundColor }">
-                        <strong>{{sensor.pollutionLimit+'%'}}</strong>
-                  </v-card>
-                </template>
-                  <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
-              </v-tooltip>
-            </v-col>
-            <v-col cols="2">
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                  <v-btn v-on="on" @click="fillDatacollection(sensor.id, apiResponse)" fab x-small color="teal lighten-1">
-                    <v-icon style="font-size:18px;color: white">mdi-dots-horizontal</v-icon>
-                  </v-btn>
-                </template>
-                <span>Pokaż szczegóły</span>
-              </v-tooltip>
-            </v-col>
-          </v-row>
-        </v-container>
-      </div>
-    </transition>
+    <StationCard
+      :stationDetails="stationDetails"
+      v-on:closeStationCard="closeStationCard"
+    />
+    <SensorPanel
+    :stationDetails="stationDetails"
+    />
+<!--    <transition name="station_popup">-->
+<!--      <div id="sensor_panel" align="center" v-if="stationDetails != null">-->
+<!--        <v-container-->
+<!--          fluid class="pa-0"-->
+<!--          v-for="sensor in stationDetails.sensors"-->
+<!--          :key="sensor.id"-->
+<!--        >-->
+<!--          <v-row align="center" dense>-->
+<!--            <v-col cols="5">-->
+<!--                <v-tooltip bottom>-->
+<!--                  <template v-slot:activator="{ on }">-->
+<!--                    <v-card v-on="on" rounded color="teal lighten-1" block class="white&#45;&#45;text">-->
+<!--                      {{sensor.symbol}}-->
+<!--                    </v-card>-->
+<!--                  </template>-->
+<!--                  <span>{{sensor.name}}</span>-->
+<!--                </v-tooltip>-->
+<!--            </v-col>-->
+<!--            <v-col cols="5">-->
+<!--              <v-tooltip bottom>-->
+<!--                <template v-slot:activator="{ on }">-->
+<!--                  <v-card v-on="on" class="white&#45;&#45;text" :style="{ 'background-color': sensor.backgroundColor }">-->
+<!--                        <strong>{{sensor.pollutionLimit+'%'}}</strong>-->
+<!--                  </v-card>-->
+<!--                </template>-->
+<!--                  <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>-->
+<!--              </v-tooltip>-->
+<!--            </v-col>-->
+<!--            <v-col cols="2">-->
+<!--              <v-tooltip bottom>-->
+<!--                <template v-slot:activator="{ on }">-->
+<!--                  <v-btn v-on="on" @click="fillDatacollection(sensor.id, apiResponse)" fab x-small color="teal lighten-1">-->
+<!--                    <v-icon style="font-size:18px;color: white">mdi-dots-horizontal</v-icon>-->
+<!--                  </v-btn>-->
+<!--                </template>-->
+<!--                <span>Pokaż szczegóły</span>-->
+<!--              </v-tooltip>-->
+<!--            </v-col>-->
+<!--          </v-row>-->
+<!--        </v-container>-->
+<!--      </div>-->
+<!--    </transition>-->
     <ChartDialog
       :sensorDetails="sensorDetails"
       :apiResponse="apiResponse"
@@ -154,6 +113,8 @@ import pollutionLimits from '@/libs/pollutionLimits'
 import ChartDialog from '@/components/ui/ChartDialog'
 import ButtonPanel from '@/components/ui/ButtonPanel'
 import StationInput from '@/components/ui/StationInput'
+import StationCard from '@/components/ui/StationCard'
+import SensorPanel from '@/components/ui/SensorPanel'
 export default {
   name: 'LeafletMap',
   data () {
@@ -195,6 +156,8 @@ export default {
     }
   },
   components: {
+    SensorPanel,
+    StationCard,
     StationInput,
     ButtonPanel,
     ChartDialog,
@@ -208,8 +171,21 @@ export default {
     autocompleteInput: Boolean
   },
   methods: {
+    closeStationCard (value) {
+      this.stationDetails = value
+    },
     setSelectedStation (value) {
-      this.selectedStation = value
+      if (value !== null) {
+        this.center = {
+          lat: value.coordinates[0],
+          lng: value.coordinates[1]
+        }
+        this.getStationDetails(value.id, this.stations, this.userLocation)
+        this.centerStationId = value.id
+        this.zoom = 10
+      }
+      this.$emit('closeAutocompleteDialog', false)
+      this.selectedStation = null
     },
     setFound (value) {
       this.found = value
@@ -470,19 +446,19 @@ export default {
       this.barDataColllection = null
       this.lineDataCollection = null
     },
-    'selectedStation' (value) {
-      if (value !== null) {
-        this.center = {
-          lat: value.coordinates[0],
-          lng: value.coordinates[1]
-        }
-        this.getStationDetails(value.id, this.stations, this.userLocation)
-        this.centerStationId = value.id
-        this.zoom = 10
-      }
-      this.$emit('closeAutocompleteDialog', false)
-      this.selectedStation = null
-    },
+    // 'selectedStation' (value) {
+    //   if (value !== null) {
+    //     this.center = {
+    //       lat: value.coordinates[0],
+    //       lng: value.coordinates[1]
+    //     }
+    //     this.getStationDetails(value.id, this.stations, this.userLocation)
+    //     this.centerStationId = value.id
+    //     this.zoom = 10
+    //   }
+    //   this.$emit('closeAutocompleteDialog', false)
+    //   this.selectedStation = null
+    // },
     'found' (value) {
       this.center = {
         lat: value.lat,
@@ -517,77 +493,11 @@ export default {
 <style>
   @import "~leaflet/dist/leaflet.css";
   @import "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";
-  .station_popup-enter,
-  .station_popup-leave-to{
-    transform: rotateY(50deg);
-  }
-  .station_popup-enter-to,
-  .station_popup-leave {
-    transform: rotateY(0deg);
-  }
-  .station_popup-enter-active,
-  .station_popup-leave-active {
-    transition: transform 400ms;
-  }
-  .sensor_popup-enter,
-  .sensor_popup-leave-to{
-    opacity: 0;
-  }
-  .sensor_popup-enter-active,
-  .sensor_popup-leave-active {
-    transition: opacity .5s;
-  }
   #map{
     position: absolute;
     top: 0;
     bottom: 0;
     width: 100%;
-  }
-  @media only screen and (max-width: 767px) {
-    #station_card {
-      position: absolute;
-      bottom: 55%;
-      left: 20%;
-      width: 60%;
-    }
-    #sensor_panel {
-      position: absolute;
-      height: 38%;
-      top: 56%;
-      left: 20%;
-      width: 60%;
-      overflow: scroll;
-    }
-    #close_button {
-      visibility: hidden;
-      top: 1%;
-      right: 1%;
-      position: absolute;
-    }
-  }
-  @media only screen and (min-width: 768px) {
-    #station_card {
-      position: absolute;
-      bottom: 65%;
-      left: 40px;
-      width: 220px;
-    }
-    #sensor_panel {
-      position: absolute;
-      top: 38%;
-      left: 40px;
-      width: 220px;
-    }
-    #close_button {
-      top: 1%;
-      right: 1%;
-      position: absolute;
-    }
-    #v-btn_close {
-      width: 30px;
-      height: 30px;
-
-    }
   }
   .custom-popup .leaflet-popup-content-wrapper {
     background: #B2DFDB;
