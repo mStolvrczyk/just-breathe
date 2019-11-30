@@ -1,3 +1,4 @@
+import pollutionLimits from './pollutionLimits'
 
 export default class Functions {
   setBackgroundColor (measurements, symbol, opacity) {
@@ -59,5 +60,49 @@ export default class Functions {
       }
     })
     return colorArray
+  }
+  getDistance (origin, destination) {
+    let lon1 = this.toRadian(origin[1])
+    let lat1 = this.toRadian(origin[0])
+    let lon2 = this.toRadian(destination[1])
+    let lat2 = this.toRadian(destination[0])
+
+    let deltaLat = lat2 - lat1
+    let deltaLon = lon2 - lon1
+
+    let a = Math.pow(Math.sin(deltaLat / 2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(deltaLon / 2), 2)
+    let c = 2 * Math.asin(Math.sqrt(a))
+    let EARTH_RADIUS = 6371
+    return c * EARTH_RADIUS * 1000
+  }
+  toRadian (degree) {
+    return degree * Math.PI / 180
+  }
+  formatDate (date) {
+    let d = date
+    let month = '' + (d.getMonth() + 1)
+    let day = '' + d.getDate()
+    let year = d.getFullYear()
+
+    if (month.length < 2) {
+      month = '0' + month
+    }
+    if (day.length < 2) {
+      day = '0' + day
+    }
+    return [year, month, day].join('-')
+  }
+  getAverage (values) {
+    let sum = null
+    values.forEach((value) => {
+      sum = sum + value
+    })
+    return [
+      sum / values.length
+    ]
+  }
+  getPollutionLimit (symbol, value) {
+    let limit = pollutionLimits[symbol]
+    return ((value * 100) / limit).toFixed(1)
   }
 }

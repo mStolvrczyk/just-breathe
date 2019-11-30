@@ -56,6 +56,7 @@
 import { LMap, LTileLayer, LMarker, LIcon } from 'vue2-leaflet'
 import StationsService from '@/services/StationsService'
 import pollutionLimits from '@/libs/pollutionLimits'
+import Functions from '@/libs/helperFunctions'
 import ButtonPanel from '@/components/ui/ButtonPanel'
 import StationInput from '@/components/ui/StationInput'
 import StationCard from '@/components/ui/StationCard'
@@ -64,6 +65,7 @@ export default {
   name: 'LeafletMap',
   data () {
     return {
+      functions: new Functions(),
       date: this.formatDate(new Date()),
       apiResponse: null,
       found: null,
@@ -135,23 +137,6 @@ export default {
         lng: station.coordinates[1]
       }
     },
-    getDistance (origin, destination) {
-      let lon1 = this.toRadian(origin[1])
-      let lat1 = this.toRadian(origin[0])
-      let lon2 = this.toRadian(destination[1])
-      let lat2 = this.toRadian(destination[0])
-
-      let deltaLat = lat2 - lat1
-      let deltaLon = lon2 - lon1
-
-      let a = Math.pow(Math.sin(deltaLat / 2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(deltaLon / 2), 2)
-      let c = 2 * Math.asin(Math.sqrt(a))
-      let EARTH_RADIUS = 6371
-      return c * EARTH_RADIUS * 1000
-    },
-    toRadian (degree) {
-      return degree * Math.PI / 180
-    },
     async getStationDetails (id, stations, userLocation) {
       let response = (await this.stationsService.getStation(id)).filter(({ measurement }) => measurement.length > 0)
       this.apiResponse = response
@@ -163,7 +148,7 @@ export default {
         stationName: station.stationName,
         city: station.city,
         sensors: this.mapSensors(sensorsDetails, lastSensorsValues),
-        stationDistance: this.roundStationDistance(this.getDistance(station.coordinates, userLocation))
+        stationDistance: this.roundStationDistance(this.functions.getDistance(station.coordinates, userLocation))
       }
     },
     roundStationDistance (stationDistance) {
@@ -188,75 +173,6 @@ export default {
       }
       return [year, month, day].join('-')
     },
-    setBackgroundColor (measurements, symbol, opacity) {
-      let colorArray = []
-      let compartments = [
-        {
-          symbol: 'PM10',
-          limits: [20.00, 60.00, 100.00, 140.00, 200.00]
-        },
-        {
-          symbol: 'PM2.5',
-          limits: [12.00, 36.00, 60.00, 84.00, 120.00]
-        },
-        {
-          symbol: 'O3',
-          limits: [30.00, 70.00, 120.00, 160.00, 240.00]
-        },
-        {
-          symbol: 'NO2',
-          limits: [40.00, 100.00, 150.00, 200.00, 400.00]
-        },
-        {
-          symbol: 'SO2',
-          limits: [50.00, 100.00, 200.00, 350.00, 500.00]
-        },
-        {
-          symbol: 'C6H6',
-          limits: [5.00, 10.00, 15.00, 20.00, 50.00]
-        },
-        {
-          symbol: 'CO',
-          limits: [2499.00, 6499.00, 10499.00, 14499.00, 20499.00]
-        }
-      ]
-      let colors = [
-        'rgba(87, 177, 8)',
-        'rgba(176, 221, 16)',
-        'rgba(255, 217, 17)',
-        'rgba(229, 129, 0)',
-        'rgba(229, 0, 0)',
-        'rgba(153, 0, 0)'
-      ]
-      let opacityColors = [
-        'rgba(87, 177, 8, 0.6)',
-        'rgba(176, 221, 16, 0.6)',
-        'rgba(255, 217, 17, 0.6)',
-        'rgba(229, 129, 0, 0.6)',
-        'rgba(229, 0, 0, 0.6)',
-        'rgba(153, 0, 0, 0.6)'
-      ]
-      let currSymbolLimits = compartments.find(test => test.symbol === symbol).limits
-      measurements.forEach(measurement => {
-        let currMeasurementWithLimits = currSymbolLimits.concat([measurement])
-        currMeasurementWithLimits.sort((a, b) => { return a - b })
-        if (opacity) {
-          colorArray.push(opacityColors[currMeasurementWithLimits.indexOf(measurement)])
-        } else {
-          colorArray.push(colors[currMeasurementWithLimits.indexOf(measurement)])
-        }
-      })
-      return colorArray
-    },
-    getAverage (values) {
-      let sum = null
-      values.forEach((value) => {
-        sum = sum + value
-      })
-      return [
-        sum / values.length
-      ]
-    },
     mapLastValues (response) {
       let values = response.map(({ measurement }) => measurement)
       let valuesArray = []
@@ -275,15 +191,11 @@ export default {
           name: sensorsDetails[i].param,
           symbol: sensorsDetails[i].paramTwo,
           lastValue: (lastSensorsValues[i]).toFixed(1),
-          backgroundColor: this.setBackgroundColor(currentValue, sensorsDetails[i].paramTwo, false)[0],
-          pollutionLimit: this.getPollutionLimit(sensorsDetails[i].paramTwo, (lastSensorsValues[i]).toFixed(1))
+          backgroundColor: this.functions.setBackgroundColor(currentValue, sensorsDetails[i].paramTwo, false)[0],
+          pollutionLimit: this.functions.getPollutionLimit(sensorsDetails[i].paramTwo, (lastSensorsValues[i]).toFixed(1))
         })
       }
       return sensorsArray
-    },
-    getPollutionLimit (symbol, value) {
-      let limit = pollutionLimits[symbol]
-      return ((value * 100) / limit).toFixed(1)
     },
     setLocation (pos) {
       if (this.userLocation.length >= 0) {
