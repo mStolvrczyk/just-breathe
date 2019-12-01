@@ -15,7 +15,7 @@
           <v-img
             v-bind="props"
             gradient="to top right, rgba(55,236,186,.7), rgba(25,32,72,.7)"
-          ></v-img>
+          />
         </template>
         <div class="v-toolbar-title">
           <v-toolbar-title>
@@ -25,7 +25,7 @@
         <v-spacer/>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" @click="autocompleteInput = !autocompleteInput" icon>
+            <v-btn v-on="on" @click="stationInputVisibility = !stationInputVisibility" icon>
               <v-icon>
                 search
               </v-icon>
@@ -35,7 +35,7 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" icon>
+            <v-btn v-on="on" @click="userPanelVisibility = true" icon>
               <v-icon>
                 person
               </v-icon>
@@ -47,8 +47,10 @@
     </div>
     <v-content>
       <Dashboard
-        :autocompleteInput.sync="autocompleteInput"
-        v-on:closeAutocompleteDialog="setVisibility"
+        :userPanelVisibility.sync="userPanelVisibility"
+        v-on:closeUserPanel="closeUserPanel"
+        :stationInputVisibility.sync="stationInputVisibility"
+        v-on:closeStationInput="closeStationInput"
       />
     </v-content>
   </v-app>
@@ -59,11 +61,15 @@ import Dashboard from '@/views/Dashboard'
 export default {
   components: { Dashboard },
   data: () => ({
-    autocompleteInput: false
+    stationInputVisibility: false,
+    userPanelVisibility: false
   }),
   methods: {
-    setVisibility (value) {
-      this.autocompleteInput = value
+    closeStationInput (value) {
+      this.stationInputVisibility = value
+    },
+    closeUserPanel (value) {
+      this.userPanelVisibility = value
     }
   }
 }

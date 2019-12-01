@@ -8,8 +8,10 @@
       style="z-index: 0"
       :options="options"
     >
-      <l-tile-layer :url="url"
-                   :attribution="attribution"></l-tile-layer>
+      <l-tile-layer
+        :url="url"
+        :attribution="attribution"
+      />
       <l-marker
         :key="station.id"
         v-for="station in stations"
@@ -20,18 +22,18 @@
           v-if="centerStationId === station.id"
           :icon-url="yellowIcon"
           :icon-size="yellowIconSize"
-        ></l-icon>
+        />
         <l-icon
           v-else
           :icon-url="tealIcon"
           :icon-size="tealIconSize"
-        ></l-icon>
+        />
       </l-marker>
     </l-map>
     <StationInput
     :stations="stations"
     v-on:setSelectedStation="setSelectedStation"
-    :autocompleteInput="autocompleteInput"
+    :stationInputVisibility="stationInputVisibility"
     />
     <ButtonPanel
     :stations="stations"
@@ -103,7 +105,7 @@ export default {
   },
   props: {
     stations: Array,
-    autocompleteInput: Boolean
+    stationInputVisibility: Boolean
   },
   methods: {
     closeStationCard (value) {
@@ -119,7 +121,7 @@ export default {
         this.centerStationId = value.id
         this.zoom = 10
       }
-      this.$emit('closeAutocompleteDialog', false)
+      this.$emit('closeStationInput', false)
       this.selectedStation = null
     },
     setFound (value) {
@@ -127,7 +129,7 @@ export default {
     },
     hideStation () {
       this.stationDetails = null
-      this.$emit('closeAutocompleteDialog', false)
+      this.$emit('closeStationInput', false)
     },
     getMark (station) {
       return {
@@ -196,6 +198,7 @@ export default {
       this.centerStationId = null
       this.stationDetails = null
       this.selectedStation = null
+      this.$emit('closeStationInput', false)
     }
   },
   watch: {

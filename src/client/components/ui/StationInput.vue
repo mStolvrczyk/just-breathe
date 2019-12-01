@@ -1,6 +1,6 @@
 <template>
   <transition name="popup">
-    <div id="station_input" v-if="autocompleteInput">
+    <div id="station_input" v-if="stationInputVisibility">
       <v-autocomplete
         background-color="white"
         v-model="selectedStation"
@@ -37,7 +37,7 @@ export default {
     }
   },
   props: {
-    autocompleteInput: Boolean,
+    stationInputVisibility: Boolean,
     stations: Array
   },
   watch: {

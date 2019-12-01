@@ -1,32 +1,41 @@
 <template>
   <div id="dashboard">
     <LeafletMap
-      :autocompleteInput.sync="autocompleteInput"
+      :stationInputVisibility.sync="stationInputVisibility"
       :stations="stations"
-      v-on:closeAutocompleteDialog="sendVisibility"
+      v-on:closeStationInput="closeStationInput"
+    />
+    <UserPanel
+      :userPanelVisibility.sync="userPanelVisibility"
+      v-on:closeUserPanel="closeUserPanel"
     />
   </div>
 </template>
 <script>
 import LeafletMap from '@/components/ui/LeafletMap'
 import StationsService from '@/services/StationsService'
+import UserPanel from '@/components/ui/UserPanel'
 
 export default {
   name: 'Dashboard',
-  components: { LeafletMap },
+  components: { UserPanel, LeafletMap },
   data: () => ({
     stationsService: new StationsService(),
     stations: []
   }),
   props: {
-    autocompleteInput: Boolean
+    stationInputVisibility: Boolean,
+    userPanelVisibility: Boolean
   },
   methods: {
     async getAllStations () {
       this.stations = await this.stationsService.getAll()
     },
-    sendVisibility (value) {
-      this.$emit('closeAutocompleteDialog', value)
+    closeStationInput (value) {
+      this.$emit('closeStationInput', value)
+    },
+    closeUserPanel (value) {
+      this.$emit('closeUserPanel', value)
     }
   },
   mounted () {
