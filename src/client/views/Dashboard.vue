@@ -1,42 +1,41 @@
 <template>
   <div id="dashboard">
     <LeafletMap
+      :stationInputVisibility.sync="stationInputVisibility"
       :stations="stations"
+      v-on:closeStationInput="closeStationInput"
     />
-    <ChartDialog
-      :visibility.sync="visibility"
-      v-on:updateVisibility="updateDetailsDialogVisibility"
+    <UserPanel
+      :userPanelVisibility.sync="userPanelVisibility"
+      v-on:closeUserPanel="closeUserPanel"
     />
   </div>
 </template>
 <script>
 import LeafletMap from '@/components/ui/LeafletMap'
 import StationsService from '@/services/StationsService'
-import ChartDialog from '@/components/ui/ChartDialog'
+import UserPanel from '@/components/ui/UserPanel'
 
 export default {
   name: 'Dashboard',
-  components: { ChartDialog, LeafletMap },
-  watch: {
-    'pieDataCollection' (value) {
-      console.log(value)
-    }
-  },
+  components: { UserPanel, LeafletMap },
   data: () => ({
     stationsService: new StationsService(),
-    stations: [],
-    visibility: false
+    stations: []
   }),
+  props: {
+    stationInputVisibility: Boolean,
+    userPanelVisibility: Boolean
+  },
   methods: {
     async getAllStations () {
       this.stations = await this.stationsService.getAll()
     },
-    savePieDataCollection (value) {
-      this.pieDataCollection = value
-      this.visibility = true
+    closeStationInput (value) {
+      this.$emit('closeStationInput', value)
     },
-    updateDetailsDialogVisibility (value) {
-      this.visibility = value
+    closeUserPanel (value) {
+      this.$emit('closeUserPanel', value)
     }
   },
   mounted () {
@@ -44,7 +43,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>
