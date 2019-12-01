@@ -60,7 +60,6 @@
 <script>
 import ChartDialog from '@/components/ui/ChartDialog'
 import pollutionLevels from '@/libs/pollutionLevels'
-import pollutionLimits from '@/libs/pollutionLimits'
 import Functions from '@/libs/helperFunctions'
 
 export default {
@@ -69,7 +68,6 @@ export default {
   data () {
     return {
       functions: new Functions(),
-      date: this.formatDate(new Date()),
       sensorDetails: {
         sensorId: null,
         averageMeasurement: null,
@@ -86,23 +84,9 @@ export default {
     apiResponse: Array
   },
   methods: {
-    formatDate (date) {
-      let d = date
-      let month = '' + (d.getMonth() + 1)
-      let day = '' + d.getDate()
-      let year = d.getFullYear()
-
-      if (month.length < 2) {
-        month = '0' + month
-      }
-      if (day.length < 2) {
-        day = '0' + day
-      }
-      return [year, month, day].join('-')
-    },
     async fillDatacollection (id, apiResponse) {
       let sensor = apiResponse.find(sensor => sensor.details.id === id)
-      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.date + ' 00:00:00')
+      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
       let filteredValues = filteredMeasurements.map(({ value }) => value)
       let averageMeasurement = this.functions.getAverage(filteredValues)
       let lastMeasurement = this.getLastMeasurement(filteredValues)

@@ -116,8 +116,6 @@ export default {
       chartSwitch: true,
       comparison: false,
       alignment: 0,
-      date: this.formatDate(new Date())
-
     }
   },
   props: {
@@ -129,26 +127,13 @@ export default {
     lineDataCollection: Object
   },
   methods: {
-    formatDate (date) {
-      let d = date,
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear()
-
-      if (month.length < 2)
-        month = '0' + month
-      if (day.length < 2)
-        day = '0' + day
-
-      return [year, month, day].join('-')
-    },
     closeDialog () {
       this.$emit('closeChartDialog', false)
     },
     async compareWithYesterday (id, apiResponse) {
       let yesterdaysDate = this.getYesterdaysDate()
       let sensor = apiResponse.find(sensor => sensor.details.id === id)
-      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.date + ' 00:00:00')
+      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
       let filteredValues = filteredMeasurements.map(({ value }) => value)
       let averageMeasurement = this.functions.getAverage(filteredValues)
       let lastMeasurementsTime = filteredMeasurements[filteredMeasurements.length - 1].date.substring(11)
@@ -164,7 +149,7 @@ export default {
             data: yesterdayValues
           },
           {
-            label: this.date,
+            label: this.functions.formatDate(new Date()),
             backgroundColor: this.functions.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
             data: filteredMeasurements.map(({ value }) => value)
           }
@@ -180,7 +165,7 @@ export default {
             data: yesterdayValues
           },
           {
-            label: this.date,
+            label: this.functions.formatDate(new Date()),
             backgroundColor: this.functions.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, true)[0],
             data: filteredMeasurements.map(({ value }) => value)
           }
@@ -191,7 +176,7 @@ export default {
     getYesterdaysDate () {
       let yesterdayDate = new Date()
       yesterdayDate.setDate(yesterdayDate.getDate() - 1)
-      return this.formatDate(yesterdayDate)
+      return this.functions.formatDate(yesterdayDate)
     }
   },
   watch: {

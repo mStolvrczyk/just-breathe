@@ -16,11 +16,11 @@
         return-object
       >
         <template v-slot:no-data>
-          <v-list-tile>
-            <v-list-tile-title>
+          <v-list-item>
+            <v-list-item-title>
               Brak stacji
-            </v-list-tile-title>
-          </v-list-tile>
+            </v-list-item-title>
+          </v-list-item>
         </template>
       </v-autocomplete>
     </div>

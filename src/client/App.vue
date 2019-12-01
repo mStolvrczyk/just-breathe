@@ -23,16 +23,26 @@
           </v-toolbar-title>
         </div>
         <v-spacer/>
-        <v-btn @click="autocompleteInput = !autocompleteInput" icon>
-          <v-icon>
-            search
-          </v-icon>
-        </v-btn>
-        <v-btn icon>
-          <v-icon>
-            person
-          </v-icon>
-        </v-btn>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" @click="autocompleteInput = !autocompleteInput" icon>
+              <v-icon>
+                search
+              </v-icon>
+            </v-btn>
+          </template>
+          <span>Znajdź stację</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" icon>
+              <v-icon>
+                person
+              </v-icon>
+            </v-btn>
+          </template>
+          <span>Panel użytkownika</span>
+        </v-tooltip>
       </v-app-bar>
     </div>
     <v-content>

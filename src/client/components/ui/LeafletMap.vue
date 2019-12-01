@@ -55,10 +55,9 @@
 <script>
 import { LMap, LTileLayer, LMarker, LIcon } from 'vue2-leaflet'
 import StationsService from '@/services/StationsService'
-import pollutionLimits from '@/libs/pollutionLimits'
 import Functions from '@/libs/helperFunctions'
-import ButtonPanel from '@/components/ui/ButtonPanel'
 import StationInput from '@/components/ui/StationInput'
+import ButtonPanel from '@/components/ui/ButtonPanel'
 import StationCard from '@/components/ui/StationCard'
 import SensorPanel from '@/components/ui/SensorPanel'
 export default {
@@ -66,7 +65,6 @@ export default {
   data () {
     return {
       functions: new Functions(),
-      date: this.formatDate(new Date()),
       apiResponse: null,
       found: null,
       zoomHolder: null,
@@ -94,10 +92,10 @@ export default {
     }
   },
   components: {
-    SensorPanel,
-    StationCard,
     StationInput,
     ButtonPanel,
+    StationCard,
+    SensorPanel,
     LMap,
     LTileLayer,
     LMarker,
@@ -128,8 +126,8 @@ export default {
       this.found = value
     },
     hideStation () {
-      this.$emit('closeAutocompleteDialog', false)
       this.stationDetails = null
+      this.$emit('closeAutocompleteDialog', false)
     },
     getMark (station) {
       return {
@@ -158,20 +156,6 @@ export default {
         stationDistance = stationDistance.toFixed(0) + 'm'
       }
       return stationDistance
-    },
-    formatDate (date) {
-      let d = date
-      let month = '' + (d.getMonth() + 1)
-      let day = '' + d.getDate()
-      let year = d.getFullYear()
-
-      if (month.length < 2) {
-        month = '0' + month
-      }
-      if (day.length < 2) {
-        day = '0' + day
-      }
-      return [year, month, day].join('-')
     },
     mapLastValues (response) {
       let values = response.map(({ measurement }) => measurement)
