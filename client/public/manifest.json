@@ -1,6 +1,6 @@
 {
-  "name": "air-quality-check",
-  "short_name": "air-quality-check",
+  "name": "Air Quality Check",
+  "short_name": "Air Quality Check",
   "icons": [
     {
       "src": "./img/icons/android-chrome-192x192.png",

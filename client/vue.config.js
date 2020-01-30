@@ -21,7 +21,7 @@ module.exports = {
       })
     ]
   },
-  outputDir: path.resolve(__dirname, 'dist', 'client')
+  outputDir: path.resolve(__dirname, 'dist')
 }
 
 if (process.env.NODE_ENV === 'development') {
