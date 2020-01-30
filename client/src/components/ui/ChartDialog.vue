@@ -96,9 +96,9 @@
 </template>
 
 <script>
-import BarChart from '@/components/vue-chartjs/BarChart'
-import LineChart from '@/components/vue-chartjs/LineChart'
-import Functions from '@/libs/helperFunctions'
+import BarChart from '../../components/vue-chartjs/BarChart'
+import LineChart from '../../components/vue-chartjs/LineChart'
+import Functions from '../../libs/helperFunctions'
 
 export default {
   name: 'ChartDialog',

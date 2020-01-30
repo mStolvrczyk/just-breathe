@@ -1,4 +1,4 @@
-import DashboardView from '@/views/Dashboard'
+import DashboardView from '../views/Dashboard'
 
 export default [
   {

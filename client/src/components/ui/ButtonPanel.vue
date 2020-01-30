@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import Functions from '@/libs/helperFunctions'
+import Functions from '../../libs/helperFunctions'
 
 export default {
   name: 'ButtonPanel',

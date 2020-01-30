@@ -58,9 +58,9 @@
 </template>
 
 <script>
-import ChartDialog from '@/components/ui/ChartDialog'
-import pollutionLevels from '@/libs/pollutionLevels'
-import Functions from '@/libs/helperFunctions'
+import ChartDialog from '../../components/ui/ChartDialog'
+import pollutionLevels from '../../libs/pollutionLevels'
+import Functions from '../../libs/helperFunctions'
 
 export default {
   name: 'SensorPanel',

@@ -12,9 +12,9 @@
   </div>
 </template>
 <script>
-import LeafletMap from '@/components/ui/LeafletMap'
-import StationsService from '@/services/StationsService'
-import UserPanel from '@/components/ui/UserPanel'
+import LeafletMap from '../components/ui/LeafletMap'
+import StationsService from '../services/StationsService'
+import UserPanel from '../components/ui/UserPanel'
 
 export default {
   name: 'Dashboard',

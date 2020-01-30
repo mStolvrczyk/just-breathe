@@ -17,5 +17,5 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(path.resolve(__dirname, 'dist', 'client', 'index.html'))
   })
 }
-app.use(express.static(path.resolve(__dirname, '../client')))
+app.use(express.static(path.resolve(__dirname, '../client/src')))
 app.listen(PORT, () => console.log(`Listening on PORT ${PORT}`))

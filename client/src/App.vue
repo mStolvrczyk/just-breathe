@@ -9,7 +9,7 @@
         fixed
         :scroll-threshold="1"
         :scroll-off-screen="true"
-        :src="require('@/assets/appImage.jpg')"
+        :src="require('./assets/appImage.jpg')"
       >
         <template v-slot:img="{ props }">
           <v-img
@@ -56,7 +56,7 @@
   </v-app>
 </template>
 <script>
-import Dashboard from '@/views/Dashboard'
+import Dashboard from './views/Dashboard'
 
 export default {
   components: { Dashboard },

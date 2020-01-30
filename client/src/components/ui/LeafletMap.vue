@@ -56,12 +56,12 @@
 
 <script>
 import { LMap, LTileLayer, LMarker, LIcon } from 'vue2-leaflet'
-import StationsService from '@/services/StationsService'
-import Functions from '@/libs/helperFunctions'
-import StationInput from '@/components/ui/StationInput'
-import ButtonPanel from '@/components/ui/ButtonPanel'
-import StationCard from '@/components/ui/StationCard'
-import SensorPanel from '@/components/ui/SensorPanel'
+import StationsService from '../../services/StationsService'
+import Functions from '../../libs/helperFunctions'
+import StationInput from '../../components/ui/StationInput'
+import ButtonPanel from '../../components/ui/ButtonPanel'
+import StationCard from '../../components/ui/StationCard'
+import SensorPanel from '../../components/ui/SensorPanel'
 export default {
   name: 'LeafletMap',
   data () {
@@ -79,8 +79,8 @@ export default {
       buttonVisibility: false,
       url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<a/> contributors',
-      tealIcon: require('@/assets/tealPin.png'),
-      yellowIcon: require('@/assets/yellowPin.png'),
+      tealIcon: require('../../assets/tealPin.png'),
+      yellowIcon: require('../../assets/yellowPin.png'),
       tealIconSize: [40, 40],
       yellowIconSize: [30, 40],
       initialLocation: [59.93428, 30.335098],
