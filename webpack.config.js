@@ -2,11 +2,11 @@ const path = require('path')
 
 module.exports = {
   entry: {
-    app: './src/client/main.js'
+    app: './src/main.js'
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src', 'client')
+      '@': path.resolve(__dirname, 'src')
     }
   }
 }
