@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.d473f26d6ad450c9fdf9ce018fb2ad2c.js"
+  "/precache-manifest.94ea1675c3ac58975802d15add889e51.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "air-quality-check"});
