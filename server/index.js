@@ -12,10 +12,10 @@ app.use('*', function (req, res, next) {
 })
 
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static('dist/client'))
+  app.use(express.static('dist'))
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'dist', 'client', 'index.html'))
+    res.sendFile(path.resolve(__dirname, 'dist', 'index.html'))
   })
 }
-app.use(express.static(path.resolve(__dirname, '../client')))
+app.use(express.static(path.resolve(__dirname, '../src')))
 app.listen(PORT, () => console.log(`Listening on PORT ${PORT}`))
