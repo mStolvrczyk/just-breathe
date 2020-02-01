@@ -21,14 +21,14 @@ module.exports = {
       })
     ]
   },
-  outputDir: path.resolve(__dirname, 'dist', 'client')
+  outputDir: path.resolve(__dirname, 'dist')
 }
 
 if (process.env.NODE_ENV === 'development') {
   module.exports.devServer = {
     // eslint-disable-next-line global-require
     before: (app, server) => {
-      app.use('/', require('./src/server/app'))
+      app.use('/', require('./server/app'))
     }
   }
 }
