@@ -29,7 +29,7 @@ module.exports = {
   stationsFilter: function ({ id, stationName, city, gegrLat, gegrLon }) {
     return {
       id,
-      stationName,
+      stationName: stationName.replace('_', ' '),
       city: city ? city.name : '',
       coordinates: [
         gegrLat,

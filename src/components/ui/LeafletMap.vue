@@ -16,10 +16,10 @@
         :key="station.id"
         v-for="station in stations"
         :lat-lng="getMark(station)"
-        @click="getStationDetails(station.id, stations, userLocation)"
+        @click="getStationDetails(station.id, stations, userLocation), stationId = value.id"
       >
         <l-icon
-          v-if="centerStationId === station.id"
+          v-if="stationId === station.id"
           :icon-url="yellowIcon"
           :icon-size="yellowIconSize"
         />
@@ -87,7 +87,7 @@ export default {
       width: document.documentElement.clientWidth,
       userLocation: [],
       watcher: navigator.geolocation.watchPosition(this.setLocation),
-      centerStationId: null,
+      stationId: null,
       stationDetails: null,
       stationsService: new StationsService(),
       selectedStation: null
@@ -118,7 +118,6 @@ export default {
           lng: value.coordinates[1]
         }
         this.getStationDetails(value.id, this.stations, this.userLocation)
-        this.centerStationId = value.id
         this.zoom = 10
       }
       this.$emit('closeStationInput', false)
@@ -140,6 +139,7 @@ export default {
     async getStationDetails (id, stations, userLocation) {
       let response = (await this.stationsService.getStation(id)).filter(({ measurement }) => measurement.length > 0)
       this.apiResponse = response
+      this.stationId = id
       let stationId = id
       let station = await stations.find(({ id }) => id === stationId)
       let sensorsDetails = response.map(({ details }) => details)
@@ -203,9 +203,13 @@ export default {
   },
   watch: {
     'stationDetails' (value) {
+      if (value === null) {
+        this.stationId = null
+      }
       if (value !== null) {
         this.buttonVisibility = true
-      } else if (this.zoom === 5 || this.zoom === 6) {
+      }
+      if (this.zoom === 5 || this.zoom === 6) {
         this.buttonVisibility = false
       }
     },
@@ -215,7 +219,7 @@ export default {
         lng: value.lng
       }
       this.getStationDetails(value.id, this.stations, this.userLocation)
-      this.centerStationId = value.id
+      this.stationId = value.id
       this.zoom = 10
     },
     'zoom' (value) {
