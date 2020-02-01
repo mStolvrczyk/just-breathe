@@ -16,7 +16,7 @@
         :key="station.id"
         v-for="station in stations"
         :lat-lng="getMark(station)"
-        @click="getStationDetails(station.id, stations, userLocation), stationId = value.id"
+        @click="getStationDetails(station.id, stations, userLocation)"
       >
         <l-icon
           v-if="stationId === station.id"
@@ -141,6 +141,7 @@ export default {
       this.apiResponse = response
       this.stationId = id
       let stationId = id
+      this.stationId = id
       let station = await stations.find(({ id }) => id === stationId)
       let sensorsDetails = response.map(({ details }) => details)
       let lastSensorsValues = this.mapLastValues(response)
