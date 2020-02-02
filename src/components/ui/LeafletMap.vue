@@ -119,6 +119,7 @@ export default {
         }
         this.getStationDetails(value.id, this.stations, this.userLocation)
         this.zoom = 10
+        this.stationId = value.id
       }
       this.$emit('closeStationInput', false)
       this.selectedStation = null
@@ -139,7 +140,6 @@ export default {
     async getStationDetails (id, stations, userLocation) {
       let response = (await this.stationsService.getStation(id)).filter(({ measurement }) => measurement.length > 0)
       this.apiResponse = response
-      this.stationId = id
       let stationId = id
       let station = await stations.find(({ id }) => id === stationId)
       let sensorsDetails = response.map(({ details }) => details)
