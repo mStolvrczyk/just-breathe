@@ -1,50 +1,48 @@
 <template>
   <v-app>
-    <div class="navbar">
-      <v-app-bar
-        flat
-        persistent
-        dark
-        app
-        fixed
-        :scroll-threshold="1"
-        :scroll-off-screen="true"
-        :src="require('@/assets/appImage.jpg')"
-      >
-        <template v-slot:img="{ props }">
-          <v-img
-            v-bind="props"
-            gradient="to top right, rgba(55,236,186,.7), rgba(25,32,72,.7)"
-          />
+    <v-app-bar
+      flat
+      persistent
+      dark
+      app
+      fixed
+      :scroll-threshold="1"
+      :scroll-off-screen="true"
+      :src="require('@/assets/appImage.jpg')"
+    >
+      <template v-slot:img="{ props }">
+        <v-img
+          v-bind="props"
+          gradient="to top right, rgba(55,236,186,.7), rgba(25,32,72,.7)"
+        />
+      </template>
+      <div class="v-toolbar-title">
+        <v-toolbar-title>
+          Air Quality Check
+        </v-toolbar-title>
+      </div>
+      <v-spacer/>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn v-on="on" @click="stationInputVisibility = !stationInputVisibility" icon>
+            <v-icon>
+              search
+            </v-icon>
+          </v-btn>
         </template>
-        <div class="v-toolbar-title">
-          <v-toolbar-title>
-            Air Quality Check
-          </v-toolbar-title>
-        </div>
-        <v-spacer/>
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" @click="stationInputVisibility = !stationInputVisibility" icon>
-              <v-icon>
-                search
-              </v-icon>
-            </v-btn>
-          </template>
-          <span>Znajdź stację</span>
-        </v-tooltip>
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" @click="userPanelVisibility = true" icon>
-              <v-icon>
-                person
-              </v-icon>
-            </v-btn>
-          </template>
-          <span>Panel użytkownika</span>
-        </v-tooltip>
-      </v-app-bar>
-    </div>
+        <span>Znajdź stację</span>
+      </v-tooltip>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn v-on="on" @click="userPanelVisibility = true" icon>
+            <v-icon>
+              person
+            </v-icon>
+          </v-btn>
+        </template>
+        <span>Panel użytkownika</span>
+      </v-tooltip>
+    </v-app-bar>
     <v-content>
       <Dashboard
         :userPanelVisibility.sync="userPanelVisibility"
@@ -56,8 +54,8 @@
   </v-app>
 </template>
 <script>
-import Dashboard from '@/views/Dashboard'
-
+import Dashboard from '@/views/Map'
+import { mapActions } from 'vuex'
 export default {
   components: { Dashboard },
   data: () => ({
@@ -65,12 +63,16 @@ export default {
     userPanelVisibility: false
   }),
   methods: {
+    ...mapActions('stations', ['getAllStations']),
     closeStationInput (value) {
       this.stationInputVisibility = value
     },
     closeUserPanel (value) {
       this.userPanelVisibility = value
     }
+  },
+  mounted () {
+    this.getAllStations()
   }
 }
 </script>

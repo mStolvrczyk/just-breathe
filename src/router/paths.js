@@ -1,12 +1,15 @@
 import DashboardView from '@/views/Dashboard'
+import MapView from '@/views/Map'
 
 export default [
   {
-    path: '',
-    alias: '',
+    path: '/dashboard',
     component: DashboardView,
-    name: 'Dashboard',
-    view: 'Dashboard',
-    meta: { description: 'Overview of enviroment' }
+    name: 'Dashboard'
+  },
+  {
+    path: '/map',
+    component: MapView,
+    name: 'Map'
   }
 ]
