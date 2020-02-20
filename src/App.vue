@@ -24,9 +24,9 @@
       <v-spacer/>
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
-          <v-btn v-on="on" @click="stationInputVisibility = !stationInputVisibility" icon>
+          <v-btn v-on="on" @click="$router.push('/dashboard')" icon>
             <v-icon>
-              search
+              mdi-tablet-dashboard
             </v-icon>
           </v-btn>
         </template>
@@ -34,9 +34,9 @@
       </v-tooltip>
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
-          <v-btn v-on="on" @click="userPanelVisibility = true" icon>
+          <v-btn v-on="on" @click="$router.push('/map')" icon>
             <v-icon>
-              person
+              mdi-map-marker
             </v-icon>
           </v-btn>
         </template>
@@ -44,26 +44,33 @@
       </v-tooltip>
     </v-app-bar>
     <v-content>
-      <Dashboard
-        :userPanelVisibility.sync="userPanelVisibility"
-        v-on:closeUserPanel="closeUserPanel"
-        :stationInputVisibility.sync="stationInputVisibility"
-        v-on:closeStationInput="closeStationInput"
-      />
+      <router-view/>
     </v-content>
   </v-app>
 </template>
 <script>
-import Dashboard from '@/views/Map'
 import { mapActions } from 'vuex'
 export default {
-  components: { Dashboard },
-  data: () => ({
-    stationInputVisibility: false,
-    userPanelVisibility: false
-  }),
+  data () {
+    return {
+      stationInputVisibility: false,
+      userPanelVisibility: false,
+      watcher: navigator.geolocation.watchPosition(this.getLocation),
+      userLocation: []
+    }
+  },
   methods: {
-    ...mapActions('stations', ['getAllStations']),
+    getLocation (pos) {
+      if (this.userLocation.length >= 0) {
+        navigator.geolocation.clearWatch(this.watcher)
+      }
+      this.userLocation.push(
+        pos.coords.latitude,
+        pos.coords.longitude
+      )
+    },
+    ...mapActions('stations', ['getAllStations', 'getUserLocation']),
+    // ...mapActions('stations', ['getUserLocation']),
     closeStationInput (value) {
       this.stationInputVisibility = value
     },
@@ -71,15 +78,22 @@ export default {
       this.userPanelVisibility = value
     }
   },
+  watch: {
+    'userLocation' () {
+      this.getUserLocationDetails(this.userLocation)
+    }
+  },
   mounted () {
     this.getAllStations()
+  },
+  created () {
   }
 }
 </script>
 <style>
-    #app {
-      background-image:
-        linear-gradient(to bottom, rgba(30, 230, 176, 0.5), rgba(30, 230, 176, 0.5))
+  #app {
+    background-image:
+      linear-gradient(to bottom, rgba(30, 230, 176, 0.5), rgba(30, 230, 176, 0.5))
 
-    }
+  }
 </style>

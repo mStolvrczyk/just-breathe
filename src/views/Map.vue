@@ -2,7 +2,7 @@
   <div id="map">
     <LeafletMap
       :stationInputVisibility.sync="stationInputVisibility"
-      :stations="getAllStations"
+      :stations="loadStations"
       v-on:closeStationInput="closeStationInput"
     />
     <UserPanel
@@ -29,7 +29,7 @@ export default {
     userPanelVisibility: Boolean
   },
   computed: {
-    ...mapGetters('stations', ['getAllStations'])
+    ...mapGetters('stations', ['loadStations'])
   },
   methods: {
     async getAllStations () {
@@ -41,9 +41,6 @@ export default {
     closeUserPanel (value) {
       this.$emit('closeUserPanel', value)
     }
-  },
-  mounted () {
-    // this.getAllStations()
   }
 }
 </script>

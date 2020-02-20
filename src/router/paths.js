@@ -5,11 +5,15 @@ export default [
   {
     path: '/dashboard',
     component: DashboardView,
-    name: 'Dashboard'
+    name: 'Dashboard',
+    view: 'Dashboard',
+    meta: { description: 'Overview of enviroment' }
   },
   {
     path: '/map',
     component: MapView,
-    name: 'Map'
+    name: 'Map',
+    view: 'Map',
+    meta: { description: 'Overview of enviroment' }
   }
 ]

@@ -1,4 +1,4 @@
-<template>
+  <template>
   <div class="custom-popup" id="map">
     <l-map
       @click="hideStation"
@@ -165,6 +165,7 @@ export default {
       values.forEach(value => {
         value.reverse()
         valuesArray.push(value[value.length - 1].value)
+        valuesArray.push(value[value.length - 1].value)
       })
       return valuesArray
     },
@@ -195,7 +196,6 @@ export default {
     zoomReset () {
       this.$refs.map.setZoom(this.zoomHolder)
       this.$refs.map.setCenter([52.25, 19.3])
-      this.centerStationId = null
       this.stationDetails = null
       this.selectedStation = null
       this.$emit('closeStationInput', false)
