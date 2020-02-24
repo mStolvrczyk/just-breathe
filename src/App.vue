@@ -13,7 +13,7 @@
       <template v-slot:img="{ props }">
         <v-img
           v-bind="props"
-          gradient="to top right, rgba(55,236,186,.7), rgba(25,32,72,.7)"
+          gradient="to top right, rgba(0,77,64,.9), rgba(0,77,64,.9)"
         />
       </template>
       <div class="v-toolbar-title">
@@ -30,7 +30,7 @@
             </v-icon>
           </v-btn>
         </template>
-        <span>Znajdź stację</span>
+        <span>Panel użytkownika</span>
       </v-tooltip>
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
@@ -40,37 +40,112 @@
             </v-icon>
           </v-btn>
         </template>
-        <span>Panel użytkownika</span>
+        <span>Mapa</span>
       </v-tooltip>
     </v-app-bar>
+<!--    <v-navigation-drawer-->
+<!--      :temporary="$vuetify.breakpoint.smAndDown"-->
+<!--      clipped-->
+<!--      v-model="drawer"-->
+<!--      :mini-variant="mini"-->
+<!--      :permanent="$vuetify.breakpoint.mdOnly"-->
+<!--      stateless-->
+<!--      app-->
+<!--    >-->
+<!--      <v-img-->
+<!--      :src="require('@/assets/appImage.jpg')"-->
+<!--        gradient="to top right, rgba(0,77,64,.9), rgba(0,77,64,.9)"-->
+<!--      height="100%"-->
+<!--      >-->
+<!--        <v-container>-->
+<!--          <div-->
+<!--            id="image-container"-->
+<!--          >-->
+<!--          <v-img-->
+<!--            class="logo-image"-->
+<!--            v-if="mini"-->
+<!--            :src="require('@/assets/jb-sygnet.png')"-->
+<!--          />-->
+<!--          <v-img-->
+<!--            v-else-->
+<!--            :src="require('@/assets/jb-logo.png')"-->
+
+<!--          />-->
+<!--          </div>-->
+<!--          <v-btn @click="mini = !mini"/>-->
+<!--          <div v-if="!mini">-->
+<!--          </div>-->
+<!--        </v-container>-->
+<!--      </v-img>-->
+<!--    </v-navigation-drawer>-->
     <v-content>
       <router-view/>
     </v-content>
   </v-app>
 </template>
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
+import Functions from '@/libs/helperFunctions'
+import StationsService from '@/services/StationsService'
+
 export default {
   data () {
     return {
+      drawer: true,
+      mini: false,
+      right: null,
+      stationsService: new StationsService(),
+      functions: new Functions(),
       stationInputVisibility: false,
       userPanelVisibility: false,
       watcher: navigator.geolocation.watchPosition(this.getLocation),
-      userLocation: []
+      userLocation: [],
+      userLocationDetails: null,
+      allStations: null
     }
   },
   methods: {
+    async closestStation (userLocation) {
+      if (this.allStations === null) {
+        await this.setAllStationsState()
+      }
+      let minDist = Infinity
+      let nearestText = '*None*'
+      let markerDist
+      let stationId
+      for (let i = 0; i < this.allStations.length; i += 1) {
+        markerDist = this.functions.getDistance(this.allStations[i].coordinates.map(Number), userLocation)
+        if (markerDist < minDist) {
+          minDist = markerDist
+          nearestText = this.allStations[i].coordinates
+          stationId = this.allStations[i].id
+        }
+      }
+      let response = (await this.stationsService.getStation(stationId)).filter(({ measurement }) => measurement.length > 0)
+      // console.log(response)
+      let station = await this.allStations.find(({ id }) => id === stationId)
+      let sensorsDetails = response.map(({ details }) => details)
+      let lastSensorsValues = this.functions.mapLastValues(response)
+      let dashboardData = {
+        stationName: station.stationName,
+        city: station.city,
+        sensors: this.functions.mapSensors(sensorsDetails, lastSensorsValues),
+        stationDistance: this.functions.roundStationDistance(this.functions.getDistance(station.coordinates,
+          userLocation))
+      }
+      this.setDashboardDataState(dashboardData)
+    },
     getLocation (pos) {
       if (this.userLocation.length >= 0) {
         navigator.geolocation.clearWatch(this.watcher)
       }
-      this.userLocation.push(
+      let userLocation = [
         pos.coords.latitude,
         pos.coords.longitude
-      )
+      ]
+      this.closestStation(userLocation)
     },
-    ...mapActions('stations', ['getAllStations', 'getUserLocation']),
-    // ...mapActions('stations', ['getUserLocation']),
+    ...mapActions('stations', ['setAllStationsState', 'setDashboardDataState']),
     closeStationInput (value) {
       this.stationInputVisibility = value
     },
@@ -78,19 +153,36 @@ export default {
       this.userPanelVisibility = value
     }
   },
+  computed: {
+    ...mapState('stations', ['allStationsState'])
+  },
   watch: {
-    'userLocation' () {
-      this.getUserLocationDetails(this.userLocation)
+    '$vuetify.breakpoint.smAndDown' (value) {
+      this.mini = value
+    },
+    'userLocation' (value) {
+      this.setUserLocationState(value)
+    },
+    allStationsState: {
+      handler: function (value) {
+        this.allStations = value
+      },
+      deep: true
     }
   },
   mounted () {
-    this.getAllStations()
-  },
-  created () {
+    console.log(this.$vuetify.breakpoint.smAndDown)
   }
 }
 </script>
 <style>
+  #image-container {
+    height: 100px;
+  }
+  .logo-image {
+    max-height: 55px;
+    max-width: 200px;
+  }
   #app {
     background-image:
       linear-gradient(to bottom, rgba(30, 230, 176, 0.5), rgba(30, 230, 176, 0.5))

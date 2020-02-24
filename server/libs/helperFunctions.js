@@ -34,7 +34,7 @@ module.exports = {
       coordinates: [
         gegrLat,
         gegrLon
-      ],
+      ]
     }
   },
   sensorsFilter: function ({ id, param }) {
@@ -42,6 +42,12 @@ module.exports = {
       id,
       param: param ? param.paramName : '',
       paramTwo: param ? param.paramFormula : ''
+    }
+  },
+  // eslint-disable-next-line camelcase
+  totoFilter: function ({ stacja }) {
+    return {
+      city: stacja
     }
   }
 }

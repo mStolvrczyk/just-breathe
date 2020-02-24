@@ -1,17 +1,35 @@
 <template>
   <div id="dashboard">
-    {{loadUserLocation}}
+    {{ dashboardDataState }}
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
+import HelperFunctions from '@/libs/helperFunctions'
+import StationsService from '@/services/StationsService'
 export default {
   name: 'Dashboard',
+  data () {
+    return {
+      functions: new HelperFunctions(),
+      stationsService: new StationsService(),
+      userLocation: null,
+      allStations: null,
+      dashboardData: null
+    }
+  },
   computed: {
-    ...mapGetters('stations', ['loadUserLocation'])
+    ...mapState('stations', ['dashboardDataState'])
+  },
+  watch: {
+    dashboardDataState: {
+      handler: function (value) {
+        this.dashboardData = value
+      },
+      deep: true
+    }
   }
-
 }
 </script>
 

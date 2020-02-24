@@ -143,11 +143,11 @@ export default {
       let stationId = id
       let station = await stations.find(({ id }) => id === stationId)
       let sensorsDetails = response.map(({ details }) => details)
-      let lastSensorsValues = this.mapLastValues(response)
+      let lastSensorsValues = this.functions.mapLastValues(response)
       this.stationDetails = {
         stationName: station.stationName,
         city: station.city,
-        sensors: this.mapSensors(sensorsDetails, lastSensorsValues),
+        sensors: this.functions.mapSensors(sensorsDetails, lastSensorsValues),
         stationDistance: this.roundStationDistance(this.functions.getDistance(station.coordinates, userLocation))
       }
     },
@@ -159,16 +159,16 @@ export default {
       }
       return stationDistance
     },
-    mapLastValues (response) {
-      let values = response.map(({ measurement }) => measurement)
-      let valuesArray = []
-      values.forEach(value => {
-        value.reverse()
-        valuesArray.push(value[value.length - 1].value)
-        valuesArray.push(value[value.length - 1].value)
-      })
-      return valuesArray
-    },
+    // mapLastValues (response) {
+    //   let values = response.map(({ measurement }) => measurement)
+    //   let valuesArray = []
+    //   values.forEach(value => {
+    //     value.reverse()
+    //     valuesArray.push(value[value.length - 1].value)
+    //     valuesArray.push(value[value.length - 1].value)
+    //   })
+    //   return valuesArray
+    // },
     mapSensors (sensorsDetails, lastSensorsValues) {
       let sensorsArray = []
       for (let i = 0; i < sensorsDetails.length && i < lastSensorsValues.length; i++) {

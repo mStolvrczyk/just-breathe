@@ -2,7 +2,7 @@
   <div id="map">
     <LeafletMap
       :stationInputVisibility.sync="stationInputVisibility"
-      :stations="loadStations"
+      :stations="allStationsState"
       v-on:closeStationInput="closeStationInput"
     />
     <UserPanel
@@ -12,7 +12,7 @@
   </div>
 </template>
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import LeafletMap from '@/components/ui/LeafletMap'
 import StationsService from '@/services/StationsService'
 import UserPanel from '@/components/ui/UserPanel'
@@ -29,7 +29,7 @@ export default {
     userPanelVisibility: Boolean
   },
   computed: {
-    ...mapGetters('stations', ['loadStations'])
+    ...mapState('stations', ['allStationsState'])
   },
   methods: {
     async getAllStations () {

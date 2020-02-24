@@ -43,4 +43,12 @@ router.get('/stations/:station', async (request, response) => {
   response.json(stationSensorsData)
 })
 
+/**
+ * Pobieranie danych dla konkretnej stacji
+ */
+router.get('/toto', async (request, response) => {
+  const totoData = await stationsService.getTotoData()
+  response.json(totoData)
+})
+
 module.exports = router

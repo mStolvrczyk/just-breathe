@@ -1,6 +1,6 @@
 <template>
-  <transition name="popup">
-    <div id="station_input" v-if="stationInputVisibility">
+  <transition name="popup" v-if="stationInputVisibility">
+    <div id="station_input">
       <v-autocomplete
         background-color="white"
         v-model="selectedStation"
