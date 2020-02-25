@@ -30,11 +30,11 @@
         />
       </l-marker>
     </l-map>
-    <StationInput
-    :stations="stations"
-    v-on:setSelectedStation="setSelectedStation"
-    :stationInputVisibility="stationInputVisibility"
-    />
+<!--    <StationInput-->
+<!--    :stations="stations"-->
+<!--    v-on:setSelectedStation="setSelectedStation"-->
+<!--    :stationInputVisibility="stationInputVisibility"-->
+<!--    />-->
     <ButtonPanel
     :stations="stations"
     :width:="width"

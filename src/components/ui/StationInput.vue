@@ -1,6 +1,6 @@
 <template>
   <transition name="popup">
-    <div id="station_input" v-if="stationInputVisibility">
+    <div id="station_input">
       <v-autocomplete
         background-color="white"
         v-model="selectedStation"
@@ -64,19 +64,14 @@ export default {
   }
   @media only screen and (max-width: 767px) {
     #station_input {
-      width: 90%;
-      position: absolute;
-      top: 5px;
+      position: relative;
       text-align: center;
-      left: 20px;
     }
   }
   @media only screen and (min-width: 768px) {
     #station_input {
-      width: 60%;
-      position: absolute;
-      top: 2%;
-      right: 20%;
+      position: relative;
+      text-align: center;
     }
   }
 </style>
