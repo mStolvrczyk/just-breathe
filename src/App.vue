@@ -112,29 +112,61 @@
           <transition name="popup">
             <div v-if="stationDetails !== null && !mini">
               <div class="row">
-                <div align="center" class="sidebar-element-left">
+                <div align="center" class="sidebar-element">
                   <v-img
                     :src="require('@/assets/place-yellow.png')"
                     class="sidebar-icon"
                   />
-                 <p class="icon-text">Stacja<br/> pomiarowa</p>
-                </div>
-                <div align="center" class="sidebar-element-right">
+                 <p class="icon-text">Stacja pomiarowa</p>
                   <p class="station-name-text">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails.city}}</span></p>
                 </div>
               </div>
               <div class="row">
-                <div align="center" class="sidebar-element-left">
+                <div align="center" class="sidebar-element">
                   <v-img
                   :src="require('@/assets/road-yellow.png')"
                   class="sidebar-icon"
                   />
                   <p class="icon-text">Odległość</p>
-                </div>
-                <div align="center" class="sidebar-element-right">
                   <p class="distance-text">{{stationDetails.stationDistance}}</p>
                 </div>
               </div>
+              <div class="row">
+                <div align="center" class="sidebar-element">
+                  <v-img
+                    :src="require('@/assets/fog-yellow.png')"
+                    class="sidebar-icon"
+                  />
+                  <p class="icon-text">Jakość powietrza</p>
+                </div>
+              </div>
+                  <div
+                    class="sensor-row"
+                    v-for="sensor in stationDetails.sensors"
+                    :key="sensor.index"
+                  >
+                    <div class="sensor-column">
+                      <p class="sensor-symbol">{{sensor.symbol}}</p>
+                    </div>
+                    <div class="sensor-column">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                          <p v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
+                        </template>
+                        <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
+                      </v-tooltip>
+                    </div>
+                    <div class="sensor-column">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                          <v-btn v-on="on" fab x-small color="white">
+                            <v-icon style="font-size:18px;color: teal">mdi-dots-horizontal</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Pokaż szczegóły</span>
+                      </v-tooltip>
+                    </div>
+                  </div>
             </div>
           </transition>
         </v-container>
@@ -265,7 +297,7 @@ export default {
   }
 }
 </script>
-<style>
+<style lang="scss">
   .popup-enter,
   .popup-leave-to{
     transform: rotateY(50deg);
@@ -278,54 +310,112 @@ export default {
   .popup-leave-active {
     transition: transform 400ms;
   }
+  @mixin desktop-drawer () {
+    .sidebar-element {
+      display: flex;
+      justify-content: center;
+      align-content: center;
+      flex-direction: column;
+    }
+    #view-icons {
+      margin-bottom: 40px;
+    }
+    .sidebar-icon {
+      align-items: center;
+      margin-bottom: 0.2rem;
+      width: 25px;
+      height: 25px;
+    }
+    .icon-text {
+      font-family: Rubik;
+      font-size: 12px;
+      color: #FFFF;
+      font-weight: bold;
+    }
+    .station-name-text {
+      font-family: Rubik;
+      font-size: 16px;
+      color: #FFFF;
+      font-weight: bold;
+    }
+    .city-text {
+      font-family: Rubik;
+      font-size: 14px;
+      color: #FFFF;
+    }
+    .distance-text {
+      font-family: Rubik;
+      font-size: 20px;
+      color: #FFFF;
+      font-weight: bold;
+    }
+  }
+  @mixin mobile-drawer () {
+    .sidebar-element {
+      display: flex;
+      justify-content: center;
+      align-content: center;
+      flex-direction: column;
+    }
+    #view-icons {
+      margin-bottom: 40px;
+    }
+    .sidebar-icon {
+      align-items: center;
+      margin-bottom: 0.2rem;
+      width: 20px;
+      height: 20px;
+    }
+    .icon-text {
+      font-family: Rubik;
+      font-size: 10px;
+      color: #FFFF;
+      font-weight: bold;
+    }
+    .station-name-text {
+      font-family: Rubik;
+      font-size: 14px;
+      color: #FFFF;
+      font-weight: bold;
+    }
+    .city-text {
+      font-family: Rubik;
+      font-size: 12px;
+      color: #FFFF;
+    }
+    .distance-text {
+      font-family: Rubik;
+      font-size: 18px;
+      color: #FFFF;
+      font-weight: bold;
+    }
+  }
+  @media only screen and (min-width: 600px) {
+    @include desktop-drawer()
+  }
+  @media only screen and (max-width: 599px) {
+    @include mobile-drawer()
+  }
   .row {
+    align-content: center;
+    flex-direction: row;
+    justify-content: center;
+  }
+  .sensor-row {
+    display: flex;
     align-content: center;
     flex-direction: row;
     justify-content: space-between;
   }
-  .sidebar-element-left {
-    display: flex;
-    width: 70px;
-    justify-content: center;
+  .sensor-column {
     align-content: center;
     flex-direction: column;
-  }
-  .sidebar-element-right {
-    display: flex;
-    margin-right: 0.3rem;
-    width: 180px;
     justify-content: center;
-    align-content: center;
-    flex-direction: column;
+    display: block;
   }
-  #view-icons {
-    margin-bottom: 40px;
-  }
-  .sidebar-icon {
-    align-items: center;
-    width: 25px;
-    height: 25px;
-  }
-  .icon-text {
+  .sensor-symbol {
     font-family: Rubik;
-    font-size: 12px;
-    color: #FFFF;
-    font-weight: bold;
-  }
-  .station-name-text {
-    font-family: Rubik;
-    font-size: 15px;
-    color: #FFFF;
-    font-weight: bold;
-  }
-  .city-text {
-    font-family: Rubik;
-    font-size: 12px;
-    color: #FFFF;
-  }
-  .distance-text {
-    font-family: Rubik;
-    font-size: 20px;
+    font-size: 16px;
     color: #FFFF;
     font-weight: bold;
   }
