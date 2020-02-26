@@ -76,7 +76,7 @@
             v-if="!miniVariant"
             :stations="allStationsState"
           />
-          <v-list align="center">
+          <div align="center">
             <v-tooltip bottom v-if="miniVariant">
               <template v-slot:activator="{ on }">
                 <v-btn x-large color="white" v-on="on" @click="mini = !mini" icon>
@@ -107,7 +107,18 @@
               </template>
               <span>Mapa</span>
             </v-tooltip>
-          </v-list>
+          </div>
+          <v-row>
+            <v-col cols="4">
+              <div align="center" class="icon">
+                <v-img
+                  :src="require('@/assets/place-yellow.png')"
+                  class="sidebar-icon"
+                />
+               <p>Stacja<br> pomiarowa</p>
+              </div>
+            </v-col>
+          </v-row>
         </v-container>
       </v-img>
     </v-navigation-drawer>
@@ -117,6 +128,7 @@
   </v-app>
 </template>
 <script>
+import { bus } from '@/main'
 import { mapActions, mapState } from 'vuex'
 import Functions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
@@ -126,7 +138,7 @@ export default {
   components: { StationInput },
   data () {
     return {
-      stationDetails: [1, 2],
+      stationDetails: null,
       drawer: true,
       mini: true,
       right: null,
@@ -207,14 +219,32 @@ export default {
         this.allStations = value
       },
       deep: true
+    },
+    'stationDetails' (value) {
+      console.log(value)
     }
-  }
+  },
   // mounted () {
   //   console.log(this.$vuetify.breakpoint.smAndDown)
   // }
+  created () {
+    bus.$on('setStationDetails', (data) => {
+      this.stationDetails = data
+    })
+  }
 }
 </script>
 <style>
+    .sidebar-icon {
+      align-items: center;
+      width: 25px;
+      height: 25px;
+    }
+      p {
+        font-size: 12px;
+        color: #FFFF;
+        font-weight: bold;
+      }
     #image-container {
     height: 100px;
   }

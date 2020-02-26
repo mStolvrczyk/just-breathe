@@ -55,6 +55,7 @@
 </template>
 
 <script>
+import { bus } from '@/main'
 import { LMap, LTileLayer, LMarker, LIcon } from 'vue2-leaflet'
 import StationsService from '@/services/StationsService'
 import Functions from '@/libs/helperFunctions'
@@ -150,6 +151,7 @@ export default {
         sensors: this.mapSensors(sensorsDetails, lastSensorsValues),
         stationDistance: this.roundStationDistance(this.functions.getDistance(station.coordinates, userLocation))
       }
+      bus.$emit('setStationDetails', this.stationDetails)
     },
     roundStationDistance (stationDistance) {
       if (stationDistance >= 1000) {
