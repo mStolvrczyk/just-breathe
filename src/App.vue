@@ -53,6 +53,7 @@
       stateless
       app
       :width="navbarWidth"
+      v-scroll
     >
       <v-img
         :src="require('@/assets/appImage.jpg')"
@@ -112,22 +113,26 @@
           <transition name="popup">
             <div v-if="stationDetails !== null && !mini">
               <div class="row">
-                <div align="center" class="sidebar-element">
+                <div align="center" class="sidebar-element-left">
                   <v-img
                     :src="require('@/assets/place-yellow.png')"
                     class="sidebar-icon"
                   />
                  <p class="icon-text">Stacja pomiarowa</p>
+                </div>
+                <div class="sidebar-element-right">
                   <p class="station-name-text">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails.city}}</span></p>
                 </div>
               </div>
               <div class="row">
-                <div align="center" class="sidebar-element">
+                <div align="center" class="sidebar-element-left">
                   <v-img
                   :src="require('@/assets/road-yellow.png')"
                   class="sidebar-icon"
                   />
                   <p class="icon-text">Odległość</p>
+                </div>
+                <div class="sidebar-element-right">
                   <p class="distance-text">{{stationDetails.stationDistance}}</p>
                 </div>
               </div>
@@ -151,7 +156,7 @@
                     <div class="sensor-column">
                       <v-tooltip bottom>
                         <template v-slot:activator="{ on }">
-                          <p v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
+                          <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
                         </template>
                         <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
                       </v-tooltip>
@@ -311,8 +316,16 @@ export default {
     transition: transform 400ms;
   }
   @mixin desktop-drawer () {
-    .sidebar-element {
+    .sidebar-element-left {
+      width: 50px;
+      justify-content: center;
+      align-content: center;
+      flex-direction: column;
       display: flex;
+    }
+    .sidebar-element-right {
+      display: flex;
+      width: 150px;
       justify-content: center;
       align-content: center;
       flex-direction: column;
@@ -334,20 +347,24 @@ export default {
     }
     .station-name-text {
       font-family: Rubik;
-      font-size: 16px;
+      font-size: 14px;
       color: #FFFF;
       font-weight: bold;
+      text-align: center;
     }
     .city-text {
       font-family: Rubik;
-      font-size: 14px;
+      font-weight: lighter;
+      font-size: 13px;
       color: #FFFF;
+      text-align: center;
     }
     .distance-text {
       font-family: Rubik;
-      font-size: 20px;
+      font-size: 18px;
       color: #FFFF;
       font-weight: bold;
+      text-align: center;
     }
   }
   @mixin mobile-drawer () {
@@ -399,7 +416,7 @@ export default {
   .row {
     align-content: center;
     flex-direction: row;
-    justify-content: center;
+    justify-content: space-around;
   }
   .sensor-row {
     display: flex;
@@ -408,16 +425,23 @@ export default {
     justify-content: space-between;
   }
   .sensor-column {
+    flex: 1;
     align-content: center;
     flex-direction: column;
     justify-content: center;
-    display: block;
   }
   .sensor-symbol {
     font-family: Rubik;
     font-size: 16px;
     color: #FFFF;
     font-weight: bold;
+    text-align: left;
+  }
+  .sensor-value {
+    font-family: Rubik;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
   }
   #image-container {
   height: 100px;
