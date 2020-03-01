@@ -114,12 +114,9 @@ export default {
       this.apiResponse = response
       let stationId = id
       let station = await stations.find(({ id }) => id === stationId)
-      console.log(station)
       let sensorsDetails = response.map(({ details }) => details)
       let lastSensorsValues = this.mapLastValues(response)
-      if (this.$vuetify.breakpoint.xsOnly) {
-        this.$refs.map.mapObject.flyTo([station.coordinates[0], station.coordinates[1]])
-      }
+      this.$refs.map.mapObject.flyTo([station.coordinates[0], station.coordinates[1]], 7)
       this.stationDetails = {
         stationName: station.stationName,
         city: station.city,
@@ -127,6 +124,7 @@ export default {
         stationDistance: this.roundStationDistance(this.functions.getDistance(station.coordinates, userLocation))
       }
       bus.$emit('setStationDetails', this.stationDetails)
+      bus.$emit('setMini', false)
     },
     roundStationDistance (stationDistance) {
       if (stationDistance >= 1000) {
@@ -170,6 +168,7 @@ export default {
       )
     },
     zoomReset () {
+      this.stationId = null
       this.$refs.map.setZoom(this.zoomHolder)
       this.$refs.map.setCenter([52.25, 19.3])
       bus.$emit('setStationDetails', null)
@@ -181,7 +180,7 @@ export default {
   },
   computed: {
     zoomResetVisibility () {
-      return this.center[0] !== 52.25 && this.center[1] !== 19.3
+      return (this.zoom !== this.zoomHolder) || this.stationId !== null
     }
   },
   watch: {
@@ -216,7 +215,6 @@ export default {
     }
   },
   mounted () {
-    console.log(this.center)
     this.getAllStations()
   },
   created () {

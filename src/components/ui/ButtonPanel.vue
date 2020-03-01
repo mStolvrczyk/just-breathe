@@ -3,27 +3,27 @@
     <div class="my-2">
       <v-tooltip v-if="width > 768" bottom>
         <template v-slot:activator="{ on }">
-          <v-btn v-on="on" @click="closestStation(stations, userLocation)" fab small color="teal lighten-1">
-            <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
+          <v-btn v-on="on" @click="closestStation(stations, userLocation)" fab small color="rgba(0,77,64,.9)">
+            <v-icon style="color: white">mdi-crosshairs-gps</v-icon>
           </v-btn>
         </template>
         <span>Pokaż najbliższą stację</span>
       </v-tooltip>
-      <v-btn v-else @click="closestStation(stations, userLocation)" fab small color="teal lighten-1">
-        <v-icon style="font-size:23px;color: white">mdi-crosshairs-gps</v-icon>
+      <v-btn v-else @click="closestStation(stations, userLocation)" fab small color="rgba(0,77,64,.9)">
+        <v-icon style="color: white">mdi-crosshairs-gps</v-icon>
       </v-btn>
     </div>
     <div class="my-2">
       <v-tooltip v-if="zoomResetVisibility && width > 768" bottom>
         <template v-slot:activator="{ on }">
-          <v-btn @click="zoomReset" v-on="on" fab small color="teal lighten-1">
-            <v-icon style="font-size:23px;color: white">mdi-close</v-icon>
+          <v-btn @click="zoomReset" v-on="on" fab small color="rgba(0,77,64,.9)">
+            <v-icon style="font-size:23px;color: white">mdi-arrow-left</v-icon>
           </v-btn>
         </template>
         <span>Wróć</span>
       </v-tooltip>
-      <v-btn v-else-if="zoomResetVisibility" @click="zoomReset" fab small color="teal lighten-1">
-        <v-icon style="font-size:23px;color: white">mdi-close</v-icon>
+      <v-btn v-else-if="zoomResetVisibility" @click="zoomReset" fab small color="rgba(0,77,64,.9)">
+        <v-icon style="font-size:23px;color: white">mdi-arrow-left</v-icon>
       </v-btn>
     </div>
   </div>

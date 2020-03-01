@@ -143,7 +143,6 @@ export default {
       this.apiResponse = response
       let stationId = id
       let station = await stations.find(({ id }) => id === stationId)
-      console.log(station)
       let sensorsDetails = response.map(({ details }) => details)
       let lastSensorsValues = this.mapLastValues(response)
       this.center = {

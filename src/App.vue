@@ -84,68 +84,58 @@
             v-if="!miniVariant"
           />
           <transition name="popup">
-            <div v-if="stationDetails !== null && !mini">
-              <div class="row">
-                <div align="center" class="sidebar-element-left">
-                  <v-img
-                    :src="require('@/assets/place-yellow.png')"
-                    class="sidebar-icon"
-                  />
-                 <p class="icon-text">Stacja pomiarowa</p>
-                </div>
-                <div class="sidebar-element-right">
-                  <p class="station-name-text">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails.city}}</span></p>
-                </div>
-              </div>
-              <div class="row">
-                <div align="center" class="sidebar-element-left">
-                  <v-img
-                  :src="require('@/assets/road-yellow.png')"
+            <div v-if="stationDetails !== null && !miniVariant">
+              <div align="center" class="sidebar-element">
+                <v-img
+                  :src="require('@/assets/place-yellow.png')"
                   class="sidebar-icon"
-                  />
-                  <p class="icon-text">Odległość</p>
-                </div>
-                <div class="sidebar-element-right">
-                  <p class="distance-text">{{stationDetails.stationDistance}}</p>
-                </div>
+                />
+               <p class="icon-text">Stacja pomiarowa</p>
+                <p class="station-name-text">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails.city}}</span></p>
               </div>
-              <div class="row">
-                <div align="center" class="sidebar-element">
-                  <v-img
-                    :src="require('@/assets/fog-yellow.png')"
-                    class="sidebar-icon"
-                  />
-                  <p class="icon-text">Jakość powietrza</p>
-                </div>
+              <div align="center" class="sidebar-element">
+                <v-img
+                :src="require('@/assets/road-yellow.png')"
+                class="sidebar-icon"
+                />
+                <p class="icon-text">Odległość</p>
+                <p class="distance-text">{{stationDetails.stationDistance}}</p>
               </div>
-              <div class="sensor-window" id="style-2">
-                <div
-                  class="sensor-row"
-                  v-for="sensor in stationDetails.sensors"
-                  :key="sensor.index"
-                >
-                  <div class="sensor-column">
-                    <p class="sensor-symbol">{{sensor.symbol}}</p>
-                  </div>
-                  <div class="sensor-column">
-                    <v-tooltip bottom>
-                      <template v-slot:activator="{ on }">
-                        <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
-                      </template>
-                      <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
-                    </v-tooltip>
-                  </div>
-                  <div class="button-column">
-                    <v-tooltip bottom>
-                      <template v-slot:activator="{ on }">
-                        <v-btn normal color="white" v-on="on" icon>
-                          <v-icon>
-                            mdi-dots-horizontal
-                          </v-icon>
-                        </v-btn>
-                      </template>
-                      <span>Pokaż szczegóły</span>
-                    </v-tooltip>
+              <div align="center" class="sidebar-element">
+                <v-img
+                  :src="require('@/assets/fog-yellow.png')"
+                  class="sidebar-icon"
+                />
+                <p class="icon-text">Jakość powietrza</p>
+                <div class="sensor-window" id="style-2">
+                  <div
+                    class="sensor-row"
+                    v-for="sensor in stationDetails.sensors"
+                    :key="sensor.index"
+                  >
+                    <div class="sensor-column">
+                      <p class="sensor-symbol">{{sensor.symbol}}</p>
+                    </div>
+                    <div class="sensor-column">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                          <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
+                        </template>
+                        <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
+                      </v-tooltip>
+                    </div>
+                    <div class="button-column">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                          <v-btn normal color="white" v-on="on" icon>
+                            <v-icon>
+                              mdi-dots-horizontal
+                            </v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Pokaż szczegóły</span>
+                      </v-tooltip>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -247,15 +237,18 @@ export default {
     // ...mapState('stations', ['allStationsState'])
   },
   watch: {
+    'mini' (value) {
+      console.log(value)
+    },
     '$vuetify.breakpoint.mdOnly' (value) {
       this.mini = !value
-    },
-    'stationDetails' () {
-      if (this.mini) {
-        this.mini = !this.mini
-      }
-      // }
     }
+    // 'stationDetails' () {
+    //   if (this.mini) {
+    //     this.mini = !this.mini
+    //   }
+    //   // }
+    // }
     // '$vuetify.breakpoint.xsOnly' (value) {
     //   console.log(value)
     // }
@@ -277,7 +270,9 @@ export default {
       this.stationDetails = data
     })
     bus.$on('setMini', (value) => {
+      // if (this.mini === true) {
       this.mini = value
+      // }
     })
   }
 }
@@ -296,19 +291,12 @@ export default {
     transition: transform 400ms;
   }
   @mixin desktop-drawer () {
-    .sidebar-element-left {
-      width: 65px;
+    .sidebar-element {
       justify-content: center;
       align-content: center;
       flex-direction: column;
       display: flex;
-    }
-    .sidebar-element-right {
-      display: flex;
-      width: 150px;
-      justify-content: center;
-      align-content: center;
-      flex-direction: column;
+      margin-bottom: 1rem;
     }
     #view-icons {
       margin-bottom: 15px;
@@ -405,19 +393,11 @@ export default {
     }
   }
   @mixin mobile-drawer () {
-    .sidebar-element-left {
-      width: 60px;
+    .sidebar-element {
       justify-content: center;
       align-content: center;
       flex-direction: column;
       display: flex;
-    }
-    .sidebar-element-right {
-      display: flex;
-      width: 125px;
-      justify-content: center;
-      align-content: center;
-      flex-direction: column;
     }
     #view-icons {
       margin-bottom: 15px;
@@ -521,8 +501,9 @@ export default {
   }
   .row {
     align-content: center;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-around;
+    margin-bottom: 1rem;
   }
   #image-container {
     margin-bottom: 1rem;
