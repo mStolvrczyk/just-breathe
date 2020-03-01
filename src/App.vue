@@ -1,49 +1,5 @@
 <template>
   <v-app>
-    <!--    <v-app-bar-->
-    <!--      flat-->
-    <!--      persistent-->
-    <!--      dark-->
-    <!--      app-->
-    <!--      fixed-->
-    <!--      :scroll-threshold="1"-->
-    <!--      :scroll-off-screen="true"-->
-    <!--      :src="require('@/assets/appImage.jpg')"-->
-    <!--    >-->
-    <!--      <template v-slot:img="{ props }">-->
-    <!--        <v-img-->
-    <!--          v-bind="props"-->
-    <!--          gradient="to top right, rgba(0,77,64,.9), rgba(0,77,64,.9)"-->
-    <!--        />-->
-    <!--      </template>-->
-    <!--      <div class="v-toolbar-title">-->
-    <!--        <v-toolbar-title>-->
-    <!--          Air Quality Check-->
-    <!--        </v-toolbar-title>-->
-    <!--      </div>-->
-    <!--      <v-spacer/>-->
-    <!--      <v-tooltip bottom>-->
-    <!--        <template v-slot:activator="{ on }">-->
-    <!--          <v-btn v-on="on" @click="$router.push('/dashboard')" icon>-->
-    <!--            <v-icon>-->
-    <!--              mdi-tablet-dashboard-->
-    <!--            </v-icon>-->
-    <!--          </v-btn>-->
-    <!--        </template>-->
-    <!--        <span>Panel użytkownika</span>-->
-    <!--      </v-tooltip>-->
-    <!--      <v-tooltip bottom>-->
-    <!--        <template v-slot:activator="{ on }">-->
-    <!--          <v-btn v-on="on" @click="$router.push('/map')" icon>-->
-    <!--            <v-icon>-->
-    <!--              mdi-map-marker-->
-    <!--            </v-icon>-->
-    <!--          </v-btn>-->
-    <!--        </template>-->
-    <!--        <span>Mapa</span>-->
-    <!--      </v-tooltip>-->
-    <!--    </v-app-bar>-->
-    <!--      :temporary="temporaryDrawer"-->
     <v-navigation-drawer
       light
       clipped
@@ -74,14 +30,16 @@
               :src="require('@/assets/jb-logo.png')"
             />
           </div>
-           <StationInput
-            v-if="!miniVariant"
-          />
 <!--            :stations="allStationsState"-->
           <div align="center" id="view-icons">
             <v-tooltip bottom v-if="miniVariant">
               <template v-slot:activator="{ on }">
-                <v-btn x-large color="white" v-on="on" @click="mini = !mini" icon>
+                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="mini = !mini" icon>
+                  <v-icon>
+                    search
+                  </v-icon>
+                </v-btn>
+                <v-btn v-else x-large color="white" v-on="on" @click="mini = !mini" icon>
                   <v-icon>
                     search
                   </v-icon>
@@ -91,7 +49,13 @@
             </v-tooltip>
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
-                <v-btn x-large color="white" v-on="on" @click="$router.push('/dashboard')" icon>
+                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on"
+                       @click="$router.push('/dashboard')" icon>
+                  <v-icon>
+                    mdi-tablet-dashboard
+                  </v-icon>
+                </v-btn>
+                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/dashboard')" icon>
                   <v-icon>
                     mdi-tablet-dashboard
                   </v-icon>
@@ -101,7 +65,13 @@
             </v-tooltip>
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
-                <v-btn x-large color="white" v-on="on" @click="$router.push('/map')" icon>
+                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="$router.push('/map')"
+                       icon>
+                  <v-icon>
+                    mdi-map-marker
+                  </v-icon>
+                </v-btn>
+                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/map')" icon>
                   <v-icon>
                     mdi-map-marker
                   </v-icon>
@@ -110,6 +80,9 @@
               <span>Mapa</span>
             </v-tooltip>
           </div>
+           <StationInput
+            v-if="!miniVariant"
+          />
           <transition name="popup">
             <div v-if="stationDetails !== null && !mini">
               <div class="row">
@@ -145,33 +118,37 @@
                   <p class="icon-text">Jakość powietrza</p>
                 </div>
               </div>
-                  <div
-                    class="sensor-row"
-                    v-for="sensor in stationDetails.sensors"
-                    :key="sensor.index"
-                  >
-                    <div class="sensor-column">
-                      <p class="sensor-symbol">{{sensor.symbol}}</p>
-                    </div>
-                    <div class="sensor-column">
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on }">
-                          <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
-                        </template>
-                        <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
-                      </v-tooltip>
-                    </div>
-                    <div class="sensor-column">
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on }">
-                          <v-btn v-on="on" fab x-small color="white">
-                            <v-icon style="font-size:18px;color: teal">mdi-dots-horizontal</v-icon>
-                          </v-btn>
-                        </template>
-                        <span>Pokaż szczegóły</span>
-                      </v-tooltip>
-                    </div>
+              <div class="sensor-window" id="style-2">
+                <div
+                  class="sensor-row"
+                  v-for="sensor in stationDetails.sensors"
+                  :key="sensor.index"
+                >
+                  <div class="sensor-column">
+                    <p class="sensor-symbol">{{sensor.symbol}}</p>
                   </div>
+                  <div class="sensor-column">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
+                      </template>
+                      <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
+                    </v-tooltip>
+                  </div>
+                  <div class="button-column">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-btn normal color="white" v-on="on" icon>
+                          <v-icon>
+                            mdi-dots-horizontal
+                          </v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Pokaż szczegóły</span>
+                    </v-tooltip>
+                  </div>
+                </div>
+              </div>
             </div>
           </transition>
         </v-container>
@@ -262,7 +239,7 @@ export default {
     },
     navbarWidth () {
       if (this.$vuetify.breakpoint.xsOnly) {
-        return 190
+        return 200
       } else {
         return 270
       }
@@ -299,6 +276,9 @@ export default {
     bus.$on('setStationDetails', (data) => {
       this.stationDetails = data
     })
+    bus.$on('setMini', (value) => {
+      this.mini = value
+    })
   }
 }
 </script>
@@ -317,7 +297,7 @@ export default {
   }
   @mixin desktop-drawer () {
     .sidebar-element-left {
-      width: 50px;
+      width: 65px;
       justify-content: center;
       align-content: center;
       flex-direction: column;
@@ -331,7 +311,7 @@ export default {
       flex-direction: column;
     }
     #view-icons {
-      margin-bottom: 40px;
+      margin-bottom: 15px;
     }
     .sidebar-icon {
       align-items: center;
@@ -366,16 +346,81 @@ export default {
       font-weight: bold;
       text-align: center;
     }
+    .sensor-window {
+      height: 100px;
+      overflow-y: auto;
+    }
+    #style-2::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    #style-2::-webkit-scrollbar-track {
+      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+      border-radius: 10px;
+    }
+
+    #style-2::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+    }
+    .sensor-row {
+      flex: 1;
+      display: flex;
+      align-content: center;
+      flex-direction: row;
+      justify-content: center;
+    }
+    .sensor-column {
+      width: 100%;
+      height: 35px;
+      line-height: 35px;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      align-content: center;
+    }
+    .button-column {
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      align-content: center;
+    }
+    .sensor-symbol {
+      font-family: Rubik;
+      font-size: 16px;
+      color: #FFFF;
+      font-weight: bold;
+      text-align: center;
+    }
+    .sensor-value {
+      align-content: center;
+      alignment: center;
+      justify-content: center;
+      font-family: Rubik;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+    }
   }
   @mixin mobile-drawer () {
-    .sidebar-element {
+    .sidebar-element-left {
+      width: 60px;
+      justify-content: center;
+      align-content: center;
+      flex-direction: column;
       display: flex;
+    }
+    .sidebar-element-right {
+      display: flex;
+      width: 125px;
       justify-content: center;
       align-content: center;
       flex-direction: column;
     }
     #view-icons {
-      margin-bottom: 40px;
+      margin-bottom: 15px;
     }
     .sidebar-icon {
       align-items: center;
@@ -385,26 +430,87 @@ export default {
     }
     .icon-text {
       font-family: Rubik;
-      font-size: 10px;
+      font-size: 11px;
       color: #FFFF;
       font-weight: bold;
     }
     .station-name-text {
       font-family: Rubik;
-      font-size: 14px;
+      font-size: 13px;
       color: #FFFF;
       font-weight: bold;
+      text-align: center;
     }
     .city-text {
       font-family: Rubik;
+      font-weight: lighter;
       font-size: 12px;
       color: #FFFF;
+      text-align: center;
     }
     .distance-text {
       font-family: Rubik;
-      font-size: 18px;
+      font-size: 16px;
       color: #FFFF;
       font-weight: bold;
+      text-align: center;
+    }
+    .sensor-window {
+      height: 100px;
+      overflow-y: auto;
+    }
+    #style-2::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    #style-2::-webkit-scrollbar-track {
+      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+      border-radius: 10px;
+    }
+
+    #style-2::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+    }
+    .sensor-row {
+      flex: 1;
+      display: flex;
+      align-content: center;
+      flex-direction: row;
+      justify-content: center;
+    }
+    .sensor-column {
+      width: 100%;
+      height: 35px;
+      line-height: 35px;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      align-content: center;
+    }
+    .button-column {
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      align-content: center;
+    }
+    .sensor-symbol {
+      font-family: Rubik;
+      font-size: 14px;
+      color: #FFFF;
+      font-weight: bold;
+      text-align: center;
+    }
+    .sensor-value {
+      align-content: center;
+      alignment: center;
+      justify-content: center;
+      font-family: Rubik;
+      font-size: 14px;
+      font-weight: bold;
+      text-align: center;
     }
   }
   @media only screen and (min-width: 600px) {
@@ -418,33 +524,8 @@ export default {
     flex-direction: row;
     justify-content: space-around;
   }
-  .sensor-row {
-    display: flex;
-    align-content: center;
-    flex-direction: row;
-    justify-content: space-between;
-  }
-  .sensor-column {
-    flex: 1;
-    align-content: center;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .sensor-symbol {
-    font-family: Rubik;
-    font-size: 16px;
-    color: #FFFF;
-    font-weight: bold;
-    text-align: left;
-  }
-  .sensor-value {
-    font-family: Rubik;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-  }
   #image-container {
-  height: 100px;
+    margin-bottom: 1rem;
   }
   .logo-image {
     max-height: 55px;

@@ -70,6 +70,8 @@ export default {
   }
   @media only screen and (min-width: 768px) {
     #station_input {
+      margin: 0;
+      padding: 0;
       position: relative;
       text-align: center;
     }

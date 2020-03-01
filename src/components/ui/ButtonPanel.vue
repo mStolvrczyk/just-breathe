@@ -14,7 +14,7 @@
       </v-btn>
     </div>
     <div class="my-2">
-      <v-tooltip v-if="buttonVisibility && width > 768" bottom>
+      <v-tooltip v-if="zoomResetVisibility && width > 768" bottom>
         <template v-slot:activator="{ on }">
           <v-btn @click="zoomReset" v-on="on" fab small color="teal lighten-1">
             <v-icon style="font-size:23px;color: white">mdi-close</v-icon>
@@ -22,7 +22,7 @@
         </template>
         <span>Wróć</span>
       </v-tooltip>
-      <v-btn v-else-if="buttonVisibility" @click="zoomReset" fab small color="teal lighten-1">
+      <v-btn v-else-if="zoomResetVisibility" @click="zoomReset" fab small color="teal lighten-1">
         <v-icon style="font-size:23px;color: white">mdi-close</v-icon>
       </v-btn>
     </div>
@@ -43,7 +43,7 @@ export default {
     width: Number,
     stations: Array,
     userLocation: Array,
-    buttonVisibility: Boolean
+    zoomResetVisibility: Boolean
   },
   methods: {
     zoomReset () {
