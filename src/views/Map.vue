@@ -67,7 +67,6 @@ export default {
       tealIconSize: [40, 40],
       yellowIconSize: [30, 40],
       initialLocation: [59.93428, 30.335098],
-      screenWidth: null,
       userLocation: [],
       watcher: navigator.geolocation.watchPosition(this.setLocation),
       stationId: null,
@@ -84,9 +83,6 @@ export default {
     LIcon
   },
   methods: {
-    handleResize () {
-      this.screenWidth = window.innerWidth
-    },
     setSelectedStation (value) {
       if (value !== null) {
         this.center = {
@@ -184,13 +180,13 @@ export default {
     }
   },
   watch: {
-    'screenWidth' () {
-      if (!this.$vuetify.breakpoint.xsOnly) {
-        this.zoom = 6
-        this.zoomHolder = 6
-      } else {
+    '$vuetify.breakpoint.xsOnly' (value) {
+      if (value === true) {
         this.zoom = 5
         this.zoomHolder = 5
+      } else {
+        this.zoom = 6
+        this.zoomHolder = 6
       }
     },
     'stationDetails' (value) {
@@ -216,15 +212,7 @@ export default {
   },
   mounted () {
     this.getAllStations()
-  },
-  created () {
-    window.addEventListener('resize', this.handleResize)
-    this.handleResize()
-  },
-  destroyed () {
-    window.removeEventListener('resize', this.handleResize)
   }
-
 }
 </script>
 

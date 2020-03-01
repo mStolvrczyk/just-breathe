@@ -513,6 +513,9 @@ export default {
     max-width: 200px;
   }
   #app {
+    p {
+      margin-bottom: 3px;
+    }
     background-image:
       linear-gradient(to bottom, rgba(30, 230, 176, 0.5), rgba(30, 230, 176, 0.5))
 

@@ -74,14 +74,14 @@ export default {
 </script>
 
 <style>
-  @media only screen and (max-width: 767px) {
+  @media only screen and (max-width: 599px) {
     #button_panel {
       position: absolute;
       bottom: 55%;
       right: 2%;
     }
   }
-  @media only screen and (min-width: 768px) {
+  @media only screen and (min-width: 600px) {
     #button_panel {
       position: absolute;
       top: 20%;
