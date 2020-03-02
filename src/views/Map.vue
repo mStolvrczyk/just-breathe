@@ -172,6 +172,15 @@ export default {
     },
     async getAllStations () {
       this.stations = await this.stationsService.getAll()
+    },
+    setZoom () {
+      if (this.$vuetify.breakpoint.xsOnly) {
+        this.zoom = 5
+        this.zoomHolder = 5
+      } else {
+        this.zoom = 6
+        this.zoomHolder = 6
+      }
     }
   },
   computed: {
@@ -211,6 +220,7 @@ export default {
     }
   },
   mounted () {
+    this.setZoom()
     this.getAllStations()
   }
 }

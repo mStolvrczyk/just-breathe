@@ -237,9 +237,6 @@ export default {
     // ...mapState('stations', ['allStationsState'])
   },
   watch: {
-    'mini' (value) {
-      console.log(value)
-    },
     '$vuetify.breakpoint.mdOnly' (value) {
       this.mini = !value
     }
@@ -335,7 +332,7 @@ export default {
       text-align: center;
     }
     .sensor-window {
-      height: 100px;
+      height: 140px;
       overflow-y: auto;
     }
     #style-2::-webkit-scrollbar {
@@ -398,6 +395,7 @@ export default {
       align-content: center;
       flex-direction: column;
       display: flex;
+      margin-bottom: 1rem;
     }
     #view-icons {
       margin-bottom: 15px;
