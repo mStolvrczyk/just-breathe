@@ -530,9 +530,9 @@ export default {
     margin-bottom: 1rem;
   }
   #sticky-elements {
-    position: sticky;
-    position: -webkit-sticky;
-    top: 0;
+    /*position: sticky;*/
+    /*position: -webkit-sticky;*/
+    /*top: 0;*/
     z-index: 1;
   }
   .logo-image {
