@@ -1,6 +1,7 @@
 <template>
   <v-app>
     <v-navigation-drawer
+      v-scroll="handleScroll"
       light
       clipped
       v-model="drawer"
@@ -9,14 +10,17 @@
       stateless
       app
       :width="navbarWidth"
-      v-scroll
+      height="100%"
+      :src="require('@/assets/appImage.jpg')"
     >
-      <v-img
-        :src="require('@/assets/appImage.jpg')"
-        gradient="to top right, rgba(0,77,64,.9), rgba(0,77,64,.9)"
-        height="100%"
-      >
-        <v-container>
+      <template v-slot:img="props">
+        <v-img
+          :gradient="'to top right, rgba(0,77,64,.9), rgba(0,77,64,.9)'"
+          v-bind="props"
+        />
+      </template>
+      <v-container>
+        <div id="sticky-elements">
           <div
             id="image-container"
           >
@@ -30,7 +34,7 @@
               :src="require('@/assets/jb-logo.png')"
             />
           </div>
-<!--            :stations="allStationsState"-->
+  <!--            :stations="allStationsState"-->
           <div align="center" id="view-icons">
             <v-tooltip bottom v-if="miniVariant">
               <template v-slot:activator="{ on }">
@@ -83,66 +87,71 @@
            <StationInput
             v-if="!miniVariant"
           />
-          <transition name="popup">
-            <div v-if="stationDetails !== null && !miniVariant">
-              <div align="center" class="sidebar-element">
-                <v-img
-                  :src="require('@/assets/place-yellow.png')"
-                  class="sidebar-icon"
-                />
-               <p class="icon-text">Stacja pomiarowa</p>
-                <p class="station-name-text">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails.city}}</span></p>
-              </div>
-              <div align="center" class="sidebar-element">
-                <v-img
-                :src="require('@/assets/road-yellow.png')"
+        </div>
+        <transition name="popup">
+          <div v-if="stationDetails !== null && !miniVariant">
+            <div align="center" class="sidebar-element">
+              <v-img
+                :src="require('@/assets/place-yellow.png')"
                 class="sidebar-icon"
-                />
-                <p class="icon-text">Odległość</p>
-                <p class="distance-text">{{stationDetails.stationDistance}}</p>
-              </div>
-              <div align="center" class="sidebar-element">
-                <v-img
-                  :src="require('@/assets/fog-yellow.png')"
-                  class="sidebar-icon"
-                />
-                <p class="icon-text">Jakość powietrza</p>
-                <div class="sensor-window" id="style-2">
-                  <div
-                    class="sensor-row"
-                    v-for="sensor in stationDetails.sensors"
-                    :key="sensor.index"
-                  >
-                    <div class="sensor-column">
-                      <p class="sensor-symbol">{{sensor.symbol}}</p>
-                    </div>
-                    <div class="sensor-column">
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on }">
-                          <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
-                        </template>
-                        <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
-                      </v-tooltip>
-                    </div>
-                    <div class="button-column">
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on }">
-                          <v-btn normal color="white" v-on="on" icon>
-                            <v-icon>
-                              mdi-dots-horizontal
-                            </v-icon>
-                          </v-btn>
-                        </template>
-                        <span>Pokaż szczegóły</span>
-                      </v-tooltip>
-                    </div>
+              />
+             <p class="icon-text">Stacja pomiarowa</p>
+              <p class="station-name-text">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails.city}}</span></p>
+            </div>
+            <div align="center" class="sidebar-element">
+              <v-img
+              :src="require('@/assets/road-yellow.png')"
+              class="sidebar-icon"
+              />
+              <p class="icon-text">Odległość</p>
+              <p class="distance-text">{{stationDetails.stationDistance}}</p>
+            </div>
+            <div align="center" class="sidebar-element">
+              <v-img
+                :src="require('@/assets/fog-yellow.png')"
+                class="sidebar-icon"
+              />
+              <p class="icon-text">Jakość powietrza</p>
+              <div>
+                <div
+                  class="sensor-row"
+                  v-for="sensor in stationDetails.sensors"
+                  :key="sensor.index"
+                >
+                  <div class="sensor-column">
+                    <p class="sensor-symbol">{{sensor.symbol}}</p>
+                  </div>
+                  <div class="sensor-column">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
+                      </template>
+                      <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
+                    </v-tooltip>
+                  </div>
+                  <div class="button-column">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-btn normal color="white" v-on="on" icon>
+                          <v-icon>
+                            mdi-dots-horizontal
+                          </v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Pokaż szczegóły</span>
+                    </v-tooltip>
                   </div>
                 </div>
               </div>
             </div>
-          </transition>
-        </v-container>
-      </v-img>
+          </div>
+        </transition>
+      </v-container>
+<!--      <v-img-->
+<!--        gradient="to top right, rgba(0,77,64,.9), rgba(0,77,64,.9)"-->
+<!--        height="100%"-->
+<!--      >-->
+<!--      </v-img>-->
     </v-navigation-drawer>
     <v-content>
       <router-view/>
@@ -155,6 +164,16 @@ import { bus } from '@/main'
 import Functions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
 import StationInput from '@/components/ui/StationInput'
+//
+// let nav = document.getElementById('nav')
+// window.onscroll = function () {
+//   if (window.pageYOffset > 100) {
+//     nav.style.background = 'orange'
+//     nav.style.boxShadow = '0px 4px 2px blu'
+//   } else {
+//     nav.style.background = 'transparent'
+//   }
+// }
 
 export default {
   components: { StationInput },
@@ -175,6 +194,9 @@ export default {
     }
   },
   methods: {
+    handleScroll () {
+      console.log('valueee')
+    },
     // async closestStation (userLocation) {
     //   if (this.allStations === null) {
     //     await this.setAllStationsState()
@@ -263,6 +285,7 @@ export default {
   //   console.log(this.$vuetify.breakpoint.smAndDown)
   // }
   created () {
+    document.addEventListener('scroll', this.handleScroll)
     bus.$on('setStationDetails', (data) => {
       this.stationDetails = data
     })
@@ -275,6 +298,19 @@ export default {
 }
 </script>
 <style lang="scss">
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+    }
   .popup-enter,
   .popup-leave-to{
     transform: rotateY(50deg);
@@ -437,19 +473,6 @@ export default {
       height: 100px;
       overflow-y: auto;
     }
-    #style-2::-webkit-scrollbar {
-      width: 10px;
-    }
-
-    #style-2::-webkit-scrollbar-track {
-      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-      border-radius: 10px;
-    }
-
-    #style-2::-webkit-scrollbar-thumb {
-      border-radius: 10px;
-      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
-    }
     .sensor-row {
       flex: 1;
       display: flex;
@@ -505,6 +528,12 @@ export default {
   }
   #image-container {
     margin-bottom: 1rem;
+  }
+  #sticky-elements {
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+    z-index: 1;
   }
   .logo-image {
     max-height: 55px;
