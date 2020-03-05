@@ -558,7 +558,7 @@ export default {
   #scrollable-content {
     padding: 0.5rem;
     overflow-y: auto;
-    height: 55%;
+    height: 60%;
   }
   .v-navigation-drawer__content {
     overflow-x: hidden;
