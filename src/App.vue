@@ -12,18 +12,15 @@
       app
       :width="navbarWidth"
       :src="require('@/assets/appImage.jpg')"
-      @scroll="handleScroll"
     >
       <template v-slot:img="props">
         <v-img
-      style="overflow-y: auto; overflow-x: hidden"
           :gradient="'to top right, rgba(0,77,64,.9), rgba(0,77,64,.9)'"
           v-bind="props"
         />
       </template>
       <v-container
       id="container"
-      v-on:scroll="handleScroll"
       >
         <nav>
           <div
@@ -120,46 +117,39 @@
                 class="sidebar-icon"
               />
               <p class="icon-text">Jakość powietrza</p>
-              <div>
-                <div
-                  class="sensor-row"
-                  v-for="sensor in stationDetails.sensors"
-                  :key="sensor.index"
-                >
-                  <div class="sensor-column">
-                    <p class="sensor-symbol">{{sensor.symbol}}</p>
-                  </div>
-                  <div class="sensor-column">
-                    <v-tooltip bottom>
-                      <template v-slot:activator="{ on }">
-                        <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
-                      </template>
-                      <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
-                    </v-tooltip>
-                  </div>
-                  <div class="button-column">
-                    <v-tooltip bottom>
-                      <template v-slot:activator="{ on }">
-                        <v-btn normal color="white" v-on="on" icon>
-                          <v-icon>
-                            mdi-dots-horizontal
-                          </v-icon>
-                        </v-btn>
-                      </template>
-                      <span>Pokaż szczegóły</span>
-                    </v-tooltip>
-                  </div>
+              <div
+                class="sensor-row"
+                v-for="sensor in stationDetails.sensors"
+                :key="sensor.index"
+              >
+                <div class="sensor-column">
+                  <p class="sensor-symbol">{{sensor.symbol}}</p>
+                </div>
+                <div class="sensor-column">
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                      <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
+                    </template>
+                    <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
+                  </v-tooltip>
+                </div>
+                <div class="button-column">
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                      <v-btn normal color="white" v-on="on" icon>
+                        <v-icon>
+                          mdi-dots-horizontal
+                        </v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Pokaż szczegóły</span>
+                  </v-tooltip>
                 </div>
               </div>
             </div>
           </div>
         </transition>
       </v-container>
-<!--      <v-img-->
-<!--        gradient="to top right, rgba(0,77,64,.9), rgba(0,77,64,.9)"-->
-<!--        height="100%"-->
-<!--      >-->
-<!--      </v-img>-->
     </v-navigation-drawer>
     <v-content>
       <router-view/>
@@ -172,16 +162,6 @@ import { bus } from '@/main'
 import Functions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
 import StationInput from '@/components/ui/StationInput'
-//
-// let nav = document.getElementById('nav')
-// window.onscroll = function () {
-//   if (window.pageYOffset > 100) {
-//     nav.style.background = 'orange'
-//     nav.style.boxShadow = '0px 4px 2px blu'
-//   } else {
-//     nav.style.background = 'transparent'
-//   }
-// }
 
 export default {
   components: { StationInput },
@@ -203,12 +183,6 @@ export default {
     }
   },
   methods: {
-    handleScroll () {
-      // let currentScrollPosition = e.srcElement.scrollTop
-      // if (currentScrollPosition > this.scrollPosition) {
-      console.log('Scrolling down')
-      // }
-    },
     // async closestStation (userLocation) {
     //   if (this.allStations === null) {
     //     await this.setAllStationsState()
@@ -312,31 +286,6 @@ export default {
 }
 </script>
 <style lang="scss">
-    ::-webkit-scrollbar {
-      width: 10px;
-    }
-
-    ::-webkit-scrollbar-track {
-      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-      border-radius: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      border-radius: 10px;
-      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
-    }
-  .popup-enter,
-  .popup-leave-to{
-    transform: rotateY(50deg);
-  }
-  .popup-enter-to,
-  .popup-leave {
-    transform: rotateY(0deg);
-  }
-  .popup-enter-active,
-  .popup-leave-active {
-    transition: transform 400ms;
-  }
   @mixin desktop-drawer () {
     .sidebar-element {
       justify-content: center;
@@ -347,6 +296,11 @@ export default {
     }
     #view-icons {
       margin-bottom: 15px;
+    }
+    #scrollable-content {
+      padding: 0.5rem;
+      overflow-y: auto;
+      height: 60%;
     }
     .sidebar-icon {
       align-items: center;
@@ -384,19 +338,6 @@ export default {
     .sensor-window {
       height: 100px;
       overflow-y: auto;
-    }
-    #style-2::-webkit-scrollbar {
-      width: 12px;
-    }
-
-    #style-2::-webkit-scrollbar-track {
-      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-      border-radius: 10px;
-    }
-
-    #style-2::-webkit-scrollbar-thumb {
-      border-radius: 10px;
-      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
     }
     .sensor-row {
       flex: 1;
@@ -449,6 +390,11 @@ export default {
     }
     #view-icons {
       margin-bottom: 15px;
+    }
+    #scrollable-content {
+      padding: 0.5rem;
+      overflow-y: auto;
+      height: 55%;
     }
     .sidebar-icon {
       align-items: center;
@@ -528,11 +474,30 @@ export default {
       text-align: center;
     }
   }
-  @media only screen and (min-width: 600px) {
-    @include desktop-drawer()
+  ::-webkit-scrollbar {
+    width: 10px;
   }
-  @media only screen and (max-width: 599px) {
-    @include mobile-drawer()
+
+  ::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+  }
+  .popup-enter,
+  .popup-leave-to{
+    transform: rotateY(50deg);
+  }
+  .popup-enter-to,
+  .popup-leave {
+    transform: rotateY(0deg);
+  }
+  .popup-enter-active,
+  .popup-leave-active {
+    transition: transform 400ms;
   }
   .row {
     align-content: center;
@@ -555,11 +520,6 @@ export default {
   #container {
     height: 100vh;
   }
-  #scrollable-content {
-    padding: 0.5rem;
-    overflow-y: auto;
-    height: 65%;
-  }
   .v-navigation-drawer__content {
     overflow-x: hidden;
     overflow-y: hidden;
@@ -568,11 +528,21 @@ export default {
     p {
       margin-bottom: 3px;
     }
-    background-image:
-      linear-gradient(to bottom, rgba(30, 230, 176, 0.5), rgba(30, 230, 176, 0.5))
-
   }
   html {
     overflow-y: hidden;
+  }
+  @media only screen and (min-width: 600px) {
+    @include desktop-drawer()
+  }
+  @media only screen and (max-width: 599px) {
+    @include mobile-drawer()
+  }
+  @media only screen and (max-height: 500px) {
+    #scrollable-content {
+      padding: 0.5rem;
+      overflow-y: auto;
+      height: 35%;
+    }
   }
 </style>
