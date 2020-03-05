@@ -1,7 +1,7 @@
 <template>
-  <v-app>
+  <v-app
+  >
     <v-navigation-drawer
-      v-scroll="handleScroll"
       light
       clipped
       v-model="drawer"
@@ -10,8 +10,8 @@
       stateless
       app
       :width="navbarWidth"
-      height="100%"
       :src="require('@/assets/appImage.jpg')"
+      @scroll="handleScroll"
     >
       <template v-slot:img="props">
         <v-img
@@ -19,8 +19,10 @@
           v-bind="props"
         />
       </template>
-      <v-container>
-        <div id="sticky-elements">
+      <v-container
+      id="container"
+      >
+        <nav>
           <div
             id="image-container"
           >
@@ -87,9 +89,11 @@
            <StationInput
             v-if="!miniVariant"
           />
-        </div>
+        </nav>
         <transition name="popup">
-          <div v-if="stationDetails !== null && !miniVariant">
+          <div
+            v-if="stationDetails !== null && !miniVariant"
+          >
             <div align="center" class="sidebar-element">
               <v-img
                 :src="require('@/assets/place-yellow.png')"
@@ -179,6 +183,7 @@ export default {
   components: { StationInput },
   data () {
     return {
+      scrollPosition: 0,
       stationDetails: null,
       drawer: true,
       mini: true,
@@ -195,7 +200,10 @@ export default {
   },
   methods: {
     handleScroll () {
-      console.log('valueee')
+      // let currentScrollPosition = e.srcElement.scrollTop
+      // if (currentScrollPosition > this.scrollPosition) {
+      console.log('Scrolling down')
+      // }
     },
     // async closestStation (userLocation) {
     //   if (this.allStations === null) {
@@ -281,11 +289,13 @@ export default {
     //   deep: true
     // },
   },
-  // mounted () {
-  //   console.log(this.$vuetify.breakpoint.smAndDown)
-  // }
+  mounted () {
+  },
   created () {
-    document.addEventListener('scroll', this.handleScroll)
+    // window.onload = function () {
+    //   let el = document.getElementById('totek')
+    //   el.addEventListener('scroll', this.handleScroll)
+    // }
     bus.$on('setStationDetails', (data) => {
       this.stationDetails = data
     })
@@ -529,15 +539,20 @@ export default {
   #image-container {
     margin-bottom: 1rem;
   }
-  #sticky-elements {
-    /*position: sticky;*/
-    /*position: -webkit-sticky;*/
-    /*top: 0;*/
+  nav {
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
     z-index: 1;
   }
   .logo-image {
     max-height: 55px;
     max-width: 200px;
+  }
+  #container {
+    margin-top: 0;
+    padding-top: 0;
+    height: 3000px;
   }
   #app {
     p {
@@ -546,5 +561,8 @@ export default {
     background-image:
       linear-gradient(to bottom, rgba(30, 230, 176, 0.5), rgba(30, 230, 176, 0.5))
 
+  }
+  html {
+    overflow: hidden;
   }
 </style>

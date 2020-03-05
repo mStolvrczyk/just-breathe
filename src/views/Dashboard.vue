@@ -1,5 +1,5 @@
 <template>
-  <v-container></v-container>
+  <v-container id="cont"></v-container>
 </template>
 
 <script>
@@ -9,5 +9,8 @@ export default {
 </script>
 
 <style scoped>
+  #cont {
+    height: 1000px;
+  }
 
 </style>
