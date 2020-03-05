@@ -2,6 +2,7 @@
   <v-app
   >
     <v-navigation-drawer
+      height="100vh"
       light
       clipped
       v-model="drawer"
@@ -15,12 +16,14 @@
     >
       <template v-slot:img="props">
         <v-img
+      style="overflow-y: auto; overflow-x: hidden"
           :gradient="'to top right, rgba(0,77,64,.9), rgba(0,77,64,.9)'"
           v-bind="props"
         />
       </template>
       <v-container
       id="container"
+      v-on:scroll="handleScroll"
       >
         <nav>
           <div
@@ -92,6 +95,7 @@
         </nav>
         <transition name="popup">
           <div
+            id="scrollable-content"
             v-if="stationDetails !== null && !miniVariant"
           >
             <div align="center" class="sidebar-element">
@@ -378,7 +382,7 @@ export default {
       text-align: center;
     }
     .sensor-window {
-      height: 140px;
+      height: 100px;
       overflow-y: auto;
     }
     #style-2::-webkit-scrollbar {
@@ -540,19 +544,25 @@ export default {
     margin-bottom: 1rem;
   }
   nav {
-    position: sticky;
-    position: -webkit-sticky;
     top: 0;
     z-index: 1;
+    position: sticky;
   }
   .logo-image {
     max-height: 55px;
     max-width: 200px;
   }
   #container {
-    margin-top: 0;
-    padding-top: 0;
-    height: 3000px;
+    height: 100vh;
+  }
+  #scrollable-content {
+    padding: 0.5rem;
+    overflow-y: auto;
+    height: 65%;
+  }
+  .v-navigation-drawer__content {
+    overflow-x: hidden;
+    overflow-y: hidden;
   }
   #app {
     p {
@@ -563,6 +573,6 @@ export default {
 
   }
   html {
-    overflow: hidden;
+    overflow-y: hidden;
   }
 </style>

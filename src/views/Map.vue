@@ -112,7 +112,11 @@ export default {
       let station = await stations.find(({ id }) => id === stationId)
       let sensorsDetails = response.map(({ details }) => details)
       let lastSensorsValues = this.mapLastValues(response)
-      this.$refs.map.mapObject.flyTo([station.coordinates[0], station.coordinates[1]], 7)
+      if (this.zoom === 5 || this.zoom === 6) {
+        this.$refs.map.mapObject.flyTo([station.coordinates[0], station.coordinates[1]], 7)
+      } else {
+        this.$refs.map.mapObject.flyTo([station.coordinates[0], station.coordinates[1]])
+      }
       this.stationDetails = {
         stationName: station.stationName,
         city: station.city,
