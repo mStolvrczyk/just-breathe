@@ -36,7 +36,6 @@
               :src="require('@/assets/jb-logo.png')"
             />
           </div>
-  <!--            :stations="allStationsState"-->
           <div align="center" id="view-icons">
             <v-tooltip bottom v-if="miniVariant">
               <template v-slot:activator="{ on }">
@@ -87,6 +86,7 @@
             </v-tooltip>
           </div>
            <StationInput
+            :stations="allStationsState"
             v-if="!miniVariant"
           />
         </nav>
@@ -158,7 +158,7 @@
 </template>
 <script>
 import { bus } from '@/main'
-// import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import Functions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
 import StationInput from '@/components/ui/StationInput'
@@ -176,54 +176,51 @@ export default {
       functions: new Functions(),
       stationInputVisibility: false,
       userPanelVisibility: false,
-      // watcher: navigator.geolocation.watchPosition(this.getLocation),
+      watcher: navigator.geolocation.watchPosition(this.getLocation),
       userLocation: [],
       userLocationDetails: null,
       allStations: null
     }
   },
   methods: {
-    // async closestStation (userLocation) {
-    //   if (this.allStations === null) {
-    //     await this.setAllStationsState()
-    //   }
-    //   let minDist = Infinity
-    //   let nearestText = '*None*'
-    //   let markerDist
-    //   let stationId
-    //   for (let i = 0; i < this.allStations.length; i += 1) {
-    //     markerDist = this.functions.getDistance(this.allStations[i].coordinates.map(Number), userLocation)
-    //     if (markerDist < minDist) {
-    //       minDist = markerDist
-    //       nearestText = this.allStations[i].coordinates
-    //       stationId = this.allStations[i].id
-    //     }
-    //   }
-    //   let response = (await this.stationsService.getStation(stationId)).filter(({ measurement }) => measurement.length > 0)
-    //   // console.log(response)
-    //   let station = await this.allStations.find(({ id }) => id === stationId)
-    //   let sensorsDetails = response.map(({ details }) => details)
-    //   let lastSensorsValues = this.functions.mapLastValues(response)
-    //   let dashboardData = {
-    //     stationName: station.stationName,
-    //     city: station.city,
-    //     sensors: this.functions.mapSensors(sensorsDetails, lastSensorsValues),
-    //     stationDistance: this.functions.roundStationDistance(this.functions.getDistance(station.coordinates,
-    //       userLocation))
-    //   }
-    //   this.setDashboardDataState(dashboardData)
-    // },
-    // getLocation (pos) {
-    //   if (this.userLocation.length >= 0) {
-    //     navigator.geolocation.clearWatch(this.watcher)
-    //   }
-    //   let userLocation = [
-    //     pos.coords.latitude,
-    //     pos.coords.longitude
-    //   ]
-    //   this.closestStation(userLocation)
-    // },
-    // ...mapActions('stations', ['setAllStationsState', 'setDashboardDataState']),
+    async closestStation (userLocation) {
+      if (this.allStations === null) {
+        await this.setAllStationsState()
+      }
+      let minDist = Infinity
+      let markerDist
+      let closestStationDetails
+      this.allStations.forEach(station => {
+        markerDist = this.functions.getDistance(station.coordinates.map(Number), userLocation)
+        if (markerDist < minDist) {
+          minDist = markerDist
+          closestStationDetails = station
+        }
+      })
+      let response = (await this.stationsService.getStation(closestStationDetails.id)).filter(({ measurement }) => measurement.length > 0)
+      let sensorsDetails = response.map(({ details }) => details)
+      let lastSensorsValues = this.functions.mapLastValues(response)
+      let closestStation = {
+        id: closestStationDetails.id,
+        stationName: closestStationDetails.stationName,
+        city: closestStationDetails.city,
+        coordinates: closestStationDetails.coordinates,
+        sensors: this.functions.mapSensors(sensorsDetails, lastSensorsValues),
+        stationDistance: this.functions.roundStationDistance(this.functions.getDistance(closestStationDetails.coordinates,
+          userLocation))
+      }
+      this.setClosestStationState(closestStation)
+    },
+    getLocation (pos) {
+      navigator.geolocation.clearWatch(this.watcher)
+      let userLocation = [
+        pos.coords.latitude,
+        pos.coords.longitude
+      ]
+      this.closestStation(userLocation)
+      this.setUserLocationState(userLocation)
+    },
+    ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState']),
     closeStationInput (value) {
       this.stationInputVisibility = value
     },
@@ -241,46 +238,26 @@ export default {
       } else {
         return 270
       }
-    }
-    // ...mapState('stations', ['allStationsState'])
+    },
+    ...mapState('stations', ['allStationsState'])
   },
   watch: {
     '$vuetify.breakpoint.mdOnly' (value) {
       this.mini = !value
+    },
+    allStationsState: {
+      handler: function (value) {
+        this.allStations = value
+      },
+      deep: true
     }
-    // 'stationDetails' () {
-    //   if (this.mini) {
-    //     this.mini = !this.mini
-    //   }
-    //   // }
-    // }
-    // '$vuetify.breakpoint.xsOnly' (value) {
-    //   console.log(value)
-    // }
-    // 'userLocation' (value) {
-    //   this.setUserLocationState(value)
-    // },
-    // allStationsState: {
-    //   handler: function (value) {
-    //     this.allStations = value
-    //   },
-    //   deep: true
-    // },
-  },
-  mounted () {
   },
   created () {
-    // window.onload = function () {
-    //   let el = document.getElementById('totek')
-    //   el.addEventListener('scroll', this.handleScroll)
-    // }
     bus.$on('setStationDetails', (data) => {
       this.stationDetails = data
     })
     bus.$on('setMini', (value) => {
-      // if (this.mini === true) {
       this.mini = value
-      // }
     })
   }
 }
