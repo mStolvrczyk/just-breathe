@@ -72,7 +72,6 @@ export default {
       closestStation: null,
       stations: null,
       functions: new Functions(),
-      apiResponse: null,
       found: null,
       zoomHolder: null,
       options: { zoomControl: false },
@@ -90,7 +89,6 @@ export default {
       yellowIconSize: [30, 40],
       initialLocation: [59.93428, 30.335098],
       stationId: null,
-      stationDetails: null,
       stationsService: new StationsService(),
       selectedStation: null
     }
@@ -124,13 +122,13 @@ export default {
       if (extraZoom) {
         this.$refs.map.mapObject.flyTo([station.coordinates[0], station.coordinates[1]], 10)
       }
-      this.stationDetails = {
+      let stationDetails = {
         stationName: station.stationName,
         city: station.city,
         sensors: this.mapSensors(sensorsDetails, lastSensorsValues),
         stationDistance: this.roundStationDistance(this.functions.getDistance(station.coordinates, userLocation))
       }
-      bus.$emit('setStationDetails', this.stationDetails)
+      bus.$emit('setStationDetails', { stationDetails, response })
       bus.$emit('setMini', false)
     },
     roundStationDistance (stationDistance) {

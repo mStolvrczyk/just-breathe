@@ -136,7 +136,7 @@
                 <div class="button-column">
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
-                      <v-btn normal color="white" v-on="on" icon>
+                      <v-btn @click="fillDatacollection(sensor.id, apiResponse)" normal color="white" v-on="on" icon>
                         <v-icon>
                           mdi-dots-horizontal
                         </v-icon>
@@ -153,20 +153,44 @@
     </v-navigation-drawer>
     <v-content>
       <router-view/>
+      <ChartDialog
+        :sensorDetails="sensorDetails"
+        :apiResponse="apiResponse"
+        :barDataCollection="barDataColllection"
+        :lineDataCollection="lineDataCollection"
+        :chartDialogVisibility.sync="chartDialogVisibility"
+        :chartVisibility.sync="chartVisibility"
+        v-on:closeChartDialog="closeChartDialog"
+        v-on:barDataComparison="barDataComparison"
+        v-on:lineDataComparison="lineDataComparison"
+        v-on:withoutComparison="withoutComparison"
+      />
     </v-content>
   </v-app>
 </template>
 <script>
+import ChartDialog from '@/components/ui/ChartDialog'
 import { bus } from '@/main'
 import { mapActions, mapState } from 'vuex'
 import Functions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
 import StationInput from '@/components/ui/StationInput'
+import pollutionLevels from '@/libs/pollutionLevels'
 
 export default {
-  components: { StationInput },
+  components: { StationInput, ChartDialog },
   data () {
     return {
+      apiResponse: null,
+      sensorDetails: {
+        sensorId: null,
+        averageMeasurement: null,
+        lastMeasurement: null
+      },
+      chartDialogVisibility: false,
+      chartVisibility: false,
+      barDataColllection: null,
+      lineDataCollection: null,
       scrollPosition: 0,
       stationDetails: null,
       drawer: true,
@@ -183,6 +207,50 @@ export default {
     }
   },
   methods: {
+    async fillDatacollection (id, apiResponse) {
+      let sensor = apiResponse.find(sensor => sensor.details.id === id)
+      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
+      let filteredValues = filteredMeasurements.map(({ value }) => value)
+      let averageMeasurement = this.functions.getAverage(filteredValues)
+      let lastMeasurement = this.getLastMeasurement(filteredValues)
+      this.barDataColllection = {
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
+            backgroundColor: this.functions.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
+            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
+          }
+        ]
+      }
+      this.lineDataCollection = {
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
+            backgroundColor: this.functions.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, true)[0],
+            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
+          }
+        ]
+      }
+      this.sensorDetails.averageMeasurement = {
+        value: averageMeasurement[0].toFixed(2),
+        procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement[0]),
+        pollutionLevel: pollutionLevels[this.functions.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, false)[0]]
+      }
+      this.sensorDetails.lastMeasurement = {
+        value: lastMeasurement[0].toFixed(2),
+        procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement[0]),
+        pollutionLevel: pollutionLevels[this.functions.setBackgroundColor(lastMeasurement, sensor.details.paramTwo, false)[0]]
+      }
+      this.chartDialogVisibility = true
+      this.sensorDetails.sensorId = sensor.details.id
+    },
+    getLastMeasurement (measurements) {
+      return [
+        measurements[measurements.length - 1]
+      ]
+    },
     async closestStation (userLocation) {
       if (this.allStations === null) {
         await this.setAllStationsState()
@@ -226,6 +294,19 @@ export default {
     },
     closeUserPanel (value) {
       this.userPanelVisibility = value
+    },
+    closeChartDialog (value) {
+      this.chartDialogVisibility = value
+      this.chartVisibility = value
+    },
+    withoutComparison (value) {
+      this.fillDatacollection(value, this.apiResponse)
+    },
+    barDataComparison (value) {
+      this.barDataColllection = value
+    },
+    lineDataComparison (value) {
+      this.lineDataCollection = value
     }
   },
   computed: {
@@ -242,6 +323,13 @@ export default {
     ...mapState('stations', ['allStationsState'])
   },
   watch: {
+    'chartDialogVisibility' (value) {
+      if (value === true) {
+        setTimeout(function () { this.chartVisibility = true }
+          .bind(this),
+        50)
+      }
+    },
     '$vuetify.breakpoint.mdOnly' (value) {
       this.mini = !value
     },
@@ -254,7 +342,8 @@ export default {
   },
   created () {
     bus.$on('setStationDetails', (data) => {
-      this.stationDetails = data
+      this.stationDetails = data.stationDetails
+      this.apiResponse = data.response
     })
     bus.$on('setMini', (value) => {
       this.mini = value
