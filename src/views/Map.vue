@@ -13,9 +13,9 @@
       />
       <l-marker
         :key="station.id"
-        v-for="station in stations"
+        v-for="station in allStationsState"
         :lat-lng="getMark(station)"
-        @click="getStationDetails(station.id, stations, userLocation), stationId = station.id"
+        @click="getStationDetails(station.id, allStationsState, userLocationState, false)"
       >
         <l-icon
           v-if="stationId === station.id"
@@ -29,13 +29,34 @@
         />
       </l-marker>
     </l-map>
-    <ButtonPanel
-      :stations="stations"
-      :userLocation="userLocation"
-      :zoomResetVisibility="zoomResetVisibility"
-      v-on:zoomReset="zoomReset"
-      v-on:setFound="setFound"
-    />
+    <div align="center" id="button_panel">
+      <div class="my-2">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" @click="getStationDetails(closestStationState.id, allStationsState, userLocationState, true)" fab small color="rgba(0,77,64,.9)">
+              <v-icon style="color: white">mdi-crosshairs-gps</v-icon>
+            </v-btn>
+          </template>
+          <span>Pokaż najbliższą stację</span>
+        </v-tooltip>
+<!--        <v-btn @click="closestStation(stations, userLocation)" fab small color="rgba(0,77,64,.9)">-->
+<!--          <v-icon style="color: white">mdi-crosshairs-gps</v-icon>-->
+<!--        </v-btn>-->
+      </div>
+      <div class="my-2">
+        <v-tooltip v-if="zoomResetVisibility" bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn @click="zoomReset" v-on="on" fab small color="rgba(0,77,64,.9)">
+              <v-icon style="font-size:23px;color: white">mdi-arrow-left</v-icon>
+            </v-btn>
+          </template>
+          <span>Wróć</span>
+        </v-tooltip>
+<!--        <v-btn v-else-if="zoomResetVisibility" @click="zoomReset" fab small color="rgba(0,77,64,.9)">-->
+<!--          <v-icon style="font-size:23px;color: white">mdi-arrow-left</v-icon>-->
+<!--        </v-btn>-->
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -43,14 +64,14 @@ import { bus } from '@/main'
 import { LMap, LTileLayer, LMarker, LIcon } from 'vue2-leaflet'
 import StationsService from '@/services/StationsService'
 import Functions from '@/libs/helperFunctions'
-import ButtonPanel from '@/components/ui/ButtonPanel'
+import { mapState } from 'vuex'
 export default {
   name: 'Map',
   data () {
     return {
+      closestStation: null,
       stations: null,
       functions: new Functions(),
-      apiResponse: null,
       found: null,
       zoomHolder: null,
       options: { zoomControl: false },
@@ -67,45 +88,26 @@ export default {
       tealIconSize: [40, 40],
       yellowIconSize: [30, 40],
       initialLocation: [59.93428, 30.335098],
-      userLocation: [],
-      watcher: navigator.geolocation.watchPosition(this.setLocation),
       stationId: null,
-      stationDetails: null,
       stationsService: new StationsService(),
       selectedStation: null
     }
   },
   components: {
-    ButtonPanel,
     LMap,
     LTileLayer,
     LMarker,
     LIcon
   },
   methods: {
-    setSelectedStation (value) {
-      if (value !== null) {
-        this.center = {
-          lat: value.coordinates[0],
-          lng: value.coordinates[1]
-        }
-        this.getStationDetails(value.id, this.stations, this.userLocation)
-        this.zoom = 10
-        this.stationId = value.id
-      }
-      this.$emit('closeStationInput', false)
-      this.selectedStation = null
-    },
-    setFound (value) {
-      this.found = value
-    },
     getMark (station) {
       return {
         lat: station.coordinates[0],
         lng: station.coordinates[1]
       }
     },
-    async getStationDetails (id, stations, userLocation) {
+    async getStationDetails (id, stations, userLocation, extraZoom) {
+      this.stationId = id
       let response = (await this.stationsService.getStation(id)).filter(({ measurement }) => measurement.length > 0)
       this.apiResponse = response
       let stationId = id
@@ -117,13 +119,16 @@ export default {
       } else {
         this.$refs.map.mapObject.flyTo([station.coordinates[0], station.coordinates[1]])
       }
-      this.stationDetails = {
+      if (extraZoom) {
+        this.$refs.map.mapObject.flyTo([station.coordinates[0], station.coordinates[1]], 10)
+      }
+      let stationDetails = {
         stationName: station.stationName,
         city: station.city,
         sensors: this.mapSensors(sensorsDetails, lastSensorsValues),
         stationDistance: this.roundStationDistance(this.functions.getDistance(station.coordinates, userLocation))
       }
-      bus.$emit('setStationDetails', this.stationDetails)
+      bus.$emit('setStationDetails', { stationDetails, response })
       bus.$emit('setMini', false)
     },
     roundStationDistance (stationDistance) {
@@ -158,24 +163,12 @@ export default {
       }
       return sensorsArray
     },
-    setLocation (pos) {
-      if (this.userLocation.length >= 0) {
-        navigator.geolocation.clearWatch(this.watcher)
-      }
-      this.userLocation.push(
-        pos.coords.latitude,
-        pos.coords.longitude
-      )
-    },
     zoomReset () {
       this.stationId = null
       this.$refs.map.setZoom(this.zoomHolder)
       this.$refs.map.setCenter([52.25, 19.3])
       bus.$emit('setStationDetails', null)
       bus.$emit('setMini', true)
-    },
-    async getAllStations () {
-      this.stations = await this.stationsService.getAll()
     },
     setZoom () {
       if (this.$vuetify.breakpoint.xsOnly) {
@@ -188,6 +181,7 @@ export default {
     }
   },
   computed: {
+    ...mapState('stations', ['closestStationState', 'allStationsState', 'userLocationState']),
     zoomResetVisibility () {
       return (this.zoom !== this.zoomHolder) || this.stationId !== null
     }
@@ -212,25 +206,29 @@ export default {
       // if (this.zoom === 5 || this.zoom === 6) {
       //   this.buttonVisibility = false
       // }
-    },
-    'found' (value) {
-      this.center = {
-        lat: value.lat,
-        lng: value.lng
-      }
-      this.getStationDetails(value.id, this.stations, this.userLocation)
-      this.stationId = value.id
-      this.zoom = 10
     }
   },
   mounted () {
     this.setZoom()
-    this.getAllStations()
   }
 }
 </script>
 
 <style>
+  @media only screen and (max-width: 599px) {
+    #button_panel {
+      position: absolute;
+      bottom: 55%;
+      right: 2%;
+    }
+  }
+  @media only screen and (min-width: 600px) {
+    #button_panel {
+      position: absolute;
+      top: 20%;
+      right: 3%;
+    }
+  }
   @import "~leaflet/dist/leaflet.css";
   @import "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";
   #map{

@@ -7,7 +7,7 @@
     >
           <v-card
             class="pa-3"
-            color="teal lighten-4"
+            color="rgba(0,77,64,.9)"
           >
             <div align="center">
                 <v-card
@@ -70,9 +70,9 @@
                   <v-col cols="12" sm="12">
                     <div class="text-center">
                       <v-card
-                        color="teal lighten-1"
+                        color="white"
                       >
-                        <v-card-text class="white--text">
+                        <v-card-text class="teal--text font-weight-bold">
                           <strong>uśredniony pomiar z dziś:<br v-if="width < 768">{{sensorDetails.averageMeasurement.procentValue + '%'}}
                             ({{sensorDetails.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
                             {{sensorDetails.averageMeasurement.pollutionLevel}}</strong><br>
@@ -203,7 +203,7 @@ export default {
     if (this.width < 415) {
       this.chartHeight = 280
     } else {
-      this.chartHeight = this.height / 4.1
+      this.chartHeight = this.height / 4.3
     }
   }
 }

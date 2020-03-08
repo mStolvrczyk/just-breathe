@@ -12,18 +12,15 @@
       app
       :width="navbarWidth"
       :src="require('@/assets/appImage.jpg')"
-      @scroll="handleScroll"
     >
       <template v-slot:img="props">
         <v-img
-      style="overflow-y: auto; overflow-x: hidden"
           :gradient="'to top right, rgba(0,77,64,.9), rgba(0,77,64,.9)'"
           v-bind="props"
         />
       </template>
       <v-container
       id="container"
-      v-on:scroll="handleScroll"
       >
         <nav>
           <div
@@ -39,7 +36,6 @@
               :src="require('@/assets/jb-logo.png')"
             />
           </div>
-  <!--            :stations="allStationsState"-->
           <div align="center" id="view-icons">
             <v-tooltip bottom v-if="miniVariant">
               <template v-slot:activator="{ on }">
@@ -90,6 +86,7 @@
             </v-tooltip>
           </div>
            <StationInput
+            :stations="allStationsState"
             v-if="!miniVariant"
           />
         </nav>
@@ -120,73 +117,80 @@
                 class="sidebar-icon"
               />
               <p class="icon-text">Jakość powietrza</p>
-              <div>
-                <div
-                  class="sensor-row"
-                  v-for="sensor in stationDetails.sensors"
-                  :key="sensor.index"
-                >
-                  <div class="sensor-column">
-                    <p class="sensor-symbol">{{sensor.symbol}}</p>
-                  </div>
-                  <div class="sensor-column">
-                    <v-tooltip bottom>
-                      <template v-slot:activator="{ on }">
-                        <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
-                      </template>
-                      <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
-                    </v-tooltip>
-                  </div>
-                  <div class="button-column">
-                    <v-tooltip bottom>
-                      <template v-slot:activator="{ on }">
-                        <v-btn normal color="white" v-on="on" icon>
-                          <v-icon>
-                            mdi-dots-horizontal
-                          </v-icon>
-                        </v-btn>
-                      </template>
-                      <span>Pokaż szczegóły</span>
-                    </v-tooltip>
-                  </div>
+              <div
+                class="sensor-row"
+                v-for="sensor in stationDetails.sensors"
+                :key="sensor.index"
+              >
+                <div class="sensor-column">
+                  <p class="sensor-symbol">{{sensor.symbol}}</p>
+                </div>
+                <div class="sensor-column">
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                      <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
+                    </template>
+                    <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
+                  </v-tooltip>
+                </div>
+                <div class="button-column">
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                      <v-btn @click="fillDatacollection(sensor.id, apiResponse)" normal color="white" v-on="on" icon>
+                        <v-icon>
+                          mdi-dots-horizontal
+                        </v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Pokaż szczegóły</span>
+                  </v-tooltip>
                 </div>
               </div>
             </div>
           </div>
         </transition>
       </v-container>
-<!--      <v-img-->
-<!--        gradient="to top right, rgba(0,77,64,.9), rgba(0,77,64,.9)"-->
-<!--        height="100%"-->
-<!--      >-->
-<!--      </v-img>-->
     </v-navigation-drawer>
     <v-content>
       <router-view/>
+      <ChartDialog
+        :sensorDetails="sensorDetails"
+        :apiResponse="apiResponse"
+        :barDataCollection="barDataColllection"
+        :lineDataCollection="lineDataCollection"
+        :chartDialogVisibility.sync="chartDialogVisibility"
+        :chartVisibility.sync="chartVisibility"
+        v-on:closeChartDialog="closeChartDialog"
+        v-on:barDataComparison="barDataComparison"
+        v-on:lineDataComparison="lineDataComparison"
+        v-on:withoutComparison="withoutComparison"
+      />
     </v-content>
   </v-app>
 </template>
 <script>
+import ChartDialog from '@/components/ui/ChartDialog'
 import { bus } from '@/main'
-// import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import Functions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
 import StationInput from '@/components/ui/StationInput'
-//
-// let nav = document.getElementById('nav')
-// window.onscroll = function () {
-//   if (window.pageYOffset > 100) {
-//     nav.style.background = 'orange'
-//     nav.style.boxShadow = '0px 4px 2px blu'
-//   } else {
-//     nav.style.background = 'transparent'
-//   }
-// }
+import pollutionLevels from '@/libs/pollutionLevels'
 
 export default {
-  components: { StationInput },
+  components: { StationInput, ChartDialog },
   data () {
     return {
+      apiResponse: null,
+      sensorDetails: {
+        sensorId: null,
+        averageMeasurement: null,
+        lastMeasurement: null
+      },
+      chartDialogVisibility: false,
+      chartVisibility: false,
+      barDataColllection: null,
+      lineDataCollection: null,
       scrollPosition: 0,
       stationDetails: null,
       drawer: true,
@@ -196,65 +200,113 @@ export default {
       functions: new Functions(),
       stationInputVisibility: false,
       userPanelVisibility: false,
-      // watcher: navigator.geolocation.watchPosition(this.getLocation),
+      watcher: navigator.geolocation.watchPosition(this.getLocation),
       userLocation: [],
       userLocationDetails: null,
       allStations: null
     }
   },
   methods: {
-    handleScroll () {
-      // let currentScrollPosition = e.srcElement.scrollTop
-      // if (currentScrollPosition > this.scrollPosition) {
-      console.log('Scrolling down')
-      // }
+    async fillDatacollection (id, apiResponse) {
+      let sensor = apiResponse.find(sensor => sensor.details.id === id)
+      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
+      let filteredValues = filteredMeasurements.map(({ value }) => value)
+      let averageMeasurement = this.functions.getAverage(filteredValues)
+      let lastMeasurement = this.getLastMeasurement(filteredValues)
+      this.barDataColllection = {
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
+            backgroundColor: this.functions.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
+            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
+          }
+        ]
+      }
+      this.lineDataCollection = {
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
+            backgroundColor: this.functions.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, true)[0],
+            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
+          }
+        ]
+      }
+      this.sensorDetails.averageMeasurement = {
+        value: averageMeasurement[0].toFixed(2),
+        procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement[0]),
+        pollutionLevel: pollutionLevels[this.functions.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, false)[0]]
+      }
+      this.sensorDetails.lastMeasurement = {
+        value: lastMeasurement[0].toFixed(2),
+        procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement[0]),
+        pollutionLevel: pollutionLevels[this.functions.setBackgroundColor(lastMeasurement, sensor.details.paramTwo, false)[0]]
+      }
+      this.chartDialogVisibility = true
+      this.sensorDetails.sensorId = sensor.details.id
     },
-    // async closestStation (userLocation) {
-    //   if (this.allStations === null) {
-    //     await this.setAllStationsState()
-    //   }
-    //   let minDist = Infinity
-    //   let nearestText = '*None*'
-    //   let markerDist
-    //   let stationId
-    //   for (let i = 0; i < this.allStations.length; i += 1) {
-    //     markerDist = this.functions.getDistance(this.allStations[i].coordinates.map(Number), userLocation)
-    //     if (markerDist < minDist) {
-    //       minDist = markerDist
-    //       nearestText = this.allStations[i].coordinates
-    //       stationId = this.allStations[i].id
-    //     }
-    //   }
-    //   let response = (await this.stationsService.getStation(stationId)).filter(({ measurement }) => measurement.length > 0)
-    //   // console.log(response)
-    //   let station = await this.allStations.find(({ id }) => id === stationId)
-    //   let sensorsDetails = response.map(({ details }) => details)
-    //   let lastSensorsValues = this.functions.mapLastValues(response)
-    //   let dashboardData = {
-    //     stationName: station.stationName,
-    //     city: station.city,
-    //     sensors: this.functions.mapSensors(sensorsDetails, lastSensorsValues),
-    //     stationDistance: this.functions.roundStationDistance(this.functions.getDistance(station.coordinates,
-    //       userLocation))
-    //   }
-    //   this.setDashboardDataState(dashboardData)
-    // },
-    // getLocation (pos) {
-    //   if (this.userLocation.length >= 0) {
-    //     navigator.geolocation.clearWatch(this.watcher)
-    //   }
-    //   let userLocation = [
-    //     pos.coords.latitude,
-    //     pos.coords.longitude
-    //   ]
-    //   this.closestStation(userLocation)
-    // },
-    // ...mapActions('stations', ['setAllStationsState', 'setDashboardDataState']),
+    getLastMeasurement (measurements) {
+      return [
+        measurements[measurements.length - 1]
+      ]
+    },
+    async closestStation (userLocation) {
+      if (this.allStations === null) {
+        await this.setAllStationsState()
+      }
+      let minDist = Infinity
+      let markerDist
+      let closestStationDetails
+      this.allStations.forEach(station => {
+        markerDist = this.functions.getDistance(station.coordinates.map(Number), userLocation)
+        if (markerDist < minDist) {
+          minDist = markerDist
+          closestStationDetails = station
+        }
+      })
+      let response = (await this.stationsService.getStation(closestStationDetails.id)).filter(({ measurement }) => measurement.length > 0)
+      let sensorsDetails = response.map(({ details }) => details)
+      let lastSensorsValues = this.functions.mapLastValues(response)
+      let closestStation = {
+        id: closestStationDetails.id,
+        stationName: closestStationDetails.stationName,
+        city: closestStationDetails.city,
+        coordinates: closestStationDetails.coordinates,
+        sensors: this.functions.mapSensors(sensorsDetails, lastSensorsValues),
+        stationDistance: this.functions.roundStationDistance(this.functions.getDistance(closestStationDetails.coordinates,
+          userLocation))
+      }
+      this.setClosestStationState(closestStation)
+    },
+    getLocation (pos) {
+      navigator.geolocation.clearWatch(this.watcher)
+      let userLocation = [
+        pos.coords.latitude,
+        pos.coords.longitude
+      ]
+      this.closestStation(userLocation)
+      this.setUserLocationState(userLocation)
+    },
+    ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState']),
     closeStationInput (value) {
       this.stationInputVisibility = value
     },
     closeUserPanel (value) {
       this.userPanelVisibility = value
+    },
+    closeChartDialog (value) {
+      this.chartDialogVisibility = value
+      this.chartVisibility = value
+    },
+    withoutComparison (value) {
+      this.fillDatacollection(value, this.apiResponse)
+    },
+    barDataComparison (value) {
+      this.barDataColllection = value
+    },
+    lineDataComparison (value) {
+      this.lineDataCollection = value
     }
   },
   computed: {
@@ -267,76 +319,39 @@ export default {
       } else {
         return 270
       }
-    }
-    // ...mapState('stations', ['allStationsState'])
+    },
+    ...mapState('stations', ['allStationsState'])
   },
   watch: {
+    'chartDialogVisibility' (value) {
+      if (value === true) {
+        setTimeout(function () { this.chartVisibility = true }
+          .bind(this),
+        50)
+      }
+    },
     '$vuetify.breakpoint.mdOnly' (value) {
       this.mini = !value
+    },
+    allStationsState: {
+      handler: function (value) {
+        this.allStations = value
+      },
+      deep: true
     }
-    // 'stationDetails' () {
-    //   if (this.mini) {
-    //     this.mini = !this.mini
-    //   }
-    //   // }
-    // }
-    // '$vuetify.breakpoint.xsOnly' (value) {
-    //   console.log(value)
-    // }
-    // 'userLocation' (value) {
-    //   this.setUserLocationState(value)
-    // },
-    // allStationsState: {
-    //   handler: function (value) {
-    //     this.allStations = value
-    //   },
-    //   deep: true
-    // },
-  },
-  mounted () {
   },
   created () {
-    // window.onload = function () {
-    //   let el = document.getElementById('totek')
-    //   el.addEventListener('scroll', this.handleScroll)
-    // }
     bus.$on('setStationDetails', (data) => {
-      this.stationDetails = data
+      this.stationDetails = data.stationDetails
+      this.apiResponse = data.response
     })
     bus.$on('setMini', (value) => {
-      // if (this.mini === true) {
       this.mini = value
-      // }
     })
   }
 }
 </script>
 <style lang="scss">
-    ::-webkit-scrollbar {
-      width: 10px;
-    }
-
-    ::-webkit-scrollbar-track {
-      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-      border-radius: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      border-radius: 10px;
-      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
-    }
-  .popup-enter,
-  .popup-leave-to{
-    transform: rotateY(50deg);
-  }
-  .popup-enter-to,
-  .popup-leave {
-    transform: rotateY(0deg);
-  }
-  .popup-enter-active,
-  .popup-leave-active {
-    transition: transform 400ms;
-  }
   @mixin desktop-drawer () {
     .sidebar-element {
       justify-content: center;
@@ -347,6 +362,11 @@ export default {
     }
     #view-icons {
       margin-bottom: 15px;
+    }
+    #scrollable-content {
+      padding: 0.5rem;
+      overflow-y: auto;
+      height: 60%;
     }
     .sidebar-icon {
       align-items: center;
@@ -384,19 +404,6 @@ export default {
     .sensor-window {
       height: 100px;
       overflow-y: auto;
-    }
-    #style-2::-webkit-scrollbar {
-      width: 12px;
-    }
-
-    #style-2::-webkit-scrollbar-track {
-      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-      border-radius: 10px;
-    }
-
-    #style-2::-webkit-scrollbar-thumb {
-      border-radius: 10px;
-      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
     }
     .sensor-row {
       flex: 1;
@@ -449,6 +456,11 @@ export default {
     }
     #view-icons {
       margin-bottom: 15px;
+    }
+    #scrollable-content {
+      padding: 0.5rem;
+      overflow-y: auto;
+      height: 55%;
     }
     .sidebar-icon {
       align-items: center;
@@ -528,11 +540,30 @@ export default {
       text-align: center;
     }
   }
-  @media only screen and (min-width: 600px) {
-    @include desktop-drawer()
+  ::-webkit-scrollbar {
+    width: 10px;
   }
-  @media only screen and (max-width: 599px) {
-    @include mobile-drawer()
+
+  ::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+  }
+  .popup-enter,
+  .popup-leave-to{
+    transform: rotateY(50deg);
+  }
+  .popup-enter-to,
+  .popup-leave {
+    transform: rotateY(0deg);
+  }
+  .popup-enter-active,
+  .popup-leave-active {
+    transition: transform 400ms;
   }
   .row {
     align-content: center;
@@ -555,11 +586,6 @@ export default {
   #container {
     height: 100vh;
   }
-  #scrollable-content {
-    padding: 0.5rem;
-    overflow-y: auto;
-    height: 60%;
-  }
   .v-navigation-drawer__content {
     overflow-x: hidden;
     overflow-y: hidden;
@@ -568,11 +594,21 @@ export default {
     p {
       margin-bottom: 3px;
     }
-    background-image:
-      linear-gradient(to bottom, rgba(30, 230, 176, 0.5), rgba(30, 230, 176, 0.5))
-
   }
   html {
     overflow-y: hidden;
+  }
+  @media only screen and (min-width: 600px) {
+    @include desktop-drawer()
+  }
+  @media only screen and (max-width: 599px) {
+    @include mobile-drawer()
+  }
+  @media only screen and (max-height: 500px) {
+    #scrollable-content {
+      padding: 0.5rem;
+      overflow-y: auto;
+      height: 35%;
+    }
   }
 </style>

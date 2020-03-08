@@ -40,9 +40,6 @@ export default {
     }
   },
   props: {
-    width: Number,
-    stations: Array,
-    userLocation: Array,
     zoomResetVisibility: Boolean
   },
   methods: {
