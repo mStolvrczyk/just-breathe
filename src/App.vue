@@ -332,6 +332,9 @@ export default {
     ...mapState('stations', ['allStationsState', 'selectedStationState'])
   },
   watch: {
+    'miniVariant' (value) {
+      console.log(value)
+    },
     'chartDialogVisibility' (value) {
       if (value === true) {
         setTimeout(function () { this.chartVisibility = true }
