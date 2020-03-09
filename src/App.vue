@@ -85,10 +85,31 @@
               <span>Mapa</span>
             </v-tooltip>
           </div>
-           <StationInput
-            :stations="allStationsState"
-            v-if="!miniVariant"
-          />
+          <transition name="popup">
+            <v-autocomplete
+              v-if="!miniVariant"
+              background-color="white"
+              v-model="selectedStation"
+              :items="allStationsState"
+              flat
+              append-icon="false"
+              search="searchValue"
+              hide-no-data
+              item-value="id"
+              item-text="stationName"
+              label="Wybierz stację"
+              solo
+              return-object
+            >
+              <template v-slot:no-data>
+                <v-list-item>
+                  <v-list-item-title>
+                    Brak stacji
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
+            </v-autocomplete>
+          </transition>
         </nav>
         <transition name="popup">
           <div
@@ -156,7 +177,7 @@
       <ChartDialog
         :sensorDetails="sensorDetails"
         :apiResponse="apiResponse"
-        :barDataCollection="barDataColllection"
+        :barDataCollection="barDataCollection"
         :lineDataCollection="lineDataCollection"
         :chartDialogVisibility.sync="chartDialogVisibility"
         :chartVisibility.sync="chartVisibility"
@@ -174,46 +195,41 @@ import { bus } from '@/main'
 import { mapActions, mapState } from 'vuex'
 import Functions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
-import StationInput from '@/components/ui/StationInput'
 import pollutionLevels from '@/libs/pollutionLevels'
 
 export default {
-  components: { StationInput, ChartDialog },
+  components: { ChartDialog },
   data () {
     return {
+      searchValue: '',
       apiResponse: null,
       sensorDetails: {
-        sensorId: null,
         averageMeasurement: null,
         lastMeasurement: null
       },
       chartDialogVisibility: false,
       chartVisibility: false,
-      barDataColllection: null,
+      barDataCollection: null,
       lineDataCollection: null,
-      scrollPosition: 0,
       stationDetails: null,
       drawer: true,
       mini: true,
-      right: null,
       stationsService: new StationsService(),
       functions: new Functions(),
-      stationInputVisibility: false,
-      userPanelVisibility: false,
       watcher: navigator.geolocation.watchPosition(this.getLocation),
-      userLocation: [],
-      userLocationDetails: null,
-      allStations: null
+      allStations: null,
+      selectedStation: null
     }
   },
   methods: {
+    ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState', 'setSelectedStationState']),
     async fillDatacollection (id, apiResponse) {
       let sensor = apiResponse.find(sensor => sensor.details.id === id)
       let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
       let filteredValues = filteredMeasurements.map(({ value }) => value)
       let averageMeasurement = this.functions.getAverage(filteredValues)
       let lastMeasurement = this.getLastMeasurement(filteredValues)
-      this.barDataColllection = {
+      this.barDataCollection = {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
@@ -288,13 +304,6 @@ export default {
       this.closestStation(userLocation)
       this.setUserLocationState(userLocation)
     },
-    ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState']),
-    closeStationInput (value) {
-      this.stationInputVisibility = value
-    },
-    closeUserPanel (value) {
-      this.userPanelVisibility = value
-    },
     closeChartDialog (value) {
       this.chartDialogVisibility = value
       this.chartVisibility = value
@@ -303,7 +312,7 @@ export default {
       this.fillDatacollection(value, this.apiResponse)
     },
     barDataComparison (value) {
-      this.barDataColllection = value
+      this.barDataCollection = value
     },
     lineDataComparison (value) {
       this.lineDataCollection = value
@@ -320,7 +329,7 @@ export default {
         return 270
       }
     },
-    ...mapState('stations', ['allStationsState'])
+    ...mapState('stations', ['allStationsState', 'selectedStationState'])
   },
   watch: {
     'chartDialogVisibility' (value) {
@@ -338,6 +347,21 @@ export default {
         this.allStations = value
       },
       deep: true
+    },
+    selectedStationState: {
+      handler: function (value) {
+        this.selectedStation = value
+      },
+      deep: true
+    },
+    'selectedStation' (value) {
+      this.setSelectedStationState(value)
+      // if (value !== null) {
+      //   bus.$emit('setSelectedStation', value.id)
+      // }
+      // this.$nextTick(() => {
+      //   this.selectedStation = null
+      // })
     }
   },
   created () {
@@ -348,267 +372,15 @@ export default {
     bus.$on('setMini', (value) => {
       this.mini = value
     })
+    bus.$on('resetStationDetails', (value) => {
+      this.stationDetails = value
+    })
+    bus.$on('resetSelectedStation', (value) => {
+      this.selectedStation = value
+    })
   }
 }
 </script>
 <style lang="scss">
-  @mixin desktop-drawer () {
-    .sidebar-element {
-      justify-content: center;
-      align-content: center;
-      flex-direction: column;
-      display: flex;
-      margin-bottom: 1rem;
-    }
-    #view-icons {
-      margin-bottom: 15px;
-    }
-    #scrollable-content {
-      padding: 0.5rem;
-      overflow-y: auto;
-      height: 60%;
-    }
-    .sidebar-icon {
-      align-items: center;
-      margin-bottom: 0.2rem;
-      width: 25px;
-      height: 25px;
-    }
-    .icon-text {
-      font-family: Rubik;
-      font-size: 12px;
-      color: #FFFF;
-      font-weight: bold;
-    }
-    .station-name-text {
-      font-family: Rubik;
-      font-size: 14px;
-      color: #FFFF;
-      font-weight: bold;
-      text-align: center;
-    }
-    .city-text {
-      font-family: Rubik;
-      font-weight: lighter;
-      font-size: 13px;
-      color: #FFFF;
-      text-align: center;
-    }
-    .distance-text {
-      font-family: Rubik;
-      font-size: 18px;
-      color: #FFFF;
-      font-weight: bold;
-      text-align: center;
-    }
-    .sensor-window {
-      height: 100px;
-      overflow-y: auto;
-    }
-    .sensor-row {
-      flex: 1;
-      display: flex;
-      align-content: center;
-      flex-direction: row;
-      justify-content: center;
-    }
-    .sensor-column {
-      width: 100%;
-      height: 35px;
-      line-height: 35px;
-      flex-direction: column;
-      justify-content: center;
-      text-align: center;
-      align-content: center;
-    }
-    .button-column {
-      width: 100%;
-      height: 100%;
-      flex-direction: column;
-      justify-content: center;
-      text-align: center;
-      align-content: center;
-    }
-    .sensor-symbol {
-      font-family: Rubik;
-      font-size: 16px;
-      color: #FFFF;
-      font-weight: bold;
-      text-align: center;
-    }
-    .sensor-value {
-      align-content: center;
-      alignment: center;
-      justify-content: center;
-      font-family: Rubik;
-      font-size: 16px;
-      font-weight: bold;
-      text-align: center;
-    }
-  }
-  @mixin mobile-drawer () {
-    .sidebar-element {
-      justify-content: center;
-      align-content: center;
-      flex-direction: column;
-      display: flex;
-      margin-bottom: 1rem;
-    }
-    #view-icons {
-      margin-bottom: 15px;
-    }
-    #scrollable-content {
-      padding: 0.5rem;
-      overflow-y: auto;
-      height: 55%;
-    }
-    .sidebar-icon {
-      align-items: center;
-      margin-bottom: 0.2rem;
-      width: 20px;
-      height: 20px;
-    }
-    .icon-text {
-      font-family: Rubik;
-      font-size: 11px;
-      color: #FFFF;
-      font-weight: bold;
-    }
-    .station-name-text {
-      font-family: Rubik;
-      font-size: 13px;
-      color: #FFFF;
-      font-weight: bold;
-      text-align: center;
-    }
-    .city-text {
-      font-family: Rubik;
-      font-weight: lighter;
-      font-size: 12px;
-      color: #FFFF;
-      text-align: center;
-    }
-    .distance-text {
-      font-family: Rubik;
-      font-size: 16px;
-      color: #FFFF;
-      font-weight: bold;
-      text-align: center;
-    }
-    .sensor-window {
-      height: 100px;
-      overflow-y: auto;
-    }
-    .sensor-row {
-      flex: 1;
-      display: flex;
-      align-content: center;
-      flex-direction: row;
-      justify-content: center;
-    }
-    .sensor-column {
-      width: 100%;
-      height: 35px;
-      line-height: 35px;
-      flex-direction: column;
-      justify-content: center;
-      text-align: center;
-      align-content: center;
-    }
-    .button-column {
-      width: 100%;
-      height: 100%;
-      flex-direction: column;
-      justify-content: center;
-      text-align: center;
-      align-content: center;
-    }
-    .sensor-symbol {
-      font-family: Rubik;
-      font-size: 14px;
-      color: #FFFF;
-      font-weight: bold;
-      text-align: center;
-    }
-    .sensor-value {
-      align-content: center;
-      alignment: center;
-      justify-content: center;
-      font-family: Rubik;
-      font-size: 14px;
-      font-weight: bold;
-      text-align: center;
-    }
-  }
-  ::-webkit-scrollbar {
-    width: 10px;
-  }
-
-  ::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-    border-radius: 10px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
-  }
-  .popup-enter,
-  .popup-leave-to{
-    transform: rotateY(50deg);
-  }
-  .popup-enter-to,
-  .popup-leave {
-    transform: rotateY(0deg);
-  }
-  .popup-enter-active,
-  .popup-leave-active {
-    transition: transform 400ms;
-  }
-  .row {
-    align-content: center;
-    flex-direction: column;
-    justify-content: space-around;
-    margin-bottom: 1rem;
-  }
-  #image-container {
-    margin-bottom: 1rem;
-  }
-  nav {
-    top: 0;
-    z-index: 1;
-    position: sticky;
-  }
-  .logo-image {
-    max-height: 55px;
-    max-width: 200px;
-  }
-  #container {
-    height: 100vh;
-  }
-  .v-navigation-drawer__content {
-    overflow-x: hidden;
-    overflow-y: hidden;
-  }
-  #app {
-    p {
-      margin-bottom: 3px;
-    }
-  }
-  html {
-    overflow-y: hidden;
-  }
-  @media only screen and (min-width: 600px) {
-    @include desktop-drawer()
-  }
-  @media only screen and (max-width: 599px) {
-    @include mobile-drawer()
-  }
-  @media only screen and (max-height: 500px) {
-    #scrollable-content {
-      padding: 0.5rem;
-      overflow-y: auto;
-      height: 35%;
-    }
-  }
+  @import "style";
 </style>

@@ -1,6 +1,7 @@
 <template>
   <div class="custom-popup" id="map">
     <l-map
+      @click="mapClick"
       ref="map"
       :zoom.sync="zoom"
       :center.sync="center"
@@ -64,15 +65,12 @@ import { bus } from '@/main'
 import { LMap, LTileLayer, LMarker, LIcon } from 'vue2-leaflet'
 import StationsService from '@/services/StationsService'
 import Functions from '@/libs/helperFunctions'
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 export default {
   name: 'Map',
   data () {
     return {
-      closestStation: null,
-      stations: null,
       functions: new Functions(),
-      found: null,
       zoomHolder: null,
       options: { zoomControl: false },
       zoom: 6,
@@ -80,7 +78,6 @@ export default {
         52.25,
         19.3
       ],
-      buttonVisibility: false,
       url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<a/> contributors',
       tealIcon: require('@/assets/tealPin.png'),
@@ -100,6 +97,10 @@ export default {
     LIcon
   },
   methods: {
+    ...mapActions('stations', ['setSelectedStationState']),
+    mapClick () {
+      bus.$emit('setMini', true)
+    },
     getMark (station) {
       return {
         lat: station.coordinates[0],
@@ -109,7 +110,6 @@ export default {
     async getStationDetails (id, stations, userLocation, extraZoom) {
       this.stationId = id
       let response = (await this.stationsService.getStation(id)).filter(({ measurement }) => measurement.length > 0)
-      this.apiResponse = response
       let stationId = id
       let station = await stations.find(({ id }) => id === stationId)
       let sensorsDetails = response.map(({ details }) => details)
@@ -167,8 +167,12 @@ export default {
       this.stationId = null
       this.$refs.map.setZoom(this.zoomHolder)
       this.$refs.map.setCenter([52.25, 19.3])
-      bus.$emit('setStationDetails', null)
+      bus.$emit('resetStationDetails', null)
+      bus.$emit('resetSelectedStation', null)
       bus.$emit('setMini', true)
+      if (this.selectedStationState !== null) {
+        this.setSelectedStationState(null)
+      }
     },
     setZoom () {
       if (this.$vuetify.breakpoint.xsOnly) {
@@ -181,7 +185,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('stations', ['closestStationState', 'allStationsState', 'userLocationState']),
+    ...mapState('stations', ['closestStationState', 'allStationsState', 'userLocationState', 'selectedStationState']),
     zoomResetVisibility () {
       return (this.zoom !== this.zoomHolder) || this.stationId !== null
     }
@@ -196,18 +200,19 @@ export default {
         this.zoomHolder = 6
       }
     },
-    'stationDetails' (value) {
-      if (value === null) {
-        this.stationId = null
-      }
-      // if (value !== null) {
-      //   this.buttonVisibility = true
-      // }
-      // if (this.zoom === 5 || this.zoom === 6) {
-      //   this.buttonVisibility = false
-      // }
+    selectedStationState: {
+      handler: function (value) {
+        if (value !== null) {
+          this.getStationDetails(value.id, this.allStationsState, this.userLocationState, true)
+        }
+      },
+      deep: true
     }
   },
+  // created () {
+  //   bus.$on('setSelectedStation', (stationId) => {
+  //   })
+  // },
   mounted () {
     this.setZoom()
   }
@@ -215,42 +220,6 @@ export default {
 </script>
 
 <style>
-  @media only screen and (max-width: 599px) {
-    #button_panel {
-      position: absolute;
-      bottom: 55%;
-      right: 2%;
-    }
-  }
-  @media only screen and (min-width: 600px) {
-    #button_panel {
-      position: absolute;
-      top: 20%;
-      right: 3%;
-    }
-  }
-  @import "~leaflet/dist/leaflet.css";
-  @import "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";
-  #map{
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 100%;
-  }
-  .custom-popup .leaflet-popup-content-wrapper {
-    background: #B2DFDB;
-    color: white;
-    font-size: 16px;
-    line-height: 24px;
-    border-radius: 5px;
-  }
+  /*@import "~leaflet/dist/leaflet.css";*/
+  /*@import "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";*/
 </style>
-
-  // methods: {
-  //   closeStationInput (value) {
-  //     this.$emit('closeStationInput', value)
-  //   },
-  //   closeUserPanel (value) {
-  //     this.$emit('closeUserPanel', value)
-  //   }
-  // },

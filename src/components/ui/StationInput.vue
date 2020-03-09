@@ -1,6 +1,5 @@
 <template>
   <transition name="popup">
-    <div id="station_input">
       <v-autocomplete
         background-color="white"
         v-model="selectedStation"
@@ -23,7 +22,6 @@
           </v-list-item>
         </template>
       </v-autocomplete>
-    </div>
   </transition>
 </template>
 
@@ -37,7 +35,6 @@ export default {
     }
   },
   props: {
-    stationInputVisibility: Boolean,
     stations: Array
   },
   watch: {
@@ -62,18 +59,18 @@ export default {
   .popup-leave-active {
     transition: transform 400ms;
   }
-  @media only screen and (max-width: 767px) {
-    #station_input {
-      position: relative;
-      text-align: center;
-    }
-  }
-  @media only screen and (min-width: 768px) {
-    #station_input {
-      margin: 0;
-      padding: 0;
-      position: relative;
-      text-align: center;
-    }
-  }
+  /*@media only screen and (max-width: 767px) {*/
+  /*  #station_input {*/
+  /*    position: relative;*/
+  /*    text-align: center;*/
+  /*  }*/
+  /*}*/
+  /*@media only screen and (min-width: 768px) {*/
+  /*  #station_input {*/
+  /*    margin: 0;*/
+  /*    padding: 0;*/
+  /*    position: relative;*/
+  /*    text-align: center;*/
+  /*  }*/
+  /*}*/
 </style>

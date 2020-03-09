@@ -9,34 +9,33 @@
             class="pa-3"
             color="rgba(0,77,64,.9)"
           >
-            <div align="center">
-                <v-card
-                  id="charts"
-                  color="white"
+              <v-card
+                id="charts"
+                color="white"
+              >
+                <v-card-text
+                  align="center"
+                  v-if="barDataCollection === null"
                 >
-                  <v-card-text
-                    align="center"
-                    v-if="barDataCollection === null"
-                  >
-                    <strong>
-                      Brak pomiarów
-                    </strong>
-                  </v-card-text>
-                  <transition name="station_popup">
-                    <div v-if="barDataCollection !== null && chartVisibility">
-                        <bar-chart
-                          v-if="chartSwitch"
-                          :chart-data="barDataCollection"
-                          :height="chartHeight"
-                        />
-                        <line-chart
-                          v-else
-                          :chart-data="lineDataCollection"
-                          :height="chartHeight"
-                        />
-                    </div>
-                  </transition>
-                </v-card>
+                  <strong>
+                    Brak pomiarów
+                  </strong>
+                </v-card-text>
+                <transition name="station_popup">
+                  <div v-if="barDataCollection !== null && chartVisibility">
+                      <bar-chart
+                        v-if="chartSwitch"
+                        :chart-data="barDataCollection"
+                        :height="chartHeight"
+                      />
+                      <line-chart
+                        v-else
+                        :chart-data="lineDataCollection"
+                        :height="chartHeight"
+                      />
+                  </div>
+                </transition>
+              </v-card>
               <div class="text-center pa-2" v-if="barDataCollection != null">
                 <v-btn-toggle rounded v-model="alignment">
                   <v-tooltip bottom>
@@ -67,7 +66,7 @@
               </div>
               <v-container fluid class="pa-0" v-if="barDataCollection != null">
                 <v-row align="center">
-                  <v-col cols="12" sm="12">
+                  <v-col cols="6" sm="12">
                     <div class="text-center">
                       <v-card
                         color="white"
@@ -86,9 +85,8 @@
                   </v-col>
                 </v-row>
               </v-container>
-            </div>
             <div class="text-center">
-              <v-btn @click="closeDialog" class="teal--text font-weight-bold" rounded color="white" dark>Wróć</v-btn>
+              <v-btn @click="closeDialog" class="teal--text font-weight-bold" rounded color="#EEEEEE" dark>Wróć</v-btn>
             </div>
           </v-card>
     </v-dialog>

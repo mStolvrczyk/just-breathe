@@ -3,7 +3,8 @@ const stationsService = new StationsService()
 const state = {
   allStationsState: [],
   userLocationState: null,
-  closestStationState: null
+  closestStationState: null,
+  selectedStationState: null
 }
 
 // const getters = {
@@ -21,6 +22,9 @@ const actions = {
   },
   async setUserLocationState ({ commit }, userLocation) {
     await commit('setUserLocationState', userLocation)
+  },
+  async setSelectedStationState ({ commit }, selectedStation) {
+    await commit('setSelectedStationState', selectedStation)
   }
 }
 
@@ -30,7 +34,9 @@ const mutations = {
   // eslint-disable-next-line no-return-assign
   setClosestStationState: (state, closestStation) => state.closestStationState = closestStation,
   // eslint-disable-next-line no-return-assign
-  setUserLocationState: (state, userLocation) => state.userLocationState = userLocation
+  setUserLocationState: (state, userLocation) => state.userLocationState = userLocation,
+  // eslint-disable-next-line no-return-assign
+  setSelectedStationState: (state, selectedStation) => state.selectedStationState = selectedStation
 }
 
 export default {

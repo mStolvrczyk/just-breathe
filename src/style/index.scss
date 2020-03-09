@@ -1,0 +1,299 @@
+// Basics
+
+html {
+  overflow-y: hidden;
+}
+#app {
+  p {
+    margin-bottom: 3px;
+  }
+}
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}
+.popup-enter,
+.popup-leave-to{
+  transform: rotateY(50deg);
+}
+.popup-enter-to,
+.popup-leave {
+  transform: rotateY(0deg);
+}
+.popup-enter-active,
+.popup-leave-active {
+  transition: transform 400ms;
+}
+// App.vue
+
+@mixin desktop-drawer () {
+  .sidebar-element {
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+    display: flex;
+    margin-bottom: 1rem;
+  }
+  #view-icons {
+    margin-bottom: 15px;
+  }
+  #scrollable-content {
+    padding: 0.5rem;
+    overflow-y: auto;
+    height: 60%;
+  }
+  .sidebar-icon {
+    align-items: center;
+    margin-bottom: 0.2rem;
+    width: 25px;
+    height: 25px;
+  }
+  .icon-text {
+    font-family: Rubik;
+    font-size: 12px;
+    color: #FFFF;
+    font-weight: bold;
+  }
+  .station-name-text {
+    font-family: Rubik;
+    font-size: 14px;
+    color: #FFFF;
+    font-weight: bold;
+    text-align: center;
+  }
+  .city-text {
+    font-family: Rubik;
+    font-weight: lighter;
+    font-size: 13px;
+    color: #FFFF;
+    text-align: center;
+  }
+  .distance-text {
+    font-family: Rubik;
+    font-size: 18px;
+    color: #FFFF;
+    font-weight: bold;
+    text-align: center;
+  }
+  .sensor-window {
+    height: 100px;
+    overflow-y: auto;
+  }
+  .sensor-row {
+    flex: 1;
+    display: flex;
+    align-content: center;
+    flex-direction: row;
+    justify-content: center;
+  }
+  .sensor-column {
+    width: 100%;
+    height: 35px;
+    line-height: 35px;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    align-content: center;
+  }
+  .button-column {
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    align-content: center;
+  }
+  .sensor-symbol {
+    font-family: Rubik;
+    font-size: 16px;
+    color: #FFFF;
+    font-weight: bold;
+    text-align: center;
+  }
+  .sensor-value {
+    align-content: center;
+    alignment: center;
+    justify-content: center;
+    font-family: Rubik;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+  }
+}
+@mixin mobile-drawer () {
+  .sidebar-element {
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+    display: flex;
+    margin-bottom: 1rem;
+  }
+  #view-icons {
+    margin-bottom: 15px;
+  }
+  #scrollable-content {
+    padding: 0.5rem;
+    overflow-y: auto;
+    height: 55%;
+  }
+  .sidebar-icon {
+    align-items: center;
+    margin-bottom: 0.2rem;
+    width: 20px;
+    height: 20px;
+  }
+  .icon-text {
+    font-family: Rubik;
+    font-size: 11px;
+    color: #FFFF;
+    font-weight: bold;
+  }
+  .station-name-text {
+    font-family: Rubik;
+    font-size: 13px;
+    color: #FFFF;
+    font-weight: bold;
+    text-align: center;
+  }
+  .city-text {
+    font-family: Rubik;
+    font-weight: lighter;
+    font-size: 12px;
+    color: #FFFF;
+    text-align: center;
+  }
+  .distance-text {
+    font-family: Rubik;
+    font-size: 16px;
+    color: #FFFF;
+    font-weight: bold;
+    text-align: center;
+  }
+  .sensor-window {
+    height: 100px;
+    overflow-y: auto;
+  }
+  .sensor-row {
+    flex: 1;
+    display: flex;
+    align-content: center;
+    flex-direction: row;
+    justify-content: center;
+  }
+  .sensor-column {
+    width: 100%;
+    height: 35px;
+    line-height: 35px;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    align-content: center;
+  }
+  .button-column {
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    align-content: center;
+  }
+  .sensor-symbol {
+    font-family: Rubik;
+    font-size: 14px;
+    color: #FFFF;
+    font-weight: bold;
+    text-align: center;
+  }
+  .sensor-value {
+    align-content: center;
+    alignment: center;
+    justify-content: center;
+    font-family: Rubik;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+  }
+}
+.row {
+  align-content: center;
+  flex-direction: column;
+  justify-content: space-around;
+  margin-bottom: 1rem;
+}
+#image-container {
+  margin-bottom: 1rem;
+}
+nav {
+  top: 0;
+  z-index: 1;
+  position: sticky;
+}
+.logo-image {
+  max-height: 55px;
+  max-width: 200px;
+}
+#container {
+  height: 100vh;
+}
+.v-navigation-drawer__content {
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+// Map.vue
+
+#map{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+}
+.custom-popup .leaflet-popup-content-wrapper {
+  background: #B2DFDB;
+  color: white;
+  font-size: 16px;
+  line-height: 24px;
+  border-radius: 5px;
+}
+
+// Media Queries
+
+@media only screen and (min-width: 600px) {
+  @include desktop-drawer();
+
+  // Map.vue
+
+  #button_panel {
+    position: absolute;
+    top: 20%;
+    right: 3%;
+  }
+
+}
+@media only screen and (max-width: 599px) {
+  @include mobile-drawer();
+
+  //Map.vue
+
+  #button_panel {
+    position: absolute;
+    bottom: 55%;
+    right: 2%;
+  }
+}
+@media only screen and (max-height: 500px) {
+  #scrollable-content {
+    padding: 0.5rem;
+    overflow-y: auto;
+    height: 35%;
+  }
+}
