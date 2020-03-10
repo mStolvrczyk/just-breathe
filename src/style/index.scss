@@ -143,6 +143,11 @@ html {
   #scrollable-content {
     padding: 0.5rem;
     overflow-y: auto;
+    height: 75%;
+  }
+  #scrollable-content-input {
+    padding: 0.5rem;
+    overflow-y: auto;
     height: 55%;
   }
   .sidebar-icon {
@@ -292,6 +297,11 @@ nav {
 }
 @media only screen and (max-height: 500px) {
   #scrollable-content {
+    padding: 0.5rem;
+    overflow-y: auto;
+    height: 55%;
+  }
+  #scrollable-content-input {
     padding: 0.5rem;
     overflow-y: auto;
     height: 35%;

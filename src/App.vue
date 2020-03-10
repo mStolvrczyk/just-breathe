@@ -37,14 +37,14 @@
             />
           </div>
           <div align="center" id="view-icons">
-            <v-tooltip bottom v-if="miniVariant">
+            <v-tooltip bottom>
               <template v-slot:activator="{ on }">
-                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="mini = !mini" icon>
+                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="setInputVisibility" icon>
                   <v-icon>
                     search
                   </v-icon>
                 </v-btn>
-                <v-btn v-else x-large color="white" v-on="on" @click="mini = !mini" icon>
+                <v-btn v-else x-large color="white" v-on="on" @click="setInputVisibility" icon>
                   <v-icon>
                     search
                   </v-icon>
@@ -87,7 +87,7 @@
           </div>
           <transition name="popup">
             <v-autocomplete
-              v-if="!miniVariant"
+              v-if="inputVisibility"
               background-color="white"
               v-model="selectedStation"
               :items="allStationsState"
@@ -114,57 +114,58 @@
         <transition name="popup">
           <div
             id="scrollable-content"
-            v-if="stationDetails !== null && !miniVariant"
           >
-            <div align="center" class="sidebar-element">
-              <v-img
-                :src="require('@/assets/place-yellow.png')"
+            <div v-if="stationDetails !== null && !miniVariant">
+              <div align="center" class="sidebar-element">
+                <v-img
+                  :src="require('@/assets/place-yellow.png')"
+                  class="sidebar-icon"
+                />
+               <p class="icon-text">Stacja pomiarowa</p>
+                <p class="station-name-text">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails.city}}</span></p>
+              </div>
+              <div align="center" class="sidebar-element">
+                <v-img
+                :src="require('@/assets/road-yellow.png')"
                 class="sidebar-icon"
-              />
-             <p class="icon-text">Stacja pomiarowa</p>
-              <p class="station-name-text">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails.city}}</span></p>
-            </div>
-            <div align="center" class="sidebar-element">
-              <v-img
-              :src="require('@/assets/road-yellow.png')"
-              class="sidebar-icon"
-              />
-              <p class="icon-text">Odległość</p>
-              <p class="distance-text">{{stationDetails.stationDistance}}</p>
-            </div>
-            <div align="center" class="sidebar-element">
-              <v-img
-                :src="require('@/assets/fog-yellow.png')"
-                class="sidebar-icon"
-              />
-              <p class="icon-text">Jakość powietrza</p>
-              <div
-                class="sensor-row"
-                v-for="sensor in stationDetails.sensors"
-                :key="sensor.index"
-              >
-                <div class="sensor-column">
-                  <p class="sensor-symbol">{{sensor.symbol}}</p>
-                </div>
-                <div class="sensor-column">
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                      <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
-                    </template>
-                    <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
-                  </v-tooltip>
-                </div>
-                <div class="button-column">
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                      <v-btn @click="fillDatacollection(sensor.id, apiResponse)" normal color="white" v-on="on" icon>
-                        <v-icon>
-                          mdi-dots-horizontal
-                        </v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Pokaż szczegóły</span>
-                  </v-tooltip>
+                />
+                <p class="icon-text">Odległość</p>
+                <p class="distance-text">{{stationDetails.stationDistance}}</p>
+              </div>
+              <div align="center" class="sidebar-element">
+                <v-img
+                  :src="require('@/assets/fog-yellow.png')"
+                  class="sidebar-icon"
+                />
+                <p class="icon-text">Jakość powietrza</p>
+                <div
+                  class="sensor-row"
+                  v-for="sensor in stationDetails.sensors"
+                  :key="sensor.index"
+                >
+                  <div class="sensor-column">
+                    <p class="sensor-symbol">{{sensor.symbol}}</p>
+                  </div>
+                  <div class="sensor-column">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
+                      </template>
+                      <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
+                    </v-tooltip>
+                  </div>
+                  <div class="button-column">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-btn @click="fillDatacollection(sensor.id, apiResponse)" normal color="white" v-on="on" icon>
+                          <v-icon>
+                            mdi-dots-horizontal
+                          </v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Pokaż szczegóły</span>
+                    </v-tooltip>
+                  </div>
                 </div>
               </div>
             </div>
@@ -201,6 +202,7 @@ export default {
   components: { ChartDialog },
   data () {
     return {
+      inputVisibility: this.$vuetify.breakpoint.mdOnly,
       searchValue: '',
       apiResponse: null,
       sensorDetails: {
@@ -222,6 +224,14 @@ export default {
     }
   },
   methods: {
+    setInputVisibility () {
+      this.inputVisibility = !this.inputVisibility
+      if (this.inputVisibility) {
+        document.getElementById('scrollable-content').id = 'scrollable-content-input'
+      } else {
+        document.getElementById('scrollable-content-input').id = 'scrollable-content'
+      }
+    },
     ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState', 'setSelectedStationState']),
     async fillDatacollection (id, apiResponse) {
       let sensor = apiResponse.find(sensor => sensor.details.id === id)
@@ -344,6 +354,7 @@ export default {
     },
     '$vuetify.breakpoint.mdOnly' (value) {
       this.mini = !value
+      this.inputVisibility = value
     },
     allStationsState: {
       handler: function (value) {
