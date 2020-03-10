@@ -39,21 +39,6 @@
           <div align="center" id="view-icons">
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
-                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="setInputVisibility" icon>
-                  <v-icon>
-                    search
-                  </v-icon>
-                </v-btn>
-                <v-btn v-else x-large color="white" v-on="on" @click="setInputVisibility" icon>
-                  <v-icon>
-                    search
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>Szukaj stacji</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
                 <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on"
                        @click="$router.push('/dashboard')" icon>
                   <v-icon>
@@ -83,6 +68,21 @@
                 </v-btn>
               </template>
               <span>Mapa</span>
+            </v-tooltip>
+            <v-tooltip bottom v-if="!$vuetify.breakpoint.mdAndUp && $route.path === '/map'">
+              <template v-slot:activator="{ on }">
+                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="inputVisibility = !inputVisibility" icon>
+                  <v-icon>
+                    search
+                  </v-icon>
+                </v-btn>
+                <v-btn v-else x-large color="white" v-on="on" @click="inputVisibility = !inputVisibility" icon>
+                  <v-icon>
+                    search
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>Szukaj stacji</span>
             </v-tooltip>
           </div>
           <transition name="popup">
@@ -202,7 +202,7 @@ export default {
   components: { ChartDialog },
   data () {
     return {
-      inputVisibility: this.$vuetify.breakpoint.mdOnly,
+      inputVisibility: this.$vuetify.breakpoint.mdAndUp,
       searchValue: '',
       apiResponse: null,
       sensorDetails: {
@@ -224,14 +224,6 @@ export default {
     }
   },
   methods: {
-    setInputVisibility () {
-      this.inputVisibility = !this.inputVisibility
-      if (this.inputVisibility) {
-        document.getElementById('scrollable-content').id = 'scrollable-content-input'
-      } else {
-        document.getElementById('scrollable-content-input').id = 'scrollable-content'
-      }
-    },
     ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState', 'setSelectedStationState']),
     async fillDatacollection (id, apiResponse) {
       let sensor = apiResponse.find(sensor => sensor.details.id === id)
@@ -342,8 +334,17 @@ export default {
     ...mapState('stations', ['allStationsState', 'selectedStationState'])
   },
   watch: {
-    'miniVariant' (value) {
-      console.log(value)
+    'inputVisibility' (value) {
+      if (!this.this.$vuetify.breakpoint.mdAndUp) {
+        if (value) {
+          document.getElementById('scrollable-content').id = 'scrollable-content-input'
+        } else {
+          document.getElementById('scrollable-content-input').id = 'scrollable-content'
+        }
+        if (this.mini) {
+          this.mini = false
+        }
+      }
     },
     'chartDialogVisibility' (value) {
       if (value === true) {
@@ -352,7 +353,7 @@ export default {
         50)
       }
     },
-    '$vuetify.breakpoint.mdOnly' (value) {
+    '$vuetify.breakpoint.mdAndUp' (value) {
       this.mini = !value
       this.inputVisibility = value
     },
@@ -365,6 +366,7 @@ export default {
     selectedStationState: {
       handler: function (value) {
         this.selectedStation = value
+        this.inputVisibility = false
       },
       deep: true
     },
