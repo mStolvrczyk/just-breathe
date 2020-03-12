@@ -69,14 +69,14 @@
               </template>
               <span>Mapa</span>
             </v-tooltip>
-            <v-tooltip bottom v-if="!$vuetify.breakpoint.mdAndUp && $route.path === '/map'">
+            <v-tooltip bottom v-if=" $route.path === '/map'">
               <template v-slot:activator="{ on }">
-                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="inputVisibility = !inputVisibility" icon>
+                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="setStationInput" icon>
                   <v-icon>
                     search
                   </v-icon>
                 </v-btn>
-                <v-btn v-else x-large color="white" v-on="on" @click="inputVisibility = !inputVisibility" icon>
+                <v-btn v-else x-large color="white" v-on="on" @click="setStationInput" icon>
                   <v-icon>
                     search
                   </v-icon>
@@ -113,7 +113,8 @@
         </nav>
         <transition name="popup">
           <div
-            id="scrollable-content"
+            id="station-content"
+            class="scrollable-content"
           >
             <div v-if="stationDetails !== null && !miniVariant">
               <div align="center" class="sidebar-element">
@@ -202,7 +203,7 @@ export default {
   components: { ChartDialog },
   data () {
     return {
-      inputVisibility: this.$vuetify.breakpoint.mdAndUp,
+      inputVisibility: false,
       searchValue: '',
       apiResponse: null,
       sensorDetails: {
@@ -218,7 +219,10 @@ export default {
       mini: true,
       stationsService: new StationsService(),
       functions: new Functions(),
-      watcher: navigator.geolocation.watchPosition(this.getLocation),
+      watcher: navigator.geolocation.watchPosition(this.getLocation, this.handleError, {
+        enableHighAccuracy: true,
+        maximumAge: 0
+      }),
       allStations: null,
       selectedStation: null
     }
@@ -264,6 +268,18 @@ export default {
       this.chartDialogVisibility = true
       this.sensorDetails.sensorId = sensor.details.id
     },
+    setStationInput () {
+      this.inputVisibility = !this.inputVisibility
+      let content = document.getElementById('station-content')
+      if (this.inputVisibility === true) {
+        content.className = 'scrollable-content-input'
+      } else {
+        content.className = 'scrollable-content'
+      }
+      if (this.mini) {
+        this.mini = false
+      }
+    },
     getLastMeasurement (measurements) {
       return [
         measurements[measurements.length - 1]
@@ -298,13 +314,30 @@ export default {
       this.setClosestStationState(closestStation)
     },
     getLocation (pos) {
-      navigator.geolocation.clearWatch(this.watcher)
       let userLocation = [
         pos.coords.latitude,
         pos.coords.longitude
       ]
+      console.log(userLocation)
       this.closestStation(userLocation)
       this.setUserLocationState(userLocation)
+      navigator.geolocation.clearWatch(this.watcher)
+    },
+    handleError (error) {
+      switch (error.code) {
+        case 1:
+          alert('permission denied')
+          break
+        case 2:
+          alert('position unavailable')
+          break
+        case 3:
+          alert('timeout')
+          break
+        default:
+          alert('unknown error')
+          break
+      }
     },
     closeChartDialog (value) {
       this.chartDialogVisibility = value
@@ -322,7 +355,7 @@ export default {
   },
   computed: {
     miniVariant () {
-      return this.$vuetify.breakpoint.smAndDown && this.mini
+      return this.mini
     },
     navbarWidth () {
       if (this.$vuetify.breakpoint.xsOnly) {
@@ -334,16 +367,9 @@ export default {
     ...mapState('stations', ['allStationsState', 'selectedStationState'])
   },
   watch: {
-    'inputVisibility' (value) {
-      if (!this.this.$vuetify.breakpoint.mdAndUp) {
-        if (value) {
-          document.getElementById('scrollable-content').id = 'scrollable-content-input'
-        } else {
-          document.getElementById('scrollable-content-input').id = 'scrollable-content'
-        }
-        if (this.mini) {
-          this.mini = false
-        }
+    'mini' (value) {
+      if (value) {
+        this.inputVisibility = !value
       }
     },
     'chartDialogVisibility' (value) {
@@ -352,10 +378,6 @@ export default {
           .bind(this),
         50)
       }
-    },
-    '$vuetify.breakpoint.mdAndUp' (value) {
-      this.mini = !value
-      this.inputVisibility = value
     },
     allStationsState: {
       handler: function (value) {
@@ -372,12 +394,6 @@ export default {
     },
     'selectedStation' (value) {
       this.setSelectedStationState(value)
-      // if (value !== null) {
-      //   bus.$emit('setSelectedStation', value.id)
-      // }
-      // this.$nextTick(() => {
-      //   this.selectedStation = null
-      // })
     }
   },
   created () {
@@ -394,6 +410,9 @@ export default {
     bus.$on('resetSelectedStation', (value) => {
       this.selectedStation = value
     })
+  },
+  mounted () {
+    this.setAllStationsState()
   }
 }
 </script>
