@@ -37,21 +37,6 @@
             />
           </div>
           <div align="center" id="view-icons">
-            <v-tooltip bottom v-if="miniVariant">
-              <template v-slot:activator="{ on }">
-                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="mini = !mini" icon>
-                  <v-icon>
-                    search
-                  </v-icon>
-                </v-btn>
-                <v-btn v-else x-large color="white" v-on="on" @click="mini = !mini" icon>
-                  <v-icon>
-                    search
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>Szukaj stacji</span>
-            </v-tooltip>
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
                 <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on"
@@ -84,10 +69,25 @@
               </template>
               <span>Mapa</span>
             </v-tooltip>
+            <v-tooltip bottom v-if=" $route.path === '/map'">
+              <template v-slot:activator="{ on }">
+                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="setStationInput" icon>
+                  <v-icon>
+                    search
+                  </v-icon>
+                </v-btn>
+                <v-btn v-else x-large color="white" v-on="on" @click="setStationInput" icon>
+                  <v-icon>
+                    search
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>Szukaj stacji</span>
+            </v-tooltip>
           </div>
           <transition name="popup">
             <v-autocomplete
-              v-if="!miniVariant"
+              v-if="inputVisibility"
               background-color="white"
               v-model="selectedStation"
               :items="allStationsState"
@@ -113,58 +113,60 @@
         </nav>
         <transition name="popup">
           <div
-            id="scrollable-content"
-            v-if="stationDetails !== null && !miniVariant"
+            id="station-content"
+            class="scrollable-content"
           >
-            <div align="center" class="sidebar-element">
-              <v-img
-                :src="require('@/assets/place-yellow.png')"
+            <div v-if="stationDetails !== null && !miniVariant">
+              <div align="center" class="sidebar-element">
+                <v-img
+                  :src="require('@/assets/place-yellow.png')"
+                  class="sidebar-icon"
+                />
+               <p class="icon-text">Stacja pomiarowa</p>
+                <p class="station-name-text">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails.city}}</span></p>
+              </div>
+              <div align="center" class="sidebar-element">
+                <v-img
+                :src="require('@/assets/road-yellow.png')"
                 class="sidebar-icon"
-              />
-             <p class="icon-text">Stacja pomiarowa</p>
-              <p class="station-name-text">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails.city}}</span></p>
-            </div>
-            <div align="center" class="sidebar-element">
-              <v-img
-              :src="require('@/assets/road-yellow.png')"
-              class="sidebar-icon"
-              />
-              <p class="icon-text">Odległość</p>
-              <p class="distance-text">{{stationDetails.stationDistance}}</p>
-            </div>
-            <div align="center" class="sidebar-element">
-              <v-img
-                :src="require('@/assets/fog-yellow.png')"
-                class="sidebar-icon"
-              />
-              <p class="icon-text">Jakość powietrza</p>
-              <div
-                class="sensor-row"
-                v-for="sensor in stationDetails.sensors"
-                :key="sensor.index"
-              >
-                <div class="sensor-column">
-                  <p class="sensor-symbol">{{sensor.symbol}}</p>
-                </div>
-                <div class="sensor-column">
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                      <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
-                    </template>
-                    <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
-                  </v-tooltip>
-                </div>
-                <div class="button-column">
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                      <v-btn @click="fillDatacollection(sensor.id, apiResponse)" normal color="white" v-on="on" icon>
-                        <v-icon>
-                          mdi-dots-horizontal
-                        </v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Pokaż szczegóły</span>
-                  </v-tooltip>
+                />
+                <p class="icon-text">Odległość</p>
+                <p class="distance-text">{{stationDetails.stationDistance}}</p>
+              </div>
+              <div align="center" class="sidebar-element">
+                <v-img
+                  :src="require('@/assets/fog-yellow.png')"
+                  class="sidebar-icon"
+                />
+                <p class="icon-text">Jakość powietrza</p>
+                <div
+                  class="sensor-row"
+                  v-for="sensor in stationDetails.sensors"
+                  :key="sensor.index"
+                >
+                  <div class="sensor-column">
+                    <p class="sensor-symbol">{{sensor.symbol}}</p>
+                  </div>
+                  <div class="sensor-column">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
+                      </template>
+                      <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
+                    </v-tooltip>
+                  </div>
+                  <div class="button-column">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-btn @click="fillDatacollection(sensor.id, apiResponse)" normal color="white" v-on="on" icon>
+                          <v-icon>
+                            mdi-dots-horizontal
+                          </v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Pokaż szczegóły</span>
+                    </v-tooltip>
+                  </div>
                 </div>
               </div>
             </div>
@@ -201,6 +203,7 @@ export default {
   components: { ChartDialog },
   data () {
     return {
+      inputVisibility: false,
       searchValue: '',
       apiResponse: null,
       sensorDetails: {
@@ -216,7 +219,10 @@ export default {
       mini: true,
       stationsService: new StationsService(),
       functions: new Functions(),
-      watcher: navigator.geolocation.watchPosition(this.getLocation),
+      watcher: navigator.geolocation.watchPosition(this.getLocation, this.handleError, {
+        enableHighAccuracy: true,
+        maximumAge: 0
+      }),
       allStations: null,
       selectedStation: null
     }
@@ -262,6 +268,18 @@ export default {
       this.chartDialogVisibility = true
       this.sensorDetails.sensorId = sensor.details.id
     },
+    setStationInput () {
+      this.inputVisibility = !this.inputVisibility
+      let content = document.getElementById('station-content')
+      if (this.inputVisibility === true) {
+        content.className = 'scrollable-content-input'
+      } else {
+        content.className = 'scrollable-content'
+      }
+      if (this.mini) {
+        this.mini = false
+      }
+    },
     getLastMeasurement (measurements) {
       return [
         measurements[measurements.length - 1]
@@ -296,13 +314,30 @@ export default {
       this.setClosestStationState(closestStation)
     },
     getLocation (pos) {
-      navigator.geolocation.clearWatch(this.watcher)
       let userLocation = [
         pos.coords.latitude,
         pos.coords.longitude
       ]
+      console.log(userLocation)
       this.closestStation(userLocation)
       this.setUserLocationState(userLocation)
+      navigator.geolocation.clearWatch(this.watcher)
+    },
+    handleError (error) {
+      switch (error.code) {
+        case 1:
+          alert('permission denied')
+          break
+        case 2:
+          alert('position unavailable')
+          break
+        case 3:
+          alert('timeout')
+          break
+        default:
+          alert('unknown error')
+          break
+      }
     },
     closeChartDialog (value) {
       this.chartDialogVisibility = value
@@ -320,7 +355,7 @@ export default {
   },
   computed: {
     miniVariant () {
-      return this.$vuetify.breakpoint.smAndDown && this.mini
+      return this.mini
     },
     navbarWidth () {
       if (this.$vuetify.breakpoint.xsOnly) {
@@ -332,8 +367,10 @@ export default {
     ...mapState('stations', ['allStationsState', 'selectedStationState'])
   },
   watch: {
-    'miniVariant' (value) {
-      console.log(value)
+    'mini' (value) {
+      if (value) {
+        this.inputVisibility = !value
+      }
     },
     'chartDialogVisibility' (value) {
       if (value === true) {
@@ -341,9 +378,6 @@ export default {
           .bind(this),
         50)
       }
-    },
-    '$vuetify.breakpoint.mdOnly' (value) {
-      this.mini = !value
     },
     allStationsState: {
       handler: function (value) {
@@ -354,17 +388,12 @@ export default {
     selectedStationState: {
       handler: function (value) {
         this.selectedStation = value
+        this.inputVisibility = false
       },
       deep: true
     },
     'selectedStation' (value) {
       this.setSelectedStationState(value)
-      // if (value !== null) {
-      //   bus.$emit('setSelectedStation', value.id)
-      // }
-      // this.$nextTick(() => {
-      //   this.selectedStation = null
-      // })
     }
   },
   created () {
@@ -381,6 +410,9 @@ export default {
     bus.$on('resetSelectedStation', (value) => {
       this.selectedStation = value
     })
+  },
+  mounted () {
+    this.setAllStationsState()
   }
 }
 </script>

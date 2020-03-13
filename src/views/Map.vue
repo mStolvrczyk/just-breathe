@@ -99,6 +99,7 @@ export default {
   methods: {
     ...mapActions('stations', ['setSelectedStationState']),
     mapClick () {
+      this.stationId = null
       bus.$emit('setMini', true)
     },
     getMark (station) {
@@ -130,6 +131,9 @@ export default {
       }
       bus.$emit('setStationDetails', { stationDetails, response })
       bus.$emit('setMini', false)
+      if (this.selectedStationState !== null) {
+        this.setSelectedStationState(null)
+      }
     },
     roundStationDistance (stationDistance) {
       if (stationDistance >= 1000) {
