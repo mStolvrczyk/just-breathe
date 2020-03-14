@@ -3,6 +3,22 @@
 html {
   overflow-y: hidden;
 }
+h3 {
+  font-family: Rubik;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 32px;
+  text-align: center;
+  &.silver {
+    color: #7B7B7B;
+  }
+  &.black {
+    color: #000000;
+  }
+  &.chart-info-text {
+    color: #ffff;
+  }
+}
 #app {
   p {
     margin-bottom: 3px;
@@ -273,6 +289,30 @@ nav {
   font-size: 16px;
   line-height: 24px;
   border-radius: 5px;
+}
+
+// ChartDialog.vue
+
+#chart-dialog-card {
+  padding: 1rem;
+  background: rgba(0,77,64,.9);
+}
+#chart-card {
+  padding: 1rem;
+  background: #ffff
+}
+#chart-buttons {
+  padding: 1rem;
+  flex-direction: row;
+  text-align: center;
+}
+#chart-info {
+  padding: 1rem;
+  background: #ffff;
+  justify-content: center;
+  text-align: center;
+  align-content: center;
+  alignment: center;
 }
 
 // Media Queries
