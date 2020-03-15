@@ -207,6 +207,7 @@ export default {
       searchValue: '',
       apiResponse: null,
       sensorDetails: {
+        sensorId: null,
         averageMeasurement: null,
         lastMeasurement: null
       },
@@ -258,12 +259,14 @@ export default {
       this.sensorDetails.averageMeasurement = {
         value: averageMeasurement[0].toFixed(2),
         procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement[0]),
-        pollutionLevel: pollutionLevels[this.functions.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, false)[0]]
+        pollutionLevel: pollutionLevels[this.functions.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, false)[0]],
+        color: this.functions.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, false)[0]
       }
       this.sensorDetails.lastMeasurement = {
         value: lastMeasurement[0].toFixed(2),
         procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement[0]),
-        pollutionLevel: pollutionLevels[this.functions.setBackgroundColor(lastMeasurement, sensor.details.paramTwo, false)[0]]
+        pollutionLevel: pollutionLevels[this.functions.setBackgroundColor(lastMeasurement, sensor.details.paramTwo, false)[0]],
+        color: this.functions.setBackgroundColor(lastMeasurement, sensor.details.paramTwo, false)[0]
       }
       this.chartDialogVisibility = true
       this.sensorDetails.sensorId = sensor.details.id
@@ -318,7 +321,6 @@ export default {
         pos.coords.latitude,
         pos.coords.longitude
       ]
-      console.log(userLocation)
       this.closestStation(userLocation)
       this.setUserLocationState(userLocation)
       navigator.geolocation.clearWatch(this.watcher)
