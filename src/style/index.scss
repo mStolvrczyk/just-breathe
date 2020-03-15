@@ -7,7 +7,6 @@ h3 {
   font-family: Rubik;
   font-style: normal;
   font-weight: 500;
-  line-height: 32px;
   text-align: center;
   &.silver {
     color: #7B7B7B;
@@ -52,6 +51,10 @@ h3 {
 // App.vue
 
 @mixin desktop-drawer () {
+  h3 {
+    line-height: 32px;
+    font-size: 18px;
+  }
   .sidebar-element {
     justify-content: center;
     align-content: center;
@@ -151,6 +154,10 @@ h3 {
   }
 }
 @mixin mobile-drawer () {
+  h3 {
+    line-height: 32px;
+    font-size: 14px;
+  }
   .sidebar-element {
     justify-content: center;
     align-content: center;
@@ -301,10 +308,13 @@ nav {
   padding: 1rem;
   background: #ffff
 }
-#chart-buttons {
+.chart-row {
   padding: 1rem;
   flex-direction: row;
   text-align: center;
+  &.button {
+    padding-bottom: 0;
+  }
 }
 #chart-info {
   padding: 1rem;
