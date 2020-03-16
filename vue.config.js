@@ -7,7 +7,7 @@ function getApiUrl () {
       return './api'
     }
     default: {
-      return './api'
+      return 'http://localhost:8000/api'
     }
   }
 }
