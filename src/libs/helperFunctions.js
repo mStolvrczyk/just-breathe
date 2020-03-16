@@ -132,9 +132,9 @@ export default class Functions {
   }
   roundStationDistance (stationDistance) {
     if (stationDistance >= 1000) {
-      stationDistance = (stationDistance / 1000).toFixed(1) + 'km'
+      stationDistance = (stationDistance / 1000).toFixed(1) + ' km'
     } else {
-      stationDistance = stationDistance.toFixed(0) + 'm'
+      stationDistance = stationDistance.toFixed(0) + ' m'
     }
     return stationDistance
   }
