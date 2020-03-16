@@ -87,7 +87,7 @@
           </div>
           <transition name="popup">
             <v-autocomplete
-              v-if="inputVisibility"
+              v-if="inputVisibility && $route.path === '/map'"
               background-color="white"
               v-model="selectedStation"
               :items="allStationsState"
@@ -132,6 +132,22 @@
                 />
                 <p class="icon-text">Odległość</p>
                 <p class="distance-text">{{stationDetails.stationDistance}}</p>
+              </div>
+              <div align="center" class="sidebar-element" v-if="stationDetails.temperature !== null">
+                <v-img
+                  :src="require('@/assets/termometer.png')"
+                  class="sidebar-icon"
+                />
+                <p class="icon-text">Temperatura</p>
+                <p class="distance-text">{{stationDetails.temperature+' &ordm;C'}}</p>
+              </div>
+              <div align="center" class="sidebar-element" v-if="stationDetails.pressure !== null">
+                <v-img
+                  :src="require('@/assets/pressure.png')"
+                  class="sidebar-icon"
+                />
+                <p class="icon-text">Ciśnienie</p>
+                <p class="distance-text">{{stationDetails.pressure+' hPa'}}</p>
               </div>
               <div align="center" class="sidebar-element">
                 <v-img
@@ -273,15 +289,15 @@ export default {
     },
     setStationInput () {
       this.inputVisibility = !this.inputVisibility
-      let content = document.getElementById('station-content')
-      if (this.inputVisibility === true) {
-        content.className = 'scrollable-content-input'
-      } else {
-        content.className = 'scrollable-content'
-      }
-      if (this.mini) {
-        this.mini = false
-      }
+      // let content = document.getElementById('station-content')
+      // if (this.inputVisibility === true) {
+      //   content.className = 'scrollable-content-input'
+      // } else {
+      //   content.className = 'scrollable-content'
+      // }
+      // if (this.mini) {
+      //   this.mini = false
+      // }
     },
     getLastMeasurement (measurements) {
       return [
@@ -357,7 +373,7 @@ export default {
   },
   computed: {
     miniVariant () {
-      return this.mini
+      return this.mini || this.$route.path !== '/map'
     },
     navbarWidth () {
       if (this.$vuetify.breakpoint.xsOnly) {
@@ -369,9 +385,26 @@ export default {
     ...mapState('stations', ['allStationsState', 'selectedStationState'])
   },
   watch: {
+    'inputVisibility' (value) {
+      let content = document.getElementById('station-content')
+      if (value === true) {
+        content.className = 'scrollable-content-input'
+        if (this.mini) {
+          this.mini = false
+        }
+      } else {
+        content.className = 'scrollable-content'
+      }
+    },
     'mini' (value) {
-      if (value) {
+      if (value === true) {
+        console.log(value)
         this.inputVisibility = !value
+      }
+    },
+    'miniVariant' (value) {
+      if (value) {
+        this.stationDetails = null
       }
     },
     'chartDialogVisibility' (value) {

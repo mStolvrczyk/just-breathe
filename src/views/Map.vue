@@ -126,6 +126,10 @@ export default {
       let stationDetails = {
         stationName: station.stationName,
         city: station.city,
+        temperature: station.temperature,
+        pressure: station.pressure,
+        wind: station.wind,
+        humidity: station.humidity,
         sensors: this.mapSensors(sensorsDetails, lastSensorsValues),
         stationDistance: this.roundStationDistance(this.functions.getDistance(station.coordinates, userLocation))
       }
