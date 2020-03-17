@@ -100,7 +100,7 @@ export default {
     ...mapActions('stations', ['setSelectedStationState']),
     mapClick () {
       this.stationId = null
-      bus.$emit('setMini', true)
+      bus.$emit('resetStationDetails', null)
     },
     getMark (station) {
       return {
@@ -134,16 +134,15 @@ export default {
         stationDistance: this.roundStationDistance(this.functions.getDistance(station.coordinates, userLocation))
       }
       bus.$emit('setStationDetails', { stationDetails, response })
-      bus.$emit('setMini', false)
       if (this.selectedStationState !== null) {
         this.setSelectedStationState(null)
       }
     },
     roundStationDistance (stationDistance) {
       if (stationDistance >= 1000) {
-        stationDistance = (stationDistance / 1000).toFixed(1) + 'km'
+        stationDistance = (stationDistance / 1000).toFixed(1) + ' km'
       } else {
-        stationDistance = stationDistance.toFixed(0) + 'm'
+        stationDistance = stationDistance.toFixed(0) + ' m'
       }
       return stationDistance
     },

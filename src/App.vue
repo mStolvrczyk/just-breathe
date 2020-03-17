@@ -373,7 +373,7 @@ export default {
   },
   computed: {
     miniVariant () {
-      return this.mini || this.$route.path !== '/map'
+      return this.stationDetails === null && this.inputVisibility === false
     },
     navbarWidth () {
       if (this.$vuetify.breakpoint.xsOnly) {
@@ -389,22 +389,8 @@ export default {
       let content = document.getElementById('station-content')
       if (value === true) {
         content.className = 'scrollable-content-input'
-        if (this.mini) {
-          this.mini = false
-        }
       } else {
         content.className = 'scrollable-content'
-      }
-    },
-    'mini' (value) {
-      if (value === true) {
-        console.log(value)
-        this.inputVisibility = !value
-      }
-    },
-    'miniVariant' (value) {
-      if (value) {
-        this.stationDetails = null
       }
     },
     'chartDialogVisibility' (value) {
@@ -423,7 +409,9 @@ export default {
     selectedStationState: {
       handler: function (value) {
         this.selectedStation = value
-        this.inputVisibility = false
+        setTimeout(function () { this.inputVisibility = false }
+          .bind(this),
+        50)
       },
       deep: true
     },
