@@ -37,38 +37,38 @@
             />
           </div>
           <div align="center" id="view-icons">
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on"
-                       @click="$router.push('/dashboard')" icon>
-                  <v-icon>
-                    mdi-tablet-dashboard
-                  </v-icon>
-                </v-btn>
-                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/dashboard')" icon>
-                  <v-icon>
-                    mdi-tablet-dashboard
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>Panel użytkownika</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="$router.push('/map')"
-                       icon>
-                  <v-icon>
-                    mdi-map-marker
-                  </v-icon>
-                </v-btn>
-                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/map')" icon>
-                  <v-icon>
-                    mdi-map-marker
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>Mapa</span>
-            </v-tooltip>
+<!--            <v-tooltip bottom>-->
+<!--              <template v-slot:activator="{ on }">-->
+<!--                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on"-->
+<!--                       @click="$router.push('/dashboard')" icon>-->
+<!--                  <v-icon>-->
+<!--                    mdi-tablet-dashboard-->
+<!--                  </v-icon>-->
+<!--                </v-btn>-->
+<!--                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/dashboard')" icon>-->
+<!--                  <v-icon>-->
+<!--                    mdi-tablet-dashboard-->
+<!--                  </v-icon>-->
+<!--                </v-btn>-->
+<!--              </template>-->
+<!--              <span>Panel użytkownika</span>-->
+<!--            </v-tooltip>-->
+<!--            <v-tooltip bottom>-->
+<!--              <template v-slot:activator="{ on }">-->
+<!--                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="$router.push('/map')"-->
+<!--                       icon>-->
+<!--                  <v-icon>-->
+<!--                    mdi-map-marker-->
+<!--                  </v-icon>-->
+<!--                </v-btn>-->
+<!--                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/map')" icon>-->
+<!--                  <v-icon>-->
+<!--                    mdi-map-marker-->
+<!--                  </v-icon>-->
+<!--                </v-btn>-->
+<!--              </template>-->
+<!--              <span>Mapa</span>-->
+<!--            </v-tooltip>-->
             <v-tooltip bottom v-if=" $route.path === '/map'">
               <template v-slot:activator="{ on }">
                 <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="setStationInput" icon>
