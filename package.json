@@ -32,6 +32,7 @@
     "vue": "^2.6.10",
     "vue-chartjs": "^3.4.2",
     "vue-router": "^3.1.2",
+    "vue-svg-gauge": "^1.2.1",
     "vue2-leaflet": "^2.2.1",
     "vue2-leaflet-geosearch": "^1.0.6",
     "vue2-leaflet-locatecontrol": "^1.0.1",

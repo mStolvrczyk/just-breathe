@@ -176,7 +176,6 @@ export default {
       this.$refs.map.setCenter([52.25, 19.3])
       bus.$emit('resetStationDetails', null)
       bus.$emit('resetSelectedStation', null)
-      bus.$emit('setMini', true)
       if (this.selectedStationState !== null) {
         this.setSelectedStationState(null)
       }
@@ -222,6 +221,9 @@ export default {
   // },
   mounted () {
     this.setZoom()
+  },
+  beforeDestroy () {
+    bus.$off()
   }
 }
 </script>
