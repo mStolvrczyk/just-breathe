@@ -232,7 +232,6 @@ export default {
       barDataCollection: null,
       lineDataCollection: null,
       stationDetails: null,
-      drawer: true,
       stationsService: new StationsService(),
       functions: new Functions(),
       watcher: navigator.geolocation.watchPosition(this.getLocation, this.handleError, {
@@ -349,6 +348,7 @@ export default {
       if (sensors.includes(sensors.find(({ symbol }) => symbol === 'PM10'))) {
         let sensor = sensors.find(({ symbol }) => symbol === 'PM10')
         return {
+          symbol: sensor.symbol,
           percentValue: parseInt(sensor.pollutionLimit),
           value: parseInt(sensor.lastValue),
           backgroundColor: sensor.backgroundColor
@@ -356,6 +356,7 @@ export default {
       } else if (sensors.includes(sensors.find(({ symbol }) => symbol === 'PM2.5'))) {
         let sensor = sensors.find(({ symbol }) => symbol === 'PM2.5')
         return {
+          symbol: sensor.symbol,
           percentValue: parseInt(sensor.pollutionLimit),
           value: parseInt(sensor.lastValue),
           backgroundColor: sensor.backgroundColor
@@ -393,6 +394,9 @@ export default {
     }
   },
   computed: {
+    drawer () {
+      return this.$route.path === '/map'
+    },
     miniVariant () {
       return this.stationDetails === null && this.inputVisibility === false
     },

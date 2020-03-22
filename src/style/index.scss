@@ -262,7 +262,7 @@ h3 {
   justify-content: space-around;
   margin-bottom: 1rem;
 }
-#image-container {
+.image-container {
   margin-bottom: 1rem;
 }
 nav {
@@ -271,8 +271,6 @@ nav {
   position: sticky;
 }
 .logo-image {
-  max-height: 55px;
-  max-width: 200px;
 }
 #container {
   height: 100vh;
