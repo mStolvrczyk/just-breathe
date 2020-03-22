@@ -111,7 +111,6 @@ export default class Functions {
     values.forEach(value => {
       value.reverse()
       valuesArray.push(value[value.length - 1].value)
-      valuesArray.push(value[value.length - 1].value)
     })
     return valuesArray
   }
@@ -137,5 +136,11 @@ export default class Functions {
       stationDistance = stationDistance.toFixed(0) + ' m'
     }
     return stationDistance
+  }
+  chartDataFilter ({ pollutionLimit, backgroundColor }) {
+    return {
+      pollutionLimit: pollutionLimit,
+      backgroundColor: backgroundColor
+    }
   }
 }

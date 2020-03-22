@@ -40,12 +40,12 @@
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
                 <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on"
-                       @click="$router.push('/dashboard')" icon>
+                       @click="navigateTo('/dashboard')" icon>
                   <v-icon>
                     mdi-tablet-dashboard
                   </v-icon>
                 </v-btn>
-                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/dashboard')" icon>
+                <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/dashboard')" icon>
                   <v-icon>
                     mdi-tablet-dashboard
                   </v-icon>
@@ -55,13 +55,13 @@
             </v-tooltip>
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
-                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="$router.push('/map')"
+                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="navigateTo('/map')"
                        icon>
                   <v-icon>
                     mdi-map-marker
                   </v-icon>
                 </v-btn>
-                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/map')" icon>
+                <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/map')" icon>
                   <v-icon>
                     mdi-map-marker
                   </v-icon>
@@ -232,8 +232,6 @@ export default {
       barDataCollection: null,
       lineDataCollection: null,
       stationDetails: null,
-      drawer: true,
-      mini: true,
       stationsService: new StationsService(),
       functions: new Functions(),
       watcher: navigator.geolocation.watchPosition(this.getLocation, this.handleError, {
@@ -245,6 +243,11 @@ export default {
     }
   },
   methods: {
+    navigateTo (path) {
+      if (this.$route.path !== path) {
+        this.$router.push(path)
+      }
+    },
     ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState', 'setSelectedStationState']),
     async fillDatacollection (id, apiResponse) {
       let sensor = apiResponse.find(sensor => sensor.details.id === id)
@@ -325,8 +328,8 @@ export default {
         id: closestStationDetails.id,
         stationName: closestStationDetails.stationName,
         city: closestStationDetails.city,
-        coordinates: closestStationDetails.coordinates,
         sensors: this.functions.mapSensors(sensorsDetails, lastSensorsValues),
+        chartData: this.mapChartData(this.functions.mapSensors(sensorsDetails, lastSensorsValues)),
         stationDistance: this.functions.roundStationDistance(this.functions.getDistance(closestStationDetails.coordinates,
           userLocation))
       }
@@ -340,6 +343,25 @@ export default {
       this.closestStation(userLocation)
       this.setUserLocationState(userLocation)
       navigator.geolocation.clearWatch(this.watcher)
+    },
+    mapChartData (sensors) {
+      if (sensors.includes(sensors.find(({ symbol }) => symbol === 'PM10'))) {
+        let sensor = sensors.find(({ symbol }) => symbol === 'PM10')
+        return {
+          symbol: sensor.symbol,
+          percentValue: parseInt(sensor.pollutionLimit),
+          value: parseInt(sensor.lastValue),
+          backgroundColor: sensor.backgroundColor
+        }
+      } else if (sensors.includes(sensors.find(({ symbol }) => symbol === 'PM2.5'))) {
+        let sensor = sensors.find(({ symbol }) => symbol === 'PM2.5')
+        return {
+          symbol: sensor.symbol,
+          percentValue: parseInt(sensor.pollutionLimit),
+          value: parseInt(sensor.lastValue),
+          backgroundColor: sensor.backgroundColor
+        }
+      }
     },
     handleError (error) {
       switch (error.code) {
@@ -372,6 +394,9 @@ export default {
     }
   },
   computed: {
+    drawer () {
+      return this.$route.path === '/map'
+    },
     miniVariant () {
       return this.stationDetails === null && this.inputVisibility === false
     },
@@ -419,14 +444,14 @@ export default {
       this.setSelectedStationState(value)
     }
   },
-  created () {
+  beforeMount () {
     bus.$on('setStationDetails', (data) => {
       this.stationDetails = data.stationDetails
       this.apiResponse = data.response
     })
-    bus.$on('setMini', (value) => {
-      this.mini = value
-    })
+    // bus.$on('setMini', (value) => {
+    //   this.mini = value
+    // })
     bus.$on('resetStationDetails', (value) => {
       this.stationDetails = value
     })
@@ -436,6 +461,9 @@ export default {
   },
   mounted () {
     this.setAllStationsState()
+  },
+  beforeDestroy () {
+    bus.$off()
   }
 }
 </script>
