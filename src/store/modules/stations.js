@@ -3,7 +3,13 @@ const stationsService = new StationsService()
 const state = {
   allStationsState: [],
   userLocationState: null,
-  closestStationState: null,
+  closestStationState: {
+    chartData: {
+      percentValue: 0,
+      value: 0,
+      backgroundColor: null
+    }
+  },
   selectedStationState: null
 }
 

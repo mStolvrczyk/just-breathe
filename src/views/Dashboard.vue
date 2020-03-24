@@ -1,29 +1,30 @@
 <template>
   <div id="dashboard">
-    <v-img
-      class="logo-image"
-      :src="require('@/assets/jb-sygnet.png')"
-    />
-    <v-tooltip bottom>
-      <template v-slot:activator="{ on }">
-        <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="navigateTo('/map')"
-               icon>
-          <v-icon>
-            mdi-map-marker
-          </v-icon>
-        </v-btn>
-        <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/map')" icon>
-          <v-icon>
-            mdi-map-marker
-          </v-icon>
-        </v-btn>
-      </template>
-      <span>Mapa</span>
-    </v-tooltip>
+    <div id="dashboard-sidebar">
+      <v-img
+        class="logo-image"
+        :src="require('@/assets/jb-sygnet.png')"
+      />
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="navigateTo('/map')"
+                 icon>
+            <v-icon>
+              mdi-map-marker
+            </v-icon>
+          </v-btn>
+          <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/map')" icon>
+            <v-icon>
+              mdi-map-marker
+            </v-icon>
+          </v-btn>
+        </template>
+        <span>Mapa</span>
+      </v-tooltip>
+    </div>
     <div class="row">
       <div id="chart">
         <vue-svg-gauge
-          v-if="closestStationState !== null"
           :start-angle="0"
           :end-angle="360"
           :value="closestStationState.chartData.percentValue"
@@ -34,25 +35,74 @@
           base-color="#E0F2F1"
           :scale-interval="0"
           :innerRadius="85"
-          :transitionDuration="2000"
+          :transitionDuration="gaugeTransitionDuration"
         >
           <div class="inner-text">
             <p>
               <animated-number
                 :value="closestStationState.chartData.percentValue"
                 :formatValue="formatPercentValue"
-                :duration="2000"
+                :duration="closestStationState.chartData.percentValue * 30"
                 :round="1"
               /><br>
               <animated-number
                 :value="closestStationState.chartData.value"
                 :formatValue="formatValue"
-                :duration="2000"
+                :duration="closestStationState.chartData.value * 30"
                 :round="1"
-              />
+              /><br>
+              {{closestStationState.chartData.symbol}}
             </p>
           </div>
         </vue-svg-gauge>
+      </div>
+    </div>
+    <div class="row">
+      <div id="data-container">
+        <div class="row">
+          <div align="center" class="data-element dashboard left">
+            <v-img
+              :src="require('@/assets/place-yellow.png')"
+              class="icon dashboard"
+            />
+            <p class="icon-text">Stacja pomiarowa</p>
+            <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
+          </div>
+          <div align="center" class="data-element dashboard right">
+            <v-img
+              :src="require('@/assets/road-yellow.png')"
+              class="icon dashboard"
+            />
+            <p class="icon-text">Odległość</p>
+            <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
+          </div>
+        </div>
+        <div class="row">
+          <div align="center" class="data-element dashboard">
+            <v-img
+              :src="require('@/assets/termometer.png')"
+              class="icon dashboard"
+            />
+            <p class="icon-text">Temperatura</p>
+            <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
+          </div>
+          <div align="center" class="data-element dashboard">
+            <v-img
+              :src="require('@/assets/pressure.png')"
+              class="icon dashboard"
+            />
+            <p class="icon-text">Ciśnienie</p>
+            <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
+          </div>
+          <div align="center" class="data-element dashboard">
+            <v-img
+              :src="require('@/assets/place-yellow.png')"
+              class="icon dashboard"
+            />
+            <p class="icon-text">Odległość</p>
+            <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -91,9 +141,21 @@ export default {
     },
     formatValue (value) {
       return `<p id="value-paragraph">(${value + ' &#181/m'}<sup>3</sup>)</p>`
+    },
+    navigateTo (path) {
+      if (this.$route.path !== path) {
+        this.$router.push(path)
+      }
     }
   },
   computed: {
+    gaugeTransitionDuration () {
+      if (this.closestStationState.chartData.percentValue <= 100) {
+        return this.closestStationState.chartData.percentValue * 30
+      } else {
+        return 3000
+      }
+    },
     ...mapState('stations', ['closestStationState'])
   },
   watch: {
@@ -109,6 +171,20 @@ export default {
 </script>
 
 <style lang="scss">
+  #data-container {
+    alignment: center;
+    justify-content: center;
+    text-align: center;
+    width: 30%;
+  }
+  .logo-image {
+    width: 55px;
+    height: 55px;
+  }
+  #dashboard-sidebar {
+    margin: 0.6rem;
+    position: absolute;
+  }
   .row {
     flex-direction: row;
   }
@@ -119,6 +195,7 @@ export default {
     height: 100%;
     width: 100%;
     p {
+      text-align: center;
       color: #ffff;
       line-height: 10px;
       margin-top: 0.8rem;
@@ -148,19 +225,13 @@ export default {
     margin-top: 0;
     font-size: 15px;
   }
-  #info-panel {
-    padding: 1rem;
-    flex-direction: row;
-    background: rgba(0,77,64,.9);
-    height: 400px;
-    width: 50%;
-  }
   #chart {
     padding: 1rem;
     width: 20%;
     height: 20%;
   }
   #dashboard {
+    align-content: center;
     overflow-y: auto;
     overflow-x: hidden;
     justify-content: center;

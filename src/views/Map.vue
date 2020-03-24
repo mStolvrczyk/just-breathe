@@ -221,9 +221,6 @@ export default {
   // },
   mounted () {
     this.setZoom()
-  },
-  beforeDestroy () {
-    bus.$off()
   }
 }
 </script>
