@@ -97,9 +97,10 @@ export default class Functions {
     values.forEach((value) => {
       sum = sum + value
     })
-    return [
-      sum / values.length
-    ]
+    return sum / values.length
+  }
+  getLastMeasurement (measurements) {
+    return measurements[measurements.length - 1]
   }
   getPollutionLimit (symbol, value) {
     let limit = pollutionLimits[symbol]
