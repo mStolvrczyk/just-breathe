@@ -61,7 +61,7 @@ h3 {
     justify-content: center;
     align-content: center;
     flex-direction: column;
-    display: flex;
+    //display: flex;
     margin-bottom: 1rem;
     &.dashboard {
       margin-bottom: 0.3rem;
@@ -95,6 +95,7 @@ h3 {
       height: 25px;
     }
     &.dashboard {
+      margin-bottom: 0;
       width: 40px;
       height: 40px;
     }
@@ -180,7 +181,7 @@ h3 {
     justify-content: center;
     align-content: center;
     flex-direction: column;
-    display: flex;
+    //display: flex;
     margin-bottom: 1rem;
   }
   #view-icons {
@@ -276,12 +277,12 @@ h3 {
     text-align: center;
   }
 }
-.row {
-  align-content: center;
-  flex-direction: column;
-  justify-content: space-around;
-  margin-bottom: 1rem;
-}
+//.row {
+//  align-content: center;
+//  flex-direction: column;
+//  justify-content: space-around;
+//  margin-bottom: 1rem;
+//}
 .image-container {
   margin-bottom: 1rem;
 }

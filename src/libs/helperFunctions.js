@@ -107,25 +107,29 @@ export default class Functions {
     return ((value * 100) / limit).toFixed(1)
   }
   mapLastValues (response) {
-    let values = response.map(({ measurement }) => measurement)
-    let valuesArray = []
-    values.forEach(value => {
-      value.reverse()
-      valuesArray.push(value[value.length - 1].value)
+    let sensorsMeasurements = response.map(({ measurement }) => measurement)
+    let measurementsArray = []
+    sensorsMeasurements.forEach(sensorMeasurements => {
+      sensorMeasurements.reverse()
+      measurementsArray.push({
+        value: sensorMeasurements[sensorMeasurements.length - 1].value,
+        date: sensorMeasurements[sensorMeasurements.length - 1].date
+      })
     })
-    return valuesArray
+    return measurementsArray
   }
   mapSensors (sensorsDetails, lastSensorsValues) {
     let sensorsArray = []
     for (let i = 0; i < sensorsDetails.length && i < lastSensorsValues.length; i++) {
-      let currentValue = [lastSensorsValues[i]]
+      let currentValue = [lastSensorsValues[i].value]
       sensorsArray.push({
         id: sensorsDetails[i].id,
         name: sensorsDetails[i].param,
         symbol: sensorsDetails[i].paramTwo,
-        lastValue: (lastSensorsValues[i]).toFixed(1),
+        lastValue: (lastSensorsValues[i].value).toFixed(1),
+        time: lastSensorsValues[i].date.substring(11, 16),
         backgroundColor: this.setBackgroundColor(currentValue, sensorsDetails[i].paramTwo, false)[0],
-        pollutionLimit: this.getPollutionLimit(sensorsDetails[i].paramTwo, (lastSensorsValues[i]).toFixed(1))
+        pollutionLimit: this.getPollutionLimit(sensorsDetails[i].paramTwo, (lastSensorsValues[i].value).toFixed(1))
       })
     }
     return sensorsArray

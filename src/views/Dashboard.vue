@@ -38,21 +38,26 @@
           :transitionDuration="gaugeTransitionDuration"
         >
           <div class="inner-text">
-            <p>
-              <animated-number
-                :value="closestStationState.chartData.percentValue"
-                :formatValue="formatPercentValue"
-                :duration="closestStationState.chartData.percentValue * 30"
-                :round="1"
-              /><br>
-              <animated-number
-                :value="closestStationState.chartData.value"
-                :formatValue="formatValue"
-                :duration="closestStationState.chartData.value * 30"
-                :round="1"
-              /><br>
-              {{closestStationState.chartData.symbol}}
-            </p>
+            <div class="row">
+              <div class="column">
+                <p id="white-data-paragraph">
+                  <animated-number
+                    :value="closestStationState.chartData.percentValue"
+                    :formatValue="formatPercentValue"
+                    :duration="closestStationState.chartData.percentValue * 30"
+                    :round="1"
+                  /><br>
+                  <animated-number
+                    :value="closestStationState.chartData.value"
+                    :formatValue="formatValue"
+                    :duration="closestStationState.chartData.value * 30"
+                    :round="1"
+                  /><br>
+                  {{closestStationState.chartData.symbol}}
+                </p>
+                <p id="index-level-paragraph" :style="{'color': closestStationState.chartData.backgroundColor}">{{closestStationState.chartData.pollutionLevel}}</p>
+              </div>
+            </div>
           </div>
         </vue-svg-gauge>
       </div>
@@ -61,6 +66,15 @@
       <div id="data-container">
         <div class="row">
           <div align="center" class="data-element dashboard left">
+            <div class="dashboard-image">
+              <v-img
+                :src="require('@/assets/road-yellow.png')"
+              />
+            </div>
+            <p class="icon-text">Odległość</p>
+            <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
+          </div>
+          <div align="center" class="data-element dashboard">
             <v-img
               :src="require('@/assets/place-yellow.png')"
               class="icon dashboard"
@@ -70,10 +84,10 @@
           </div>
           <div align="center" class="data-element dashboard right">
             <v-img
-              :src="require('@/assets/road-yellow.png')"
+              :src="require('@/assets/clock.png')"
               class="icon dashboard"
             />
-            <p class="icon-text">Odległość</p>
+            <p class="icon-text">Ostatni pomiar</p>
             <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
           </div>
         </div>
@@ -96,10 +110,27 @@
           </div>
           <div align="center" class="data-element dashboard">
             <v-img
-              :src="require('@/assets/place-yellow.png')"
+              :src="require('@/assets/wind.png')"
               class="icon dashboard"
             />
-            <p class="icon-text">Odległość</p>
+            <p class="icon-text">Prędkość wiatru</p>
+            <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
+          </div>
+          <div align="center" class="data-element dashboard">
+            <v-img
+              :src="require('@/assets/humidity.png')"
+              class="icon dashboard humidity"
+            />
+            <p class="icon-text">Wilgotność</p>
+            <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
+          </div>
+        </div>
+        <div class="row">
+          <div align="center" class="data-element dashboard">
+            <v-img
+              :src="require('@/assets/fog-yellow.png')"
+            />
+            <p class="icon-text">Jakość powietrza</p>
             <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
           </div>
         </div>
@@ -171,11 +202,15 @@ export default {
 </script>
 
 <style lang="scss">
+  .dashboard-image {
+    height: 40px;
+    width: 40px;
+  }
   #data-container {
     alignment: center;
     justify-content: center;
     text-align: center;
-    width: 30%;
+    width: 60%;
   }
   .logo-image {
     width: 55px;
@@ -187,6 +222,16 @@ export default {
   }
   .row {
     flex-direction: row;
+    align-content: center;
+    justify-content: center;
+    width: 100%;
+    &.data-row {
+    }
+  }
+  .column {
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
   }
   .inner-text {
     display: flex;
@@ -194,13 +239,19 @@ export default {
     align-items: center;
     height: 100%;
     width: 100%;
-    p {
-      text-align: center;
-      color: #ffff;
-      line-height: 10px;
-      margin-top: 0.8rem;
-    }
 
+  }
+  #white-data-paragraph {
+    color: #ffff;
+    text-align: center;
+    line-height: 10px;
+    margin-top: 0.8rem;
+    margin-bottom: 2rem;
+  }
+  #index-level-paragraph {
+    text-align: center;
+    line-height: 11px;
+    margin-top: 1rem;
   }
   #pollution-name-paragraph {
     margin-top: 0;

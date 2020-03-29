@@ -335,6 +335,7 @@ export default {
         stationDistance: this.functions.roundStationDistance(this.functions.getDistance(closestStationDetails.coordinates,
           userLocation))
       }
+      console.log(this.functions.mapSensors(sensorsDetails, lastSensorsValues))
       this.setClosestStationState(closestStation)
     },
     getLocation (pos) {
@@ -353,7 +354,8 @@ export default {
           symbol: sensor.symbol,
           percentValue: parseInt(sensor.pollutionLimit),
           value: parseInt(sensor.lastValue),
-          // pollutionLevel: pollutionLevels[this.functions.setBackgroundColor(sensor.lastValue, 'PM10', false)[0]],
+          time: sensor.time,
+          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([sensor.lastValue], 'PM10', false)[0]],
           backgroundColor: sensor.backgroundColor
         }
       } else if (sensors.includes(sensors.find(({ symbol }) => symbol === 'PM2.5'))) {
@@ -361,8 +363,9 @@ export default {
         return {
           symbol: sensor.symbol,
           percentValue: parseInt(sensor.pollutionLimit),
+          time: sensor.time,
           value: parseInt(sensor.lastValue),
-          // pollutionLevel: pollutionLevels[this.functions.setBackgroundColor(sensor.lastValue, 'PM2.5', false)[0]],
+          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([sensor.lastValue], 'PM2.5', false)[0]],
           backgroundColor: sensor.backgroundColor
         }
       }
