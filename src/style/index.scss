@@ -61,16 +61,19 @@ h3 {
     justify-content: center;
     align-content: center;
     flex-direction: column;
-    //display: flex;
     margin-bottom: 1rem;
     &.dashboard {
-      margin-bottom: 0.3rem;
-      width: 140px;
+      margin-bottom: 2.5rem;
+      width: 160px;
+      height: 80px;
       &.left {
         margin-left: 2rem;
       }
       &.right {
         margin-right: 2rem;
+      }
+      &.station-name {
+        width: 190px;
       }
     }
   }
@@ -95,9 +98,11 @@ h3 {
       height: 25px;
     }
     &.dashboard {
-      margin-bottom: 0;
       width: 40px;
       height: 40px;
+      &.humidity {
+        width: 28px;
+      }
     }
   }
   .icon-text {
@@ -181,7 +186,7 @@ h3 {
     justify-content: center;
     align-content: center;
     flex-direction: column;
-    //display: flex;
+    display: flex;
     margin-bottom: 1rem;
   }
   #view-icons {

@@ -27,11 +27,11 @@
         <vue-svg-gauge
           :start-angle="0"
           :end-angle="360"
-          :value="closestStationState.chartData.percentValue"
+          :value="closestStationState.gaugeChartData.percentValue"
           :separator-step="0"
           :min="0"
           :max="100"
-          :gauge-color="closestStationState.chartData.backgroundColor"
+          :gauge-color="closestStationState.gaugeChartData.backgroundColor"
           base-color="#E0F2F1"
           :scale-interval="0"
           :innerRadius="85"
@@ -42,100 +42,105 @@
               <div class="column">
                 <p id="white-data-paragraph">
                   <animated-number
-                    :value="closestStationState.chartData.percentValue"
+                    :value="closestStationState.gaugeChartData.percentValue"
                     :formatValue="formatPercentValue"
-                    :duration="closestStationState.chartData.percentValue * 30"
+                    :duration="closestStationState.gaugeChartData.percentValue * 30"
                     :round="1"
                   /><br>
                   <animated-number
-                    :value="closestStationState.chartData.value"
+                    :value="closestStationState.gaugeChartData.value"
                     :formatValue="formatValue"
-                    :duration="closestStationState.chartData.value * 30"
+                    :duration="closestStationState.gaugeChartData.value * 30"
                     :round="1"
                   /><br>
-                  {{closestStationState.chartData.symbol}}
+                  {{closestStationState.gaugeChartData.symbol}}
                 </p>
-                <p id="index-level-paragraph" :style="{'color': closestStationState.chartData.backgroundColor}">{{closestStationState.chartData.pollutionLevel}}</p>
+                <p id="index-level-paragraph" :style="{'color': closestStationState.gaugeChartData.backgroundColor}">
+                  {{closestStationState.gaugeChartData.pollutionLevel}}</p>
               </div>
             </div>
           </div>
         </vue-svg-gauge>
       </div>
     </div>
-    <div class="row">
-      <div id="data-container">
-        <div class="row">
-          <div align="center" class="data-element dashboard left">
-            <div class="dashboard-image">
+    <transition name="popup">
+      <div class="row" v-if="dataStatement">
+        <div id="data-container">
+          <div class="row">
+            <div align="center" class="data-element dashboard">
               <v-img
                 :src="require('@/assets/road-yellow.png')"
+                class="icon dashboard"
               />
+              <p class="icon-text">Odległość</p>
+                <p class="distance-text">{{closestStationState.stationDistance}}</p>
             </div>
-            <p class="icon-text">Odległość</p>
-            <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
+            <div align="center" class="data-element dashboard station-name">
+              <v-img
+                :src="require('@/assets/place-yellow.png')"
+                class="icon dashboard"
+              />
+              <p class="icon-text">Stacja pomiarowa</p>
+              <p class="station-name-text">{{closestStationState.stationName }}<br><span class="city-text">{{closestStationState.city}}</span></p>
+            </div>
+            <div align="center" class="data-element dashboard">
+              <v-img
+                :src="require('@/assets/clock.png')"
+                class="icon dashboard"
+              />
+              <p class="icon-text">Ostatni pomiar ({{closestStationState.gaugeChartData.symbol}})</p>
+              <p class="distance-text">{{closestStationState.gaugeChartData.time}}</p>
+            </div>
           </div>
-          <div align="center" class="data-element dashboard">
-            <v-img
-              :src="require('@/assets/place-yellow.png')"
-              class="icon dashboard"
-            />
-            <p class="icon-text">Stacja pomiarowa</p>
-            <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
+          <div class="row">
+            <div align="center" class="data-element dashboard">
+              <v-img
+                :src="require('@/assets/fog-yellow.png')"
+                class="icon dashboard"
+              />
+              <p class="icon-text">Jakość powietrza</p>
+              <div class="row">
+                <vue-apex-charts type="bar" height="150" width="500" :options="closestStationState.horizontalBarChartData.chartOptions" :series="closestStationState.horizontalBarChartData.series"></vue-apex-charts>
+              </div>
+            </div>
           </div>
-          <div align="center" class="data-element dashboard right">
-            <v-img
-              :src="require('@/assets/clock.png')"
-              class="icon dashboard"
-            />
-            <p class="icon-text">Ostatni pomiar</p>
-            <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
-          </div>
-        </div>
-        <div class="row">
-          <div align="center" class="data-element dashboard">
-            <v-img
-              :src="require('@/assets/termometer.png')"
-              class="icon dashboard"
-            />
-            <p class="icon-text">Temperatura</p>
-            <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
-          </div>
-          <div align="center" class="data-element dashboard">
-            <v-img
-              :src="require('@/assets/pressure.png')"
-              class="icon dashboard"
-            />
-            <p class="icon-text">Ciśnienie</p>
-            <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
-          </div>
-          <div align="center" class="data-element dashboard">
-            <v-img
-              :src="require('@/assets/wind.png')"
-              class="icon dashboard"
-            />
-            <p class="icon-text">Prędkość wiatru</p>
-            <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
-          </div>
-          <div align="center" class="data-element dashboard">
-            <v-img
-              :src="require('@/assets/humidity.png')"
-              class="icon dashboard humidity"
-            />
-            <p class="icon-text">Wilgotność</p>
-            <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
-          </div>
-        </div>
-        <div class="row">
-          <div align="center" class="data-element dashboard">
-            <v-img
-              :src="require('@/assets/fog-yellow.png')"
-            />
-            <p class="icon-text">Jakość powietrza</p>
-            <!--        <p class="distance-text">{{stationDetails.stationDistance}}</p>-->
-          </div>
+<!--          <div class="row" v-if="secondRowStatement">-->
+<!--            <div align="center" class="data-element dashboard">-->
+<!--              <v-img-->
+<!--                :src="require('@/assets/termometer.png')"-->
+<!--                class="icon dashboard"-->
+<!--              />-->
+<!--              <p class="icon-text">Temperatura</p>-->
+<!--              <p class="distance-text">{{closestStationState.temperature+' &ordm;C'}}</p>-->
+<!--            </div>-->
+<!--            <div align="center" class="data-element dashboard">-->
+<!--              <v-img-->
+<!--                :src="require('@/assets/pressure.png')"-->
+<!--                class="icon dashboard"-->
+<!--              />-->
+<!--              <p class="icon-text">Ciśnienie</p>-->
+<!--              <p class="distance-text">{{closestStationState.pressure+' hPa'}}</p>-->
+<!--            </div>-->
+<!--            <div align="center" class="data-element dashboard">-->
+<!--              <v-img-->
+<!--                :src="require('@/assets/wind.png')"-->
+<!--                class="icon dashboard"-->
+<!--              />-->
+<!--              <p class="icon-text">Prędkość wiatru</p>-->
+<!--                      <p class="distance-text">{{closestStationState.wind+' km/h'}}</p>-->
+<!--            </div>-->
+<!--            <div align="center" class="data-element dashboard">-->
+<!--              <v-img-->
+<!--                :src="require('@/assets/humidity.png')"-->
+<!--                class="icon dashboard humidity"-->
+<!--              />-->
+<!--              <p class="icon-text">Wilgotność</p>-->
+<!--                      <p class="distance-text">{{closestStationState.humidity+'%'}}</p>-->
+<!--            </div>-->
+<!--          </div>-->
         </div>
       </div>
-    </div>
+    </transition>
   </div>
 </template>
 
@@ -145,26 +150,66 @@ import { VueSvgGauge } from 'vue-svg-gauge'
 import { mapState } from 'vuex'
 import HelperFunctions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
+import VueApexCharts from 'vue-apexcharts'
 export default {
   name: 'Dashboard',
   data () {
     return {
+      series: [{
+        data: [400, 430, 448]
+      }],
+      chartOptions: {
+        legend: {
+          show: false
+        },
+        chart: {
+          foreSize: 15,
+          foreColor: '#fff',
+          colors: ['#41B883', '#E46651', '#E46651'],
+          toolbar: {
+            show: false
+          },
+          type: 'bar',
+          height: 150
+        },
+        plotOptions: {
+          bar: {
+            horizontal: true,
+            distributed: true
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        xaxis: {
+          categories: ['gg', 'd', 'd'],
+          labels: {
+            style: {
+              fontSize: '15px'
+            }
+          }
+        },
+        yaxis: {
+          labels: {
+            style: {
+              fontSize: '16px'
+            }
+          }
+        }
+      },
       functions: new HelperFunctions(),
       stationsService: new StationsService(),
       chartValue: null,
       userLocation: null,
       allStations: null,
       closestStation: null,
-      chartData: {
-        chartValue: null,
-        backgroundColor: null
-      },
       chartColor: null
     }
   },
   components: {
     VueSvgGauge,
-    AnimatedNumber
+    AnimatedNumber,
+    VueApexCharts
   },
   methods: {
     formatPercentValue (value) {
@@ -180,33 +225,27 @@ export default {
     }
   },
   computed: {
+    dataStatement () {
+      return this.closestStationState.stationDistance !== null && this.closestStationState.stationName !== null && this.closestStationState.gaugeChartData.time !== null && this.routeState === '/dashboard'
+    },
+    secondRowStatement () {
+      return this.closestStationState.temperature !== null || this.closestStationState.pressure !== null || this.closestStationState.wind !== null || this.closestStationState.humidity !== null
+    },
     gaugeTransitionDuration () {
-      if (this.closestStationState.chartData.percentValue <= 100) {
-        return this.closestStationState.chartData.percentValue * 30
+      if (this.closestStationState.gaugeChartData.percentValue <= 100) {
+        return this.closestStationState.gaugeChartData.percentValue * 30
       } else {
         return 3000
       }
     },
-    ...mapState('stations', ['closestStationState'])
-  },
-  watch: {
-    closestStationState: {
-      handler: function (value) {
-        this.chartData.chartValue = value.chartData.chartValue
-        this.chartData.backgroundColor = value.chartData.backgroundColor
-      },
-      deep: true
-    }
+    ...mapState('stations', ['closestStationState', 'routeState'])
   }
 }
 </script>
 
 <style lang="scss">
-  .dashboard-image {
-    height: 40px;
-    width: 40px;
-  }
   #data-container {
+    /*display: flex;*/
     alignment: center;
     justify-content: center;
     text-align: center;
@@ -221,6 +260,9 @@ export default {
     position: absolute;
   }
   .row {
+    margin-right: 0;
+    margin-left: 0;
+    margin-bottom: 0.5rem;
     flex-direction: row;
     align-content: center;
     justify-content: center;

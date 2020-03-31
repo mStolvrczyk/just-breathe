@@ -213,6 +213,7 @@ import { mapActions, mapState } from 'vuex'
 import Functions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
 import pollutionLevels from '@/libs/pollutionLevels'
+import pollutionLevelsSort from '@/libs/pollutionLevelsSort'
 
 export default {
   components: { ChartDialog },
@@ -253,7 +254,7 @@ export default {
         150)
       }
     },
-    ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState', 'setSelectedStationState']),
+    ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState', 'setSelectedStationState', 'setRouteState']),
     async fillDatacollection (id, apiResponse) {
       let sensor = apiResponse.find(sensor => sensor.details.id === id)
       let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
@@ -311,31 +312,39 @@ export default {
       if (this.allStations === null) {
         await this.setAllStationsState()
       }
-      let minDist = Infinity
-      let markerDist
+      // let minDist = Infinity
+      // let markerDist
       let closestStationDetails
+      // this.allStations.forEach(station => {
+      //   markerDist = this.functions.getDistance(station.coordinates.map(Number), userLocation)
+      //   if (markerDist < minDist) {
+      //     minDist = markerDist
+      //     closestStationDetails = station
+      //   }
+      // })
       this.allStations.forEach(station => {
-        markerDist = this.functions.getDistance(station.coordinates.map(Number), userLocation)
-        if (markerDist < minDist) {
-          minDist = markerDist
+        if (station.id === 10158) {
           closestStationDetails = station
         }
       })
       let response = (await this.stationsService.getStation(closestStationDetails.id)).filter(({ measurement }) => measurement.length > 0)
       let sensorsDetails = response.map(({ details }) => details)
       let lastSensorsValues = this.functions.mapLastValues(response)
+      console.log(this.functions.mapSensors(sensorsDetails, lastSensorsValues))
       let closestStation = {
         id: closestStationDetails.id,
         stationName: closestStationDetails.stationName,
         city: closestStationDetails.city,
         temperature: closestStationDetails.temperature,
         pressure: closestStationDetails.pressure,
+        wind: closestStationDetails.wind,
+        humidity: closestStationDetails.humidity,
         sensors: this.functions.mapSensors(sensorsDetails, lastSensorsValues),
-        chartData: this.mapChartData(this.functions.mapSensors(sensorsDetails, lastSensorsValues)),
+        gaugeChartData: this.mapGaugeChartData(this.functions.mapSensors(sensorsDetails, lastSensorsValues)),
+        horizontalBarChartData: this.mapHorizontalBarChartData(this.functions.mapSensors(sensorsDetails, lastSensorsValues)),
         stationDistance: this.functions.roundStationDistance(this.functions.getDistance(closestStationDetails.coordinates,
           userLocation))
       }
-      console.log(this.functions.mapSensors(sensorsDetails, lastSensorsValues))
       this.setClosestStationState(closestStation)
     },
     getLocation (pos) {
@@ -347,7 +356,56 @@ export default {
       this.setUserLocationState(userLocation)
       navigator.geolocation.clearWatch(this.watcher)
     },
-    mapChartData (sensors) {
+    mapHorizontalBarChartData (sensors) {
+      return {
+        series: [{
+          data: sensors.map(({ pollutionLimit }) => pollutionLimit)
+        }],
+        chartOptions: {
+          legend: {
+            show: false
+          },
+          chart: {
+            foreSize: 15,
+            foreColor: '#fff',
+            colors: ['#41B883', '#E46651', '#E46651'],
+            toolbar: {
+              show: false
+            },
+            type: 'bar',
+            height: 150
+          },
+          plotOptions: {
+            bar: {
+              horizontal: true,
+              distributed: true
+            }
+          },
+          dataLabels: {
+            enabled: false
+          },
+          xaxis: {
+            categories: sensors.map(({ symbol }) => symbol),
+            labels: {
+              style: {
+                fontSize: '15px'
+              }
+            }
+          },
+          yaxis: {
+            labels: {
+              style: {
+                fontSize: '16px'
+              }
+            }
+          }
+        },
+        symbols: sensors.map(({ symbol }) => symbol),
+        values: sensors.map(({ pollutionLimit }) => pollutionLimit),
+        backgroundColor: sensors.map(({ backgroundColor }) => backgroundColor)
+      }
+    },
+    mapGaugeChartData (sensors) {
       if (sensors.includes(sensors.find(({ symbol }) => symbol === 'PM10'))) {
         let sensor = sensors.find(({ symbol }) => symbol === 'PM10')
         return {
@@ -415,6 +473,9 @@ export default {
   },
   watch: {
     '$route.path' (value) {
+      setTimeout(function () { this.setRouteState(value) }
+        .bind(this),
+      250)
       if (value === '/map') {
         this.drawer = true
       } else {
