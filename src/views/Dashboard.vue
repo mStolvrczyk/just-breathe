@@ -24,10 +24,20 @@
     </div>
     <div class="row">
       <div id="chart">
+        <v-tooltip max-width="250px" bottom>
+          <template v-slot:activator="{ on }">
+            <v-icon color="white" class="info-icon" v-on="on">
+              mdi-information
+            </v-icon>
+          </template>
+          <span>Wartość polskiego indeksu jakości powietrza liczona jest w oparciu o indywidualne przedziały dla
+            poszczególnych zanieczyszczeń, następnie indeks ogólny przyjmuje wartość najgorszego indeksu
+            indywidualnego spośród zanieczyszczeń mierzonych na tej stacji.</span>
+        </v-tooltip>
         <vue-svg-gauge
           :start-angle="0"
           :end-angle="360"
-          :value="closestStationState.gaugeChartData.percentValue"
+          :value="closestStationState.gaugeChartData.lastPercentValue"
           :separator-step="0"
           :min="0"
           :max="100"
@@ -42,15 +52,15 @@
               <div class="column">
                 <p id="white-data-paragraph">
                   <animated-number
-                    :value="closestStationState.gaugeChartData.percentValue"
+                    :value="closestStationState.gaugeChartData.lastPercentValue"
                     :formatValue="formatPercentValue"
-                    :duration="closestStationState.gaugeChartData.percentValue * 30"
+                    :duration="closestStationState.gaugeChartData.lastPercentValue * 30"
                     :round="1"
                   /><br>
                   <animated-number
-                    :value="closestStationState.gaugeChartData.value"
+                    :value="closestStationState.gaugeChartData.lastValue"
                     :formatValue="formatValue"
-                    :duration="closestStationState.gaugeChartData.value * 30"
+                    :duration="closestStationState.gaugeChartData.lastValue * 30"
                     :round="1"
                   /><br>
                   {{closestStationState.gaugeChartData.symbol}}
@@ -244,6 +254,10 @@ export default {
 </script>
 
 <style lang="scss">
+  .info-icon {
+    right: 0;
+    position: absolute;
+  }
   #data-container {
     /*display: flex;*/
     alignment: center;
@@ -319,6 +333,7 @@ export default {
     font-size: 15px;
   }
   #chart {
+    position: relative;
     padding: 1rem;
     width: 20%;
     height: 20%;

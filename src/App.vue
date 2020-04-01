@@ -165,7 +165,7 @@
                   <div class="sensor-column">
                     <v-tooltip bottom>
                       <template v-slot:activator="{ on }">
-                        <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
+                        <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.lastPercentValue+'%'}}</p>
                       </template>
                       <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
                     </v-tooltip>
@@ -214,6 +214,7 @@ import Functions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
 import pollutionLevels from '@/libs/pollutionLevels'
 import pollutionLevelsSort from '@/libs/pollutionLevelsSort'
+import pollutionLevelsSortReversed from '@/libs/pollutionLevelsSortReversed'
 
 export default {
   components: { ChartDialog },
@@ -312,25 +313,24 @@ export default {
       if (this.allStations === null) {
         await this.setAllStationsState()
       }
-      // let minDist = Infinity
-      // let markerDist
+      let minDist = Infinity
+      let markerDist
       let closestStationDetails
-      // this.allStations.forEach(station => {
-      //   markerDist = this.functions.getDistance(station.coordinates.map(Number), userLocation)
-      //   if (markerDist < minDist) {
-      //     minDist = markerDist
-      //     closestStationDetails = station
-      //   }
-      // })
       this.allStations.forEach(station => {
-        if (station.id === 10158) {
+        markerDist = this.functions.getDistance(station.coordinates.map(Number), userLocation)
+        if (markerDist < minDist) {
+          minDist = markerDist
           closestStationDetails = station
         }
       })
+      // this.allStations.forEach(station => {
+      //   if (station.id === 10158) {
+      //     closestStationDetails = station
+      //   }
+      // })
       let response = (await this.stationsService.getStation(closestStationDetails.id)).filter(({ measurement }) => measurement.length > 0)
       let sensorsDetails = response.map(({ details }) => details)
       let lastSensorsValues = this.functions.mapLastValues(response)
-      console.log(this.functions.mapSensors(sensorsDetails, lastSensorsValues))
       let closestStation = {
         id: closestStationDetails.id,
         stationName: closestStationDetails.stationName,
@@ -359,16 +359,17 @@ export default {
     mapHorizontalBarChartData (sensors) {
       return {
         series: [{
-          data: sensors.map(({ pollutionLimit }) => pollutionLimit)
+          name: ['sales', 'dupa'],
+          data: sensors.map(({ lastPercentValue }) => lastPercentValue + '%')
         }],
         chartOptions: {
+          colors: sensors.map(({ backgroundColor }) => backgroundColor),
           legend: {
             show: false
           },
           chart: {
             foreSize: 15,
             foreColor: '#fff',
-            colors: ['#41B883', '#E46651', '#E46651'],
             toolbar: {
               show: false
             },
@@ -406,27 +407,43 @@ export default {
       }
     },
     mapGaugeChartData (sensors) {
-      if (sensors.includes(sensors.find(({ symbol }) => symbol === 'PM10'))) {
-        let sensor = sensors.find(({ symbol }) => symbol === 'PM10')
-        return {
-          symbol: sensor.symbol,
-          percentValue: parseInt(sensor.pollutionLimit),
-          value: parseInt(sensor.lastValue),
-          time: sensor.time,
-          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([sensor.lastValue], 'PM10', false)[0]],
-          backgroundColor: sensor.backgroundColor
-        }
-      } else if (sensors.includes(sensors.find(({ symbol }) => symbol === 'PM2.5'))) {
-        let sensor = sensors.find(({ symbol }) => symbol === 'PM2.5')
-        return {
-          symbol: sensor.symbol,
-          percentValue: parseInt(sensor.pollutionLimit),
-          time: sensor.time,
-          value: parseInt(sensor.lastValue),
-          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([sensor.lastValue], 'PM2.5', false)[0]],
-          backgroundColor: sensor.backgroundColor
-        }
-      }
+      let sensorsTable = sensors.map((sensor) => {
+        return pollutionLevelsSort[sensor.pollutionLevel]
+      })
+      sensorsTable.sort()
+      return sensors.find(({ pollutionLevel }) => pollutionLevel === pollutionLevelsSortReversed[sensorsTable[sensorsTable.length - 1]])
+      // console.log(worstLevelSensor)
+      // return {
+      //   symbol: worstLevelSensor.symbol,
+      //   lastPercentValue: parseInt(worstLevelSensor.lastPercentValue),
+      //   lastValue: parseInt(worstLevelSensor.lastValue),
+      //   time: worstLevelSensor.time,
+      //   pollutionLevel: worstLevelSensor.pollutionLevel,
+      //   backgroundColor: worstLevelSensor.backgroundColor
+      // }
+      // if (sensors.includes(sensors.find(({ symbol }) => symbol === 'PM10'))) {
+      //   let sensor = sensors.find(({ symbol }) => symbol === 'PM10')
+      //   console.log(sensor)
+      //   return {
+      //     symbol: sensor.symbol,
+      //     lastPercentValue: parseInt(sensor.lastPercentValue),
+      //     time: sensor.time,
+      //     value: parseInt(sensor.lastValue),
+      //     pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([sensor.lastValue], 'PM10', false)[0]],
+      //     backgroundColor: sensor.backgroundColor
+      //   }
+      // } else if (sensors.includes(sensors.find(({ symbol }) => symbol === 'PM2.5'))) {
+      //   let sensor = sensors.find(({ symbol }) => symbol === 'PM2.5')
+      //   console.log(sensor)
+      //   return {
+      //     symbol: sensor.symbol,
+      //     lastPercentValue: parseInt(sensor.lastPercentValue),
+      //     time: sensor.time,
+      //     value: parseInt(sensor.lastValue),
+      //     pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([sensor.lastValue], 'PM2.5', false)[0]],
+      //     backgroundColor: sensor.backgroundColor
+      //   }
+      // }
     },
     handleError (error) {
       switch (error.code) {

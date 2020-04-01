@@ -13,8 +13,8 @@ const state = {
     sensors: null,
     stationDistance: null,
     gaugeChartData: {
-      percentValue: 0,
-      value: 0,
+      lastPercentValue: 0,
+      lastValue: 0,
       backgroundColor: null
     }
   },
