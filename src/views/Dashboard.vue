@@ -165,48 +165,6 @@ export default {
   name: 'Dashboard',
   data () {
     return {
-      series: [{
-        data: [400, 430, 448]
-      }],
-      chartOptions: {
-        legend: {
-          show: false
-        },
-        chart: {
-          foreSize: 15,
-          foreColor: '#fff',
-          colors: ['#41B883', '#E46651', '#E46651'],
-          toolbar: {
-            show: false
-          },
-          type: 'bar',
-          height: 150
-        },
-        plotOptions: {
-          bar: {
-            horizontal: true,
-            distributed: true
-          }
-        },
-        dataLabels: {
-          enabled: false
-        },
-        xaxis: {
-          categories: ['gg', 'd', 'd'],
-          labels: {
-            style: {
-              fontSize: '15px'
-            }
-          }
-        },
-        yaxis: {
-          labels: {
-            style: {
-              fontSize: '16px'
-            }
-          }
-        }
-      },
       functions: new HelperFunctions(),
       stationsService: new StationsService(),
       chartValue: null,
@@ -242,8 +200,8 @@ export default {
       return this.closestStationState.temperature !== null || this.closestStationState.pressure !== null || this.closestStationState.wind !== null || this.closestStationState.humidity !== null
     },
     gaugeTransitionDuration () {
-      if (this.closestStationState.gaugeChartData.percentValue <= 100) {
-        return this.closestStationState.gaugeChartData.percentValue * 30
+      if (this.closestStationState.gaugeChartData.lastPercentValue <= 100) {
+        return this.closestStationState.gaugeChartData.lastPercentValue * 30
       } else {
         return 3000
       }

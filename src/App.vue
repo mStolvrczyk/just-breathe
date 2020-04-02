@@ -299,15 +299,6 @@ export default {
     },
     setStationInput () {
       this.inputVisibility = !this.inputVisibility
-      // let content = document.getElementById('station-content')
-      // if (this.inputVisibility === true) {
-      //   content.className = 'scrollable-content-input'
-      // } else {
-      //   content.className = 'scrollable-content'
-      // }
-      // if (this.mini) {
-      //   this.mini = false
-      // }
     },
     async closestStation (userLocation) {
       if (this.allStations === null) {
@@ -324,7 +315,7 @@ export default {
         }
       })
       // this.allStations.forEach(station => {
-      //   if (station.id === 10158) {
+      //   if (station.id === 743) {
       //     closestStationDetails = station
       //   }
       // })
@@ -356,18 +347,44 @@ export default {
       this.setUserLocationState(userLocation)
       navigator.geolocation.clearWatch(this.watcher)
     },
+    mapHorizontalBarChartLimit (sensors) {
+      let lastPercentValuesArray = sensors.map((sensor) => {
+        return sensor.lastPercentValue
+      })
+      let highestPercentValue = lastPercentValuesArray.reduce((prev, current) => (prev > current) ? prev : current)
+      // lastPercentValuesArray.sort(function (a, b) {
+      //   return a - b
+      // })
+      if (highestPercentValue > 100) {
+        return Math.ceil(highestPercentValue / 50) * 50
+      } else {
+        return 100
+      }
+    },
     mapHorizontalBarChartData (sensors) {
       return {
         series: [{
-          name: ['sales', 'dupa'],
-          data: sensors.map(({ lastPercentValue }) => lastPercentValue + '%')
+          name: 'Ostatni pomiar',
+          data: sensors.map(({ lastPercentValue }) => lastPercentValue)
         }],
         chartOptions: {
+          tooltip: {
+            y: {
+              formatter: (value) => { return value + '%' }
+            }
+          },
           colors: sensors.map(({ backgroundColor }) => backgroundColor),
           legend: {
             show: false
           },
           chart: {
+            events: {
+              click: function (event, chartContext, config) {
+                console.log(config)
+                console.log(config.seriesIndex)
+                console.log(config.dataPointIndex)
+              }
+            },
             foreSize: 15,
             foreColor: '#fff',
             toolbar: {
@@ -394,6 +411,7 @@ export default {
             }
           },
           yaxis: {
+            max: this.mapHorizontalBarChartLimit(sensors),
             labels: {
               style: {
                 fontSize: '16px'
@@ -410,40 +428,20 @@ export default {
       let sensorsTable = sensors.map((sensor) => {
         return pollutionLevelsSort[sensor.pollutionLevel]
       })
-      sensorsTable.sort()
-      return sensors.find(({ pollutionLevel }) => pollutionLevel === pollutionLevelsSortReversed[sensorsTable[sensorsTable.length - 1]])
-      // console.log(worstLevelSensor)
-      // return {
-      //   symbol: worstLevelSensor.symbol,
-      //   lastPercentValue: parseInt(worstLevelSensor.lastPercentValue),
-      //   lastValue: parseInt(worstLevelSensor.lastValue),
-      //   time: worstLevelSensor.time,
-      //   pollutionLevel: worstLevelSensor.pollutionLevel,
-      //   backgroundColor: worstLevelSensor.backgroundColor
-      // }
-      // if (sensors.includes(sensors.find(({ symbol }) => symbol === 'PM10'))) {
-      //   let sensor = sensors.find(({ symbol }) => symbol === 'PM10')
-      //   console.log(sensor)
-      //   return {
-      //     symbol: sensor.symbol,
-      //     lastPercentValue: parseInt(sensor.lastPercentValue),
-      //     time: sensor.time,
-      //     value: parseInt(sensor.lastValue),
-      //     pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([sensor.lastValue], 'PM10', false)[0]],
-      //     backgroundColor: sensor.backgroundColor
-      //   }
-      // } else if (sensors.includes(sensors.find(({ symbol }) => symbol === 'PM2.5'))) {
-      //   let sensor = sensors.find(({ symbol }) => symbol === 'PM2.5')
-      //   console.log(sensor)
-      //   return {
-      //     symbol: sensor.symbol,
-      //     lastPercentValue: parseInt(sensor.lastPercentValue),
-      //     time: sensor.time,
-      //     value: parseInt(sensor.lastValue),
-      //     pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([sensor.lastValue], 'PM2.5', false)[0]],
-      //     backgroundColor: sensor.backgroundColor
-      //   }
-      // }
+      let worstPollutionLevelSensor = sensorsTable.reduce((prev, current) => (prev > current) ? prev : current)
+      // sensorsTable.sort(function (a, b) {
+      //   return a - b
+      // })
+      let worstPollutionLevelSensors = sensors.filter(({ pollutionLevel }) => pollutionLevel === pollutionLevelsSortReversed[worstPollutionLevelSensor])
+      if (worstPollutionLevelSensors.includes(worstPollutionLevelSensors.find(({ symbol }) => symbol === 'PM10'))) {
+        return worstPollutionLevelSensors.find(({ symbol }) => symbol === 'PM10')
+      } else if (worstPollutionLevelSensors.includes(worstPollutionLevelSensors.find(({ symbol }) => symbol === 'PM2.5'))) {
+        return worstPollutionLevelSensors.find(({ symbol }) => symbol === 'PM2.5')
+      } else if (worstPollutionLevelSensors.includes(worstPollutionLevelSensors.find(({ symbol }) => symbol === 'O3'))) {
+        return worstPollutionLevelSensors.find(({ symbol }) => symbol === 'O3')
+      } else {
+        return worstPollutionLevelSensors[Math.floor(Math.random() * worstPollutionLevelSensors.length)]
+      }
     },
     handleError (error) {
       switch (error.code) {
