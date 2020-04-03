@@ -7,7 +7,6 @@
       clipped
       v-model="drawer"
       :mini-variant="miniVariant"
-      :permanent="$vuetify.breakpoint.mdOnly"
       stateless
       app
       :width="navbarWidth"
@@ -53,22 +52,22 @@
               </template>
               <span>Panel użytkownika</span>
             </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="navigateTo('/map')"
-                       icon>
-                  <v-icon>
-                    mdi-map-marker
-                  </v-icon>
-                </v-btn>
-                <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/map')" icon>
-                  <v-icon>
-                    mdi-map-marker
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>Mapa</span>
-            </v-tooltip>
+<!--            <v-tooltip bottom>-->
+<!--              <template v-slot:activator="{ on }">-->
+<!--                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="navigateTo('/map')"-->
+<!--                       icon>-->
+<!--                  <v-icon>-->
+<!--                    mdi-map-marker-->
+<!--                  </v-icon>-->
+<!--                </v-btn>-->
+<!--                <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/map')" icon>-->
+<!--                  <v-icon>-->
+<!--                    mdi-map-marker-->
+<!--                  </v-icon>-->
+<!--                </v-btn>-->
+<!--              </template>-->
+<!--              <span>Mapa</span>-->
+<!--            </v-tooltip>-->
             <v-tooltip bottom v-if=" $route.path === '/map'">
               <template v-slot:activator="{ on }">
                 <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="setStationInput" icon>
@@ -117,42 +116,42 @@
             class="scrollable-content"
           >
             <div v-if="stationDetails !== null && !miniVariant">
-              <div align="center" class="sidebar-element">
+              <div align="center" class="data-element">
                 <v-img
                   :src="require('@/assets/place-yellow.png')"
-                  class="sidebar-icon"
+                  class="icon sidebar"
                 />
                <p class="icon-text">Stacja pomiarowa</p>
                 <p class="station-name-text">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails.city}}</span></p>
               </div>
-              <div align="center" class="sidebar-element">
+              <div align="center" class="data-element">
                 <v-img
                 :src="require('@/assets/road-yellow.png')"
-                class="sidebar-icon"
+                class="icon sidebar"
                 />
                 <p class="icon-text">Odległość</p>
                 <p class="distance-text">{{stationDetails.stationDistance}}</p>
               </div>
-              <div align="center" class="sidebar-element" v-if="stationDetails.temperature !== null">
+              <div align="center" class="data-element" v-if="stationDetails.temperature !== null">
                 <v-img
                   :src="require('@/assets/termometer.png')"
-                  class="sidebar-icon"
+                  class="icon sidebar"
                 />
                 <p class="icon-text">Temperatura</p>
                 <p class="distance-text">{{stationDetails.temperature+' &ordm;C'}}</p>
               </div>
-              <div align="center" class="sidebar-element" v-if="stationDetails.pressure !== null">
+              <div align="center" class="data-element" v-if="stationDetails.pressure !== null">
                 <v-img
                   :src="require('@/assets/pressure.png')"
-                  class="sidebar-icon"
+                  class="icon sidebar"
                 />
                 <p class="icon-text">Ciśnienie</p>
                 <p class="distance-text">{{stationDetails.pressure+' hPa'}}</p>
               </div>
-              <div align="center" class="sidebar-element">
+              <div align="center" class="data-element">
                 <v-img
                   :src="require('@/assets/fog-yellow.png')"
-                  class="sidebar-icon"
+                  class="icon sidebar"
                 />
                 <p class="icon-text">Jakość powietrza</p>
                 <div
@@ -166,7 +165,7 @@
                   <div class="sensor-column">
                     <v-tooltip bottom>
                       <template v-slot:activator="{ on }">
-                        <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
+                        <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.lastPercentValue+'%'}}</p>
                       </template>
                       <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
                     </v-tooltip>
@@ -214,11 +213,14 @@ import { mapActions, mapState } from 'vuex'
 import Functions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
 import pollutionLevels from '@/libs/pollutionLevels'
+import pollutionLevelsSort from '@/libs/pollutionLevelsSort'
+import pollutionLevelsSortReversed from '@/libs/pollutionLevelsSortReversed'
 
 export default {
   components: { ChartDialog },
   data () {
     return {
+      drawer: false,
       inputVisibility: false,
       searchValue: '',
       apiResponse: null,
@@ -245,16 +247,21 @@ export default {
   methods: {
     navigateTo (path) {
       if (this.$route.path !== path) {
-        this.$router.push(path)
+        this.drawer = false
+        setTimeout(function () {
+          this.$router.push(path)
+        }
+          .bind(this),
+        150)
       }
     },
-    ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState', 'setSelectedStationState']),
+    ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState', 'setSelectedStationState', 'setRouteState']),
     async fillDatacollection (id, apiResponse) {
       let sensor = apiResponse.find(sensor => sensor.details.id === id)
       let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
       let filteredValues = filteredMeasurements.map(({ value }) => value)
       let averageMeasurement = this.functions.getAverage(filteredValues)
-      let lastMeasurement = this.getLastMeasurement(filteredValues)
+      let lastMeasurement = this.functions.getLastMeasurement(filteredValues)
       this.barDataCollection = {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
@@ -270,42 +277,28 @@ export default {
         datasets: [
           {
             label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
-            backgroundColor: this.functions.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, true)[0],
+            backgroundColor: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, true)[0],
             data: filteredMeasurements.map(({ value }) => value.toFixed(2))
           }
         ]
       }
       this.sensorDetails.averageMeasurement = {
-        value: averageMeasurement[0].toFixed(2),
-        procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement[0]),
-        pollutionLevel: pollutionLevels[this.functions.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, false)[0]],
-        color: this.functions.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, false)[0]
+        value: averageMeasurement.toFixed(2),
+        procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement),
+        pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]],
+        color: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]
       }
       this.sensorDetails.lastMeasurement = {
-        value: lastMeasurement[0].toFixed(2),
-        procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement[0]),
-        pollutionLevel: pollutionLevels[this.functions.setBackgroundColor(lastMeasurement, sensor.details.paramTwo, false)[0]],
-        color: this.functions.setBackgroundColor(lastMeasurement, sensor.details.paramTwo, false)[0]
+        value: lastMeasurement.toFixed(2),
+        procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement),
+        pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]],
+        color: this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]
       }
       this.chartDialogVisibility = true
       this.sensorDetails.sensorId = sensor.details.id
     },
     setStationInput () {
       this.inputVisibility = !this.inputVisibility
-      // let content = document.getElementById('station-content')
-      // if (this.inputVisibility === true) {
-      //   content.className = 'scrollable-content-input'
-      // } else {
-      //   content.className = 'scrollable-content'
-      // }
-      // if (this.mini) {
-      //   this.mini = false
-      // }
-    },
-    getLastMeasurement (measurements) {
-      return [
-        measurements[measurements.length - 1]
-      ]
     },
     async closestStation (userLocation) {
       if (this.allStations === null) {
@@ -321,6 +314,11 @@ export default {
           closestStationDetails = station
         }
       })
+      // this.allStations.forEach(station => {
+      //   if (station.id === 743) {
+      //     closestStationDetails = station
+      //   }
+      // })
       let response = (await this.stationsService.getStation(closestStationDetails.id)).filter(({ measurement }) => measurement.length > 0)
       let sensorsDetails = response.map(({ details }) => details)
       let lastSensorsValues = this.functions.mapLastValues(response)
@@ -328,8 +326,13 @@ export default {
         id: closestStationDetails.id,
         stationName: closestStationDetails.stationName,
         city: closestStationDetails.city,
+        temperature: closestStationDetails.temperature,
+        pressure: closestStationDetails.pressure,
+        wind: closestStationDetails.wind,
+        humidity: closestStationDetails.humidity,
         sensors: this.functions.mapSensors(sensorsDetails, lastSensorsValues),
-        chartData: this.mapChartData(this.functions.mapSensors(sensorsDetails, lastSensorsValues)),
+        gaugeChartData: this.mapGaugeChartData(this.functions.mapSensors(sensorsDetails, lastSensorsValues)),
+        horizontalBarChartData: this.mapHorizontalBarChartData(this.functions.mapSensors(sensorsDetails, lastSensorsValues)),
         stationDistance: this.functions.roundStationDistance(this.functions.getDistance(closestStationDetails.coordinates,
           userLocation))
       }
@@ -344,23 +347,100 @@ export default {
       this.setUserLocationState(userLocation)
       navigator.geolocation.clearWatch(this.watcher)
     },
-    mapChartData (sensors) {
-      if (sensors.includes(sensors.find(({ symbol }) => symbol === 'PM10'))) {
-        let sensor = sensors.find(({ symbol }) => symbol === 'PM10')
-        return {
-          symbol: sensor.symbol,
-          percentValue: parseInt(sensor.pollutionLimit),
-          value: parseInt(sensor.lastValue),
-          backgroundColor: sensor.backgroundColor
-        }
-      } else if (sensors.includes(sensors.find(({ symbol }) => symbol === 'PM2.5'))) {
-        let sensor = sensors.find(({ symbol }) => symbol === 'PM2.5')
-        return {
-          symbol: sensor.symbol,
-          percentValue: parseInt(sensor.pollutionLimit),
-          value: parseInt(sensor.lastValue),
-          backgroundColor: sensor.backgroundColor
-        }
+    mapHorizontalBarChartLimit (sensors) {
+      let lastPercentValuesArray = sensors.map((sensor) => {
+        return sensor.lastPercentValue
+      })
+      let highestPercentValue = lastPercentValuesArray.reduce((prev, current) => (prev > current) ? prev : current)
+      // lastPercentValuesArray.sort(function (a, b) {
+      //   return a - b
+      // })
+      if (highestPercentValue > 100) {
+        return Math.ceil(highestPercentValue / 50) * 50
+      } else {
+        return 100
+      }
+    },
+    mapHorizontalBarChartData (sensors) {
+      return {
+        series: [{
+          name: 'Ostatni pomiar',
+          data: sensors.map(({ lastPercentValue }) => lastPercentValue)
+        }],
+        chartOptions: {
+          tooltip: {
+            y: {
+              formatter: (value) => { return value + '%' }
+            }
+          },
+          colors: sensors.map(({ backgroundColor }) => backgroundColor),
+          legend: {
+            show: false
+          },
+          chart: {
+            events: {
+              click: function (event, chartContext, config) {
+                console.log(config)
+                console.log(config.seriesIndex)
+                console.log(config.dataPointIndex)
+              }
+            },
+            foreSize: 15,
+            foreColor: '#fff',
+            toolbar: {
+              show: false
+            },
+            type: 'bar',
+            height: 150
+          },
+          plotOptions: {
+            bar: {
+              horizontal: true,
+              distributed: true
+            }
+          },
+          dataLabels: {
+            enabled: false
+          },
+          xaxis: {
+            categories: sensors.map(({ symbol }) => symbol),
+            labels: {
+              style: {
+                fontSize: '15px'
+              }
+            }
+          },
+          yaxis: {
+            max: this.mapHorizontalBarChartLimit(sensors),
+            labels: {
+              style: {
+                fontSize: '16px'
+              }
+            }
+          }
+        },
+        symbols: sensors.map(({ symbol }) => symbol),
+        values: sensors.map(({ pollutionLimit }) => pollutionLimit),
+        backgroundColor: sensors.map(({ backgroundColor }) => backgroundColor)
+      }
+    },
+    mapGaugeChartData (sensors) {
+      let sensorsTable = sensors.map((sensor) => {
+        return pollutionLevelsSort[sensor.pollutionLevel]
+      })
+      let worstPollutionLevelSensor = sensorsTable.reduce((prev, current) => (prev > current) ? prev : current)
+      // sensorsTable.sort(function (a, b) {
+      //   return a - b
+      // })
+      let worstPollutionLevelSensors = sensors.filter(({ pollutionLevel }) => pollutionLevel === pollutionLevelsSortReversed[worstPollutionLevelSensor])
+      if (worstPollutionLevelSensors.includes(worstPollutionLevelSensors.find(({ symbol }) => symbol === 'PM10'))) {
+        return worstPollutionLevelSensors.find(({ symbol }) => symbol === 'PM10')
+      } else if (worstPollutionLevelSensors.includes(worstPollutionLevelSensors.find(({ symbol }) => symbol === 'PM2.5'))) {
+        return worstPollutionLevelSensors.find(({ symbol }) => symbol === 'PM2.5')
+      } else if (worstPollutionLevelSensors.includes(worstPollutionLevelSensors.find(({ symbol }) => symbol === 'O3'))) {
+        return worstPollutionLevelSensors.find(({ symbol }) => symbol === 'O3')
+      } else {
+        return worstPollutionLevelSensors[Math.floor(Math.random() * worstPollutionLevelSensors.length)]
       }
     },
     handleError (error) {
@@ -394,9 +474,6 @@ export default {
     }
   },
   computed: {
-    drawer () {
-      return this.$route.path === '/map'
-    },
     miniVariant () {
       return this.stationDetails === null && this.inputVisibility === false
     },
@@ -410,6 +487,16 @@ export default {
     ...mapState('stations', ['allStationsState', 'selectedStationState'])
   },
   watch: {
+    '$route.path' (value) {
+      setTimeout(function () { this.setRouteState(value) }
+        .bind(this),
+      250)
+      if (value === '/map') {
+        this.drawer = true
+      } else {
+        this.stationDetails = null
+      }
+    },
     'inputVisibility' (value) {
       let content = document.getElementById('station-content')
       if (value === true) {
@@ -461,9 +548,6 @@ export default {
   },
   mounted () {
     this.setAllStationsState()
-  },
-  beforeDestroy () {
-    bus.$off()
   }
 }
 </script>

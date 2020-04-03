@@ -130,12 +130,12 @@ export default {
         datasets: [
           {
             label: yesterdaysDate,
-            backgroundColor: this.functions.setBackgroundColor(yesterdaysAverageMeasurement, sensor.details.paramTwo, true)[0],
+            backgroundColor: this.functions.setBackgroundColor([yesterdaysAverageMeasurement], sensor.details.paramTwo, true)[0],
             data: yesterdayValues
           },
           {
             label: this.functions.formatDate(new Date()),
-            backgroundColor: this.functions.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, true)[0],
+            backgroundColor: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, true)[0],
             data: filteredMeasurements.map(({ value }) => value)
           }
         ]

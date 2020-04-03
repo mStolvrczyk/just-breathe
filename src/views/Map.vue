@@ -165,7 +165,7 @@ export default {
           symbol: sensorsDetails[i].paramTwo,
           lastValue: (lastSensorsValues[i]).toFixed(1),
           backgroundColor: this.functions.setBackgroundColor(currentValue, sensorsDetails[i].paramTwo, false)[0],
-          pollutionLimit: this.functions.getPollutionLimit(sensorsDetails[i].paramTwo, (lastSensorsValues[i]).toFixed(1))
+          lastPercentValue: this.functions.getPollutionLimit(sensorsDetails[i].paramTwo, (lastSensorsValues[i]).toFixed(1))
         })
       }
       return sensorsArray
@@ -221,9 +221,6 @@ export default {
   // },
   mounted () {
     this.setZoom()
-  },
-  beforeDestroy () {
-    bus.$off()
   }
 }
 </script>
