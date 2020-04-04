@@ -98,10 +98,10 @@ h3 {
       height: 25px;
     }
     &.dashboard {
-      width: 40px;
-      height: 40px;
+      width: 30px;
+      height: 30px;
       &.humidity {
-        width: 28px;
+        width: 21px;
       }
     }
   }
@@ -166,6 +166,9 @@ h3 {
     color: #FFFF;
     font-weight: bold;
     text-align: center;
+    &.dashboard {
+      text-align: right;
+    }
   }
   .sensor-value {
     align-content: center;
