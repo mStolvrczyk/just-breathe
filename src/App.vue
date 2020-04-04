@@ -173,7 +173,7 @@
                   <div class="button-column">
                     <v-tooltip bottom>
                       <template v-slot:activator="{ on }">
-                        <v-btn @click="fillDatacollection(sensor.id, apiResponse)" normal color="white" v-on="on" icon>
+                        <v-btn @click="fillDatacollection(sensor.id, apiResponseState)" normal color="white" v-on="on" icon>
                           <v-icon>
                             mdi-dots-horizontal
                           </v-icon>
@@ -191,18 +191,17 @@
     </v-navigation-drawer>
     <v-content>
       <router-view/>
-      <ChartDialog
-        :sensorDetails="sensorDetails"
-        :apiResponse="apiResponse"
-        :barDataCollection="barDataCollection"
-        :lineDataCollection="lineDataCollection"
-        :chartDialogVisibility.sync="chartDialogVisibility"
-        :chartVisibility.sync="chartVisibility"
-        v-on:closeChartDialog="closeChartDialog"
-        v-on:barDataComparison="barDataComparison"
-        v-on:lineDataComparison="lineDataComparison"
-        v-on:withoutComparison="withoutComparison"
-      />
+      <ChartDialog/>
+<!--        :sensorDetails="sensorDetails"-->
+<!--        :apiResponse="apiResponse"-->
+<!--        :barDataCollection="barDataCollection"-->
+<!--        :lineDataCollection="lineDataCollection"-->
+<!--        :chartDialogVisibility.sync="chartDialogVisibility"-->
+<!--        :chartVisibility.sync="chartVisibility"-->
+<!--        v-on:closeChartDialog="closeChartDialog"-->
+<!--        v-on:barDataComparison="barDataComparison"-->
+<!--        v-on:lineDataComparison="lineDataComparison"-->
+<!--        v-on:withoutComparison="withoutComparison"-->
     </v-content>
   </v-app>
 </template>
@@ -256,13 +255,14 @@ export default {
       }
     },
     ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState', 'setSelectedStationState', 'setRouteState']),
+    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState', 'setApiResponseState']),
     async fillDatacollection (id, apiResponse) {
       let sensor = apiResponse.find(sensor => sensor.details.id === id)
       let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
       let filteredValues = filteredMeasurements.map(({ value }) => value)
       let averageMeasurement = this.functions.getAverage(filteredValues)
       let lastMeasurement = this.functions.getLastMeasurement(filteredValues)
-      this.barDataCollection = {
+      let barDataCollection = {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
@@ -272,7 +272,8 @@ export default {
           }
         ]
       }
-      this.lineDataCollection = {
+      this.setBarDataCollectionState(barDataCollection)
+      let lineDataCollection = {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
@@ -282,20 +283,24 @@ export default {
           }
         ]
       }
-      this.sensorDetails.averageMeasurement = {
-        value: averageMeasurement.toFixed(2),
-        procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement),
-        pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]],
-        color: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]
+      this.setLineDataCollectionState(lineDataCollection)
+      let sensorDetails = {
+        sensorId: sensor.details.id,
+        averageMeasurement: {
+          value: averageMeasurement.toFixed(2),
+          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement),
+          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]],
+          color: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]
+        },
+        lastMeasurement: {
+          value: lastMeasurement.toFixed(2),
+          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement),
+          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]],
+          color: this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]
+        }
       }
-      this.sensorDetails.lastMeasurement = {
-        value: lastMeasurement.toFixed(2),
-        procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement),
-        pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]],
-        color: this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]
-      }
-      this.chartDialogVisibility = true
-      this.sensorDetails.sensorId = sensor.details.id
+      this.setSensorDetailsState(sensorDetails)
+      this.setChartDialogVisibilityState(true)
     },
     setStationInput () {
       this.inputVisibility = !this.inputVisibility
@@ -320,6 +325,7 @@ export default {
         }
       })
       let response = (await this.stationsService.getStation(closestStationDetails.id)).filter(({ measurement }) => measurement.length > 0)
+      this.setApiResponseState(response)
       let sensorsDetails = response.map(({ details }) => details)
       let lastSensorsValues = this.functions.mapLastValues(response)
       let closestStation = {
@@ -485,7 +491,8 @@ export default {
         return 270
       }
     },
-    ...mapState('stations', ['allStationsState', 'selectedStationState'])
+    ...mapState('stations', ['allStationsState', 'selectedStationState']),
+    ...mapState('sensors', ['apiResponseState'])
   },
   watch: {
     '$route.path' (value) {
@@ -494,6 +501,7 @@ export default {
       250)
       if (value === '/map') {
         this.drawer = true
+        this.setApiResponseState(null)
       } else {
         this.stationDetails = null
       }
@@ -534,8 +542,7 @@ export default {
   },
   beforeMount () {
     bus.$on('setStationDetails', (data) => {
-      this.stationDetails = data.stationDetails
-      this.apiResponse = data.response
+      this.stationDetails = data
     })
     // bus.$on('setMini', (value) => {
     //   this.mini = value

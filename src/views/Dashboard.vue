@@ -120,7 +120,7 @@
                 <div class="column">
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
-                      <v-btn @click="fillDatacollection(sensor.id, apiResponse)" class="details-button" normal color="white" v-on="on" icon>
+                      <v-btn @click="fillDatacollection(sensor.id, apiResponseState)" class="details-button" normal color="white" v-on="on" icon>
                         <v-icon>
                           mdi-dots-horizontal
                         </v-icon>
@@ -175,10 +175,11 @@
 <script>
 import AnimatedNumber from 'animated-number-vue'
 import { VueSvgGauge } from 'vue-svg-gauge'
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import HelperFunctions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
 import VueApexCharts from 'vue-apexcharts'
+import pollutionLevels from '@/libs/pollutionLevels'
 export default {
   name: 'Dashboard',
   data () {
@@ -198,6 +199,53 @@ export default {
     VueApexCharts
   },
   methods: {
+    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState']),
+    async fillDatacollection (id, apiResponse) {
+      let sensor = apiResponse.find(sensor => sensor.details.id === id)
+      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
+      let filteredValues = filteredMeasurements.map(({ value }) => value)
+      let averageMeasurement = this.functions.getAverage(filteredValues)
+      let lastMeasurement = this.functions.getLastMeasurement(filteredValues)
+      let barDataCollection = {
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
+            backgroundColor: this.functions.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
+            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
+          }
+        ]
+      }
+      this.setBarDataCollectionState(barDataCollection)
+      let lineDataCollection = {
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
+            backgroundColor: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, true)[0],
+            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
+          }
+        ]
+      }
+      this.setLineDataCollectionState(lineDataCollection)
+      let sensorDetails = {
+        sensorId: sensor.details.id,
+        averageMeasurement: {
+          value: averageMeasurement.toFixed(2),
+          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement),
+          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]],
+          color: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]
+        },
+        lastMeasurement: {
+          value: lastMeasurement.toFixed(2),
+          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement),
+          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]],
+          color: this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]
+        }
+      }
+      this.setSensorDetailsState(sensorDetails)
+      this.setChartDialogVisibilityState(true)
+    },
     mapHorizontalBarChartLimit (sensor) {
       if (sensor.lastPercentValue > 100) {
         return Math.ceil(sensor.lastPercentValue / 50) * 50
@@ -293,7 +341,8 @@ export default {
         return 3000
       }
     },
-    ...mapState('stations', ['closestStationState', 'routeState'])
+    ...mapState('stations', ['closestStationState', 'routeState']),
+    ...mapState('sensors', ['apiResponseState'])
   }
 }
 </script>
