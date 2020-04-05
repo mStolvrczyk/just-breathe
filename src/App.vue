@@ -121,48 +121,49 @@
                   :src="require('@/assets/place-yellow.png')"
                   class="icon sidebar"
                 />
-               <p class="icon-text">Stacja pomiarowa</p>
-                <p class="station-name-text">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails.city}}</span></p>
+               <p class="icon-text-paragraph">Stacja pomiarowa</p>
+                <p class="data-paragraph">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails
+                  .city}}</span></p>
               </div>
               <div align="center" class="data-element">
                 <v-img
                 :src="require('@/assets/road-yellow.png')"
                 class="icon sidebar"
                 />
-                <p class="icon-text">Odległość</p>
-                <p class="distance-text">{{stationDetails.stationDistance}}</p>
+                <p class="icon-text-paragraph">Odległość</p>
+                <p class="data-paragraph">{{stationDetails.stationDistance}}</p>
               </div>
               <div align="center" class="data-element" v-if="stationDetails.temperature !== null">
                 <v-img
                   :src="require('@/assets/termometer.png')"
                   class="icon sidebar"
                 />
-                <p class="icon-text">Temperatura</p>
-                <p class="distance-text">{{stationDetails.temperature+' &ordm;C'}}</p>
+                <p class="icon-text-paragraph">Temperatura</p>
+                <p class="data-paragraph">{{stationDetails.temperature+' &ordm;C'}}</p>
               </div>
               <div align="center" class="data-element" v-if="stationDetails.pressure !== null">
                 <v-img
                   :src="require('@/assets/pressure.png')"
                   class="icon sidebar"
                 />
-                <p class="icon-text">Ciśnienie</p>
-                <p class="distance-text">{{stationDetails.pressure+' hPa'}}</p>
+                <p class="icon-text-paragraph">Ciśnienie</p>
+                <p class="data-paragraph">{{stationDetails.pressure+' hPa'}}</p>
               </div>
               <div align="center" class="data-element">
                 <v-img
                   :src="require('@/assets/fog-yellow.png')"
                   class="icon sidebar"
                 />
-                <p class="icon-text">Jakość powietrza</p>
+                <p class="icon-text-paragraph">Jakość powietrza</p>
                 <div
-                  class="sensor-row"
+                  class="row sensor"
                   v-for="sensor in stationDetails.sensors"
                   :key="sensor.index"
                 >
-                  <div class="sensor-column">
-                    <p class="sensor-symbol">{{sensor.symbol}}</p>
+                  <div class="column sensor">
+                    <p class="sensor-symbol-paragraph">{{sensor.symbol}}</p>
                   </div>
-                  <div class="sensor-column">
+                  <div class="column sensor">
                     <v-tooltip bottom>
                       <template v-slot:activator="{ on }">
                         <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.lastPercentValue+'%'}}</p>
@@ -170,7 +171,7 @@
                       <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
                     </v-tooltip>
                   </div>
-                  <div class="button-column">
+                  <div class="column button">
                     <v-tooltip bottom>
                       <template v-slot:activator="{ on }">
                         <v-btn @click="fillDatacollection(sensor.id, apiResponseStateMap)" normal color="white" v-on="on" icon>
