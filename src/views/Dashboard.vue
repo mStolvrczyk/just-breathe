@@ -51,7 +51,7 @@
           <div class="inner-text">
             <div class="row">
               <div class="column">
-                <p id="white-data-paragraph">
+                <p class="white-data-paragraph">
                   <animated-number
                     :value="closestStationState.gaugeChartData.lastPercentValue"
                     :formatValue="formatPercentValue"
@@ -66,7 +66,7 @@
                   /><br>
                   {{closestStationState.gaugeChartData.symbol}}
                 </p>
-                <p id="index-level-paragraph" :style="{'color': closestStationState.gaugeChartData.backgroundColor}">
+                <p class="index-level-paragraph" :style="{'color': closestStationState.gaugeChartData.backgroundColor}">
                   {{closestStationState.gaugeChartData.pollutionLevel}}</p>
               </div>
             </div>
@@ -83,24 +83,25 @@
                 :src="require('@/assets/road-yellow.png')"
                 class="icon dashboard"
               />
-              <p class="icon-text">Odległość</p>
-                <p class="distance-text">{{closestStationState.stationDistance}}</p>
+              <p class="icon-text-paragraph">Odległość</p>
+                <p class="data-paragraph">{{closestStationState.stationDistance}}</p>
             </div>
             <div align="center" class="data-element dashboard station-name">
               <v-img
                 :src="require('@/assets/place-yellow.png')"
                 class="icon dashboard"
               />
-              <p class="icon-text">Stacja pomiarowa</p>
-              <p class="station-name-text">{{closestStationState.stationName }}<br><span class="city-text">{{closestStationState.city}}</span></p>
+              <p class="icon-text-paragraph">Stacja pomiarowa</p>
+              <p class="data-paragraph">{{closestStationState.stationName }}<br><span class="city-text">
+                {{closestStationState.city}}</span></p>
             </div>
             <div align="center" class="data-element dashboard">
               <v-img
                 :src="require('@/assets/clock.png')"
                 class="icon dashboard"
               />
-              <p class="icon-text">Ostatni pomiar ({{closestStationState.gaugeChartData.symbol}})</p>
-              <p class="distance-text">{{closestStationState.gaugeChartData.time}}</p>
+              <p class="icon-text-paragraph">Ostatni pomiar ({{closestStationState.gaugeChartData.symbol}})</p>
+              <p class="data-paragraph">{{closestStationState.gaugeChartData.time}}</p>
             </div>
           </div>
           <div class="row">
@@ -109,13 +110,13 @@
                 :src="require('@/assets/fog-yellow.png')"
                 class="icon dashboard"
               />
-              <p class="icon-text">Jakość powietrza</p>
+              <p class="icon-text-paragraph">Jakość powietrza</p>
               <div class="row" v-for="sensor in closestStationState.sensors" :key="sensor.index">
                 <div class="column sensor-symbol">
-                  <p class="sensor-symbol dashboard">{{sensor.symbol}}</p>
+                  <p class="sensor-symbol-paragraph">{{sensor.symbol}}</p>
                 </div>
                 <div class="column">
-                  <vue-apex-charts type="bar" height="100" width="500" :options="mapHorizontalBarChartOptions(sensor)" :series="mapHorizontalBarChartSeries(sensor)"></vue-apex-charts>
+                  <vue-apex-charts type="bar" :height="horizontalChartHeight" :width="horizontalChartWidth" :options="mapHorizontalBarChartOptions(sensor)" :series="mapHorizontalBarChartSeries(sensor)"></vue-apex-charts>
                 </div>
                 <div class="column">
                   <v-tooltip bottom>
@@ -138,32 +139,32 @@
                 :src="require('@/assets/termometer.png')"
                 class="icon dashboard"
               />
-              <p class="icon-text">Temperatura</p>
-              <p class="distance-text">{{closestStationState.temperature+' &ordm;C'}}</p>
+              <p class="icon-text-paragraph">Temperatura</p>
+              <p class="data-paragraph">{{closestStationState.temperature+' &ordm;C'}}</p>
             </div>
             <div align="center" class="data-element dashboard">
               <v-img
                 :src="require('@/assets/pressure.png')"
                 class="icon dashboard"
               />
-              <p class="icon-text">Ciśnienie</p>
-              <p class="distance-text">{{closestStationState.pressure+' hPa'}}</p>
+              <p class="icon-text-paragraph">Ciśnienie</p>
+              <p class="data-paragraph">{{closestStationState.pressure+' hPa'}}</p>
             </div>
             <div align="center" class="data-element dashboard">
               <v-img
                 :src="require('@/assets/wind.png')"
                 class="icon dashboard"
               />
-              <p class="icon-text">Prędkość wiatru</p>
-                      <p class="distance-text">{{closestStationState.wind+' km/h'}}</p>
+              <p class="icon-text-paragraph">Prędkość wiatru</p>
+              <p class="data-paragraph">{{closestStationState.wind+' km/h'}}</p>
             </div>
             <div align="center" class="data-element dashboard">
               <v-img
                 :src="require('@/assets/humidity.png')"
                 class="icon dashboard humidity"
               />
-              <p class="icon-text">Wilgotność</p>
-                      <p class="distance-text">{{closestStationState.humidity+'%'}}</p>
+              <p class="icon-text-paragraph">Wilgotność</p>
+              <p class="data-paragraph">{{closestStationState.humidity+'%'}}</p>
             </div>
           </div>
         </div>
@@ -284,8 +285,7 @@ export default {
           toolbar: {
             show: false
           },
-          type: 'bar',
-          height: 150
+          type: 'bar'
         },
         plotOptions: {
           bar: {
@@ -316,10 +316,10 @@ export default {
       }
     },
     formatPercentValue (value) {
-      return `<p id="percent-value-paragraph">${value + '%'}</p>`
+      return `<p class="percent-value-paragraph">${value + '%'}</p>`
     },
     formatValue (value) {
-      return `<p id="value-paragraph">(${value + ' &#181/m'}<sup>3</sup>)</p>`
+      return `<p class="value-paragraph">(${value + ' &#181/m'}<sup>3</sup>)</p>`
     },
     navigateTo (path) {
       if (this.$route.path !== path) {
@@ -341,6 +341,20 @@ export default {
         return 3000
       }
     },
+    horizontalChartWidth () {
+      if (this.$vuetify.breakpoint.xsOnly) {
+        return 230
+      } else {
+        return 550
+      }
+    },
+    horizontalChartHeight () {
+      if (this.$vuetify.breakpoint.xsOnly) {
+        return 90
+      } else {
+        return 100
+      }
+    },
     ...mapState('stations', ['closestStationState', 'routeState']),
     ...mapState('sensors', ['apiResponseStateDashboard'])
   }
@@ -348,98 +362,6 @@ export default {
 </script>
 
 <style lang="scss">
-  .details-button {
-    margin-bottom: 0.7rem;
-  }
-  .info-icon {
-    right: 0;
-    position: absolute;
-  }
-  #data-container {
-    /*display: flex;*/
-    alignment: center;
-    justify-content: center;
-    text-align: center;
-    width: 100%;
-  }
-  .logo-image {
-    width: 55px;
-    height: 55px;
-  }
-  #dashboard-sidebar {
-    margin: 0.6rem;
-    position: absolute;
-  }
-  .row {
-    margin-right: 0;
-    margin-left: 0;
-    margin-bottom: 0.5rem;
-    flex-direction: row;
-    align-content: center;
-    justify-content: center;
-    width: 100%;
-    &.data-row {
-    }
-  }
-  .column {
-    display: flex;
-    flex-direction: column;
-    align-content: center;
-    justify-content: center;
-    &.sensor-symbol {
-      text-align: left;
-      width: 40px;
-    }
-  }
-  .inner-text {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    width: 100%;
-
-  }
-  #white-data-paragraph {
-    color: #ffff;
-    text-align: center;
-    line-height: 10px;
-    margin-top: 0.8rem;
-    margin-bottom: 2rem;
-  }
-  #index-level-paragraph {
-    text-align: center;
-    line-height: 11px;
-    margin-top: 1rem;
-  }
-  #pollution-name-paragraph {
-    margin-top: 0;
-    padding: 0;
-    font-family: Rubik;
-    font-weight: bold;
-    text-align: center;
-    font-size: 20px;
-    color: teal;
-  }
-  #percent-value-paragraph {
-    font-family: Rubik;
-    margin-bottom: 0;
-    font-size: 30px;
-    text-align: center;
-    max-width: 100px;
-  }
-  #value-paragraph {
-    font-family: Rubik;
-    font-weight: normal;
-    padding: 0;
-    margin-top: 0;
-    font-size: 15px;
-  }
-  #chart {
-    position: relative;
-    padding: 1rem;
-    width: 20%;
-    height: 20%;
-  }
   #dashboard {
     align-content: center;
     overflow-y: auto;

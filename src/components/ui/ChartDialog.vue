@@ -25,7 +25,7 @@
         </transition>
       </div>
       <div v-if="barDataCollectionState.datasets.length > 0 || lineDataCollectionState.datasets.length > 0">
-        <div class="chart-row">
+        <div class="row chart">
           <v-btn-toggle rounded v-model="alignment">
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
@@ -60,7 +60,7 @@
           ({{sensorDetailsState.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
           {{sensorDetailsState.lastMeasurement.pollutionLevel}}</span></h3>
       </div>
-      <div class="chart-row button">
+      <div class="row chart button">
         <v-btn @click="closeDialog" class="teal--text font-weight-bold" rounded color="#EEEEEE" dark>Wróć</v-btn>
       </div>
     </div>
