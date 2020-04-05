@@ -173,7 +173,7 @@
                   <div class="button-column">
                     <v-tooltip bottom>
                       <template v-slot:activator="{ on }">
-                        <v-btn @click="fillDatacollection(sensor.id, apiResponseState)" normal color="white" v-on="on" icon>
+                        <v-btn @click="fillDatacollection(sensor.id, apiResponseStateMap)" normal color="white" v-on="on" icon>
                           <v-icon>
                             mdi-dots-horizontal
                           </v-icon>
@@ -255,7 +255,7 @@ export default {
       }
     },
     ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState', 'setSelectedStationState', 'setRouteState']),
-    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState', 'setApiResponseState']),
+    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState', 'setApiResponseStateDashboard']),
     async fillDatacollection (id, apiResponse) {
       let sensor = apiResponse.find(sensor => sensor.details.id === id)
       let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
@@ -325,7 +325,7 @@ export default {
         }
       })
       let response = (await this.stationsService.getStation(closestStationDetails.id)).filter(({ measurement }) => measurement.length > 0)
-      this.setApiResponseState(response)
+      this.setApiResponseStateDashboard(response)
       let sensorsDetails = response.map(({ details }) => details)
       let lastSensorsValues = this.functions.mapLastValues(response)
       let closestStation = {
@@ -492,7 +492,7 @@ export default {
       }
     },
     ...mapState('stations', ['allStationsState', 'selectedStationState']),
-    ...mapState('sensors', ['apiResponseState'])
+    ...mapState('sensors', ['apiResponseStateMap'])
   },
   watch: {
     '$route.path' (value) {
@@ -501,7 +501,6 @@ export default {
       250)
       if (value === '/map') {
         this.drawer = true
-        this.setApiResponseState(null)
       } else {
         this.stationDetails = null
       }

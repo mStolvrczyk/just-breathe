@@ -15,7 +15,8 @@ const state = {
     lastMeasurement: null
   },
   chartDialogVisibilityState: false,
-  apiResponseState: null
+  apiResponseStateDashboard: null,
+  apiResponseStateMap: null
 }
 
 // const getters = {
@@ -36,8 +37,11 @@ const actions = {
   async setChartDialogVisibilityState ({ commit }, chartDialogVisibility) {
     await commit('setChartDialogVisibilityState', chartDialogVisibility)
   },
-  async setApiResponseState ({ commit }, apiResponse) {
-    await commit('setApiResponseState', apiResponse)
+  async setApiResponseStateDashboard ({ commit }, apiResponse) {
+    await commit('setApiResponseStateDashboard', apiResponse)
+  },
+  async setApiResponseStateMap ({ commit }, apiResponse) {
+    await commit('setApiResponseStateMap', apiResponse)
   }
 }
 
@@ -51,7 +55,9 @@ const mutations = {
   // eslint-disable-next-line no-return-assign
   setChartDialogVisibilityState: (state, chartDialogVisibility) => state.chartDialogVisibilityState = chartDialogVisibility,
   // eslint-disable-next-line no-return-assign
-  setApiResponseState: (state, apiResponse) => state.apiResponseState = apiResponse
+  setApiResponseStateDashboard: (state, apiResponse) => state.apiResponseStateDashboard = apiResponse,
+  // eslint-disable-next-line no-return-assign
+  setApiResponseStateMap: (state, apiResponse) => state.apiResponseStateMap = apiResponse
 }
 
 export default {

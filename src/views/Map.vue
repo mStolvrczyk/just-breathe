@@ -98,7 +98,7 @@ export default {
   },
   methods: {
     ...mapActions('stations', ['setSelectedStationState']),
-    ...mapActions('sensors', ['setApiResponseState']),
+    ...mapActions('sensors', ['setApiResponseStateMap']),
     mapClick () {
       this.stationId = null
       bus.$emit('resetStationDetails', null)
@@ -112,7 +112,7 @@ export default {
     async getStationDetails (id, stations, userLocation, extraZoom) {
       this.stationId = id
       let response = (await this.stationsService.getStation(id)).filter(({ measurement }) => measurement.length > 0)
-      this.setApiResponseState(response)
+      this.setApiResponseStateMap(response)
       let stationId = id
       let station = await stations.find(({ id }) => id === stationId)
       let sensorsDetails = response.map(({ details }) => details)

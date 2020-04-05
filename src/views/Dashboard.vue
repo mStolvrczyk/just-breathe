@@ -120,7 +120,7 @@
                 <div class="column">
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
-                      <v-btn @click="fillDatacollection(sensor.id, apiResponseState)" class="details-button" normal color="white" v-on="on" icon>
+                      <v-btn @click="fillDatacollection(sensor.id, apiResponseStateDashboard)" class="details-button" normal color="white" v-on="on" icon>
                         <v-icon>
                           mdi-dots-horizontal
                         </v-icon>
@@ -342,7 +342,7 @@ export default {
       }
     },
     ...mapState('stations', ['closestStationState', 'routeState']),
-    ...mapState('sensors', ['apiResponseState'])
+    ...mapState('sensors', ['apiResponseStateDashboard'])
   }
 }
 </script>

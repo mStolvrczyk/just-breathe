@@ -37,7 +37,7 @@
             </v-tooltip>
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
-                <v-btn @click="compareWithYesterday(sensorDetailsState.sensorId, apiResponseState), comparison = !comparison" color="white" v-on="on">
+                <v-btn @click="compareWithYesterday(sensorDetailsState.sensorId, apiResponseHolder), comparison = !comparison" color="white" v-on="on">
                   <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
                 </v-btn>
               </template>
@@ -81,6 +81,7 @@ export default {
   },
   data () {
     return {
+      apiResponseHolder: null,
       functions: new Functions(),
       updatedBarDataCollection: null,
       updatedLineDataCollection: null,
@@ -99,7 +100,7 @@ export default {
   //   lineDataCollection: Object
   // },
   methods: {
-    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState', 'setApiResponseState']),
+    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState']),
     closeDialog () {
       let barDataCollectionState = {
         labels: null,
@@ -118,9 +119,6 @@ export default {
       this.setLineDataCollectionState(lineDataCollectionState)
       this.setSensorDetailsState(sensorDetailsState)
       this.setChartDialogVisibilityState(false)
-      if (this.$route.path === '/map') {
-        this.setApiResponseState(null)
-      }
     },
     async fillDatacollection (id, apiResponse) {
       let sensor = apiResponse.find(sensor => sensor.details.id === id)
@@ -166,7 +164,6 @@ export default {
         }
       }
       this.setSensorDetailsState(sensorDetails)
-      this.setChartDialogVisibilityState(true)
     },
     async compareWithYesterday (id, apiResponse) {
       let yesterdaysDate = this.getYesterdaysDate()
@@ -225,26 +222,38 @@ export default {
         return 270
       }
     },
-    ...mapState('sensors', ['barDataCollectionState', 'lineDataCollectionState', 'sensorDetailsState', 'chartDialogVisibilityState', 'apiResponseState'])
+    ...mapState('sensors', ['barDataCollectionState', 'lineDataCollectionState', 'sensorDetailsState', 'chartDialogVisibilityState', 'apiResponseStateDashboard', 'apiResponseStateMap'])
   },
   watch: {
     'alignment' (value) {
-      if (value === 0 && this.comparison === true && this.chartSwitch === true) {
-        this.fillDatacollection(this.sensorDetailsState.sensorId, this.apiResponseState)
+      if (value === 0 && this.chartSwitch === true && this.chartDialogVisibilityState === true) {
+        this.fillDatacollection(this.sensorDetailsState.sensorId, this.apiResponseHolder)
         this.comparison = false
-      } else if (value === 2 && this.comparison === true && this.chartSwitch === false) {
-        this.fillDatacollection(this.sensorDetailsState.sensorId, this.apiResponseState)
+      } else if (value === 2 && this.chartSwitch === false && this.chartDialogVisibilityState === true) {
+        this.fillDatacollection(this.sensorDetailsState.sensorId, this.apiResponseHolder)
         this.comparison = false
       }
     },
     'comparison' (value) {
-      if (value === false) {
-        this.fillDatacollection(this.sensorDetailsState.sensorId, this.apiResponseState)
+      if (value === false && this.chartDialogVisibilityState === true) {
+        this.fillDatacollection(this.sensorDetailsState.sensorId, this.apiResponseHolder)
       }
     },
-    'sensorDetails.sensorId' () {
-      this.alignment = 0
-      this.chartSwitch = true
+    chartDialogVisibilityState: {
+      handler: function (value) {
+        if (value === false) {
+          this.alignment = 0
+          this.chartSwitch = true
+          this.comparison = false
+        } else {
+          if (this.$route.path === '/dashboard') {
+            this.apiResponseHolder = this.apiResponseStateDashboard
+          } else if (this.$route.path === '/map') {
+            this.apiResponseHolder = this.apiResponseStateMap
+          }
+        }
+      },
+      deep: true
     }
   }
 }
