@@ -32,7 +32,8 @@
           </template>
           <span>Wartość polskiego indeksu jakości powietrza liczona jest w oparciu o indywidualne przedziały dla
             poszczególnych zanieczyszczeń, następnie indeks ogólny przyjmuje wartość najgorszego indeksu
-            indywidualnego spośród zanieczyszczeń mierzonych na tej stacji.</span>
+            indywidualnego spośród zanieczyszczeń mierzonych na tej stacji lub dominującej wartości (pył zawieszony
+            lub ozon).</span>
         </v-tooltip>
         <vue-svg-gauge
           :start-angle="0"
@@ -103,51 +104,68 @@
             </div>
           </div>
           <div class="row">
-            <div align="center" class="data-element dashboard">
+            <div align="center" class="data-element">
               <v-img
                 :src="require('@/assets/fog-yellow.png')"
                 class="icon dashboard"
               />
               <p class="icon-text">Jakość powietrza</p>
-              <div class="row">
-                <vue-apex-charts type="bar" height="150" width="500" :options="closestStationState.horizontalBarChartData.chartOptions" :series="closestStationState.horizontalBarChartData.series"></vue-apex-charts>
+              <div class="row" v-for="sensor in closestStationState.sensors" :key="sensor.index">
+                <div class="column sensor-symbol">
+                  <p class="sensor-symbol dashboard">{{sensor.symbol}}</p>
+                </div>
+                <div class="column">
+                  <vue-apex-charts type="bar" height="100" width="500" :options="mapHorizontalBarChartOptions(sensor)" :series="mapHorizontalBarChartSeries(sensor)"></vue-apex-charts>
+                </div>
+                <div class="column">
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                      <v-btn @click="fillDatacollection(sensor.id, apiResponseStateDashboard)" class="details-button" normal color="white" v-on="on" icon>
+                        <v-icon>
+                          mdi-dots-horizontal
+                        </v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Pokaż szczegóły</span>
+                  </v-tooltip>
+                </div>
               </div>
             </div>
           </div>
-<!--          <div class="row" v-if="secondRowStatement">-->
-<!--            <div align="center" class="data-element dashboard">-->
-<!--              <v-img-->
-<!--                :src="require('@/assets/termometer.png')"-->
-<!--                class="icon dashboard"-->
-<!--              />-->
-<!--              <p class="icon-text">Temperatura</p>-->
-<!--              <p class="distance-text">{{closestStationState.temperature+' &ordm;C'}}</p>-->
-<!--            </div>-->
-<!--            <div align="center" class="data-element dashboard">-->
-<!--              <v-img-->
-<!--                :src="require('@/assets/pressure.png')"-->
-<!--                class="icon dashboard"-->
-<!--              />-->
-<!--              <p class="icon-text">Ciśnienie</p>-->
-<!--              <p class="distance-text">{{closestStationState.pressure+' hPa'}}</p>-->
-<!--            </div>-->
-<!--            <div align="center" class="data-element dashboard">-->
-<!--              <v-img-->
-<!--                :src="require('@/assets/wind.png')"-->
-<!--                class="icon dashboard"-->
-<!--              />-->
-<!--              <p class="icon-text">Prędkość wiatru</p>-->
-<!--                      <p class="distance-text">{{closestStationState.wind+' km/h'}}</p>-->
-<!--            </div>-->
-<!--            <div align="center" class="data-element dashboard">-->
-<!--              <v-img-->
-<!--                :src="require('@/assets/humidity.png')"-->
-<!--                class="icon dashboard humidity"-->
-<!--              />-->
-<!--              <p class="icon-text">Wilgotność</p>-->
-<!--                      <p class="distance-text">{{closestStationState.humidity+'%'}}</p>-->
-<!--            </div>-->
-<!--          </div>-->
+          <div class="row" v-if="thirdRowStatement">
+            <div align="center" class="data-element dashboard">
+              <v-img
+                :src="require('@/assets/termometer.png')"
+                class="icon dashboard"
+              />
+              <p class="icon-text">Temperatura</p>
+              <p class="distance-text">{{closestStationState.temperature+' &ordm;C'}}</p>
+            </div>
+            <div align="center" class="data-element dashboard">
+              <v-img
+                :src="require('@/assets/pressure.png')"
+                class="icon dashboard"
+              />
+              <p class="icon-text">Ciśnienie</p>
+              <p class="distance-text">{{closestStationState.pressure+' hPa'}}</p>
+            </div>
+            <div align="center" class="data-element dashboard">
+              <v-img
+                :src="require('@/assets/wind.png')"
+                class="icon dashboard"
+              />
+              <p class="icon-text">Prędkość wiatru</p>
+                      <p class="distance-text">{{closestStationState.wind+' km/h'}}</p>
+            </div>
+            <div align="center" class="data-element dashboard">
+              <v-img
+                :src="require('@/assets/humidity.png')"
+                class="icon dashboard humidity"
+              />
+              <p class="icon-text">Wilgotność</p>
+                      <p class="distance-text">{{closestStationState.humidity+'%'}}</p>
+            </div>
+          </div>
         </div>
       </div>
     </transition>
@@ -157,10 +175,11 @@
 <script>
 import AnimatedNumber from 'animated-number-vue'
 import { VueSvgGauge } from 'vue-svg-gauge'
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import HelperFunctions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
 import VueApexCharts from 'vue-apexcharts'
+import pollutionLevels from '@/libs/pollutionLevels'
 export default {
   name: 'Dashboard',
   data () {
@@ -180,6 +199,122 @@ export default {
     VueApexCharts
   },
   methods: {
+    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState']),
+    async fillDatacollection (id, apiResponse) {
+      let sensor = apiResponse.find(sensor => sensor.details.id === id)
+      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
+      let filteredValues = filteredMeasurements.map(({ value }) => value)
+      let averageMeasurement = this.functions.getAverage(filteredValues)
+      let lastMeasurement = this.functions.getLastMeasurement(filteredValues)
+      let barDataCollection = {
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
+            backgroundColor: this.functions.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
+            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
+          }
+        ]
+      }
+      this.setBarDataCollectionState(barDataCollection)
+      let lineDataCollection = {
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
+            backgroundColor: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, true)[0],
+            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
+          }
+        ]
+      }
+      this.setLineDataCollectionState(lineDataCollection)
+      let sensorDetails = {
+        sensorId: sensor.details.id,
+        averageMeasurement: {
+          value: averageMeasurement.toFixed(2),
+          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement),
+          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]],
+          color: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]
+        },
+        lastMeasurement: {
+          value: lastMeasurement.toFixed(2),
+          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement),
+          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]],
+          color: this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]
+        }
+      }
+      this.setSensorDetailsState(sensorDetails)
+      this.setChartDialogVisibilityState(true)
+    },
+    mapHorizontalBarChartLimit (sensor) {
+      if (sensor.lastPercentValue > 100) {
+        return Math.ceil(sensor.lastPercentValue / 50) * 50
+      } else {
+        return 100
+      }
+    },
+    mapHorizontalBarChartSeries (sensor) {
+      return [{
+        name: sensor.pollutionLevel,
+        data: [sensor.lastPercentValue]
+      }]
+    },
+    mapHorizontalBarChartOptions (sensor) {
+      return {
+        tooltip: {
+          y: {
+            formatter: (value) => { return value + '%' }
+          }
+        },
+        colors: [sensor.backgroundColor],
+        legend: {
+          show: false
+        },
+        chart: {
+          parentHeightOffset: 0,
+          events: {
+            click: function (event, chartContext, config) {
+              console.log(config)
+              console.log(config.seriesIndex)
+              console.log(config.dataPointIndex)
+            }
+          },
+          foreSize: 15,
+          foreColor: '#fff',
+          toolbar: {
+            show: false
+          },
+          type: 'bar',
+          height: 150
+        },
+        plotOptions: {
+          bar: {
+            horizontal: true,
+            distributed: true
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        xaxis: {
+          categories: [sensor.symbol],
+          labels: {
+            style: {
+              fontSize: '15px'
+            }
+          }
+        },
+        yaxis: {
+          max: this.mapHorizontalBarChartLimit(sensor),
+          labels: {
+            show: false,
+            style: {
+              fontSize: '16px'
+            }
+          }
+        }
+      }
+    },
     formatPercentValue (value) {
       return `<p id="percent-value-paragraph">${value + '%'}</p>`
     },
@@ -196,7 +331,7 @@ export default {
     dataStatement () {
       return this.closestStationState.stationDistance !== null && this.closestStationState.stationName !== null && this.closestStationState.gaugeChartData.time !== null && this.routeState === '/dashboard'
     },
-    secondRowStatement () {
+    thirdRowStatement () {
       return this.closestStationState.temperature !== null || this.closestStationState.pressure !== null || this.closestStationState.wind !== null || this.closestStationState.humidity !== null
     },
     gaugeTransitionDuration () {
@@ -206,12 +341,16 @@ export default {
         return 3000
       }
     },
-    ...mapState('stations', ['closestStationState', 'routeState'])
+    ...mapState('stations', ['closestStationState', 'routeState']),
+    ...mapState('sensors', ['apiResponseStateDashboard'])
   }
 }
 </script>
 
 <style lang="scss">
+  .details-button {
+    margin-bottom: 0.7rem;
+  }
   .info-icon {
     right: 0;
     position: absolute;
@@ -221,7 +360,7 @@ export default {
     alignment: center;
     justify-content: center;
     text-align: center;
-    width: 60%;
+    width: 100%;
   }
   .logo-image {
     width: 55px;
@@ -243,9 +382,14 @@ export default {
     }
   }
   .column {
+    display: flex;
     flex-direction: column;
     align-content: center;
     justify-content: center;
+    &.sensor-symbol {
+      text-align: left;
+      width: 40px;
+    }
   }
   .inner-text {
     display: flex;
