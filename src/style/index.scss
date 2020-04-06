@@ -246,18 +246,18 @@ h3 {
     text-align: center;
     &.icon-text-paragraph {
       font-weight: bold;
-      font-size: 9px;
+      font-size: 10px;
     }
     &.data-paragraph {
       font-weight: bold;
-      font-size: 11px;
+      font-size: 12px;
     }
   }
   span {
     &.city-text {
       font-family: Rubik;
       font-weight: lighter;
-      font-size: 10px;
+      font-size: 11px;
       color: #FFFF;
       text-align: center;
     }
@@ -278,7 +278,7 @@ h3 {
     margin-bottom: 1rem;
     &.dashboard {
       margin-bottom: 2rem;
-      width: 85px;
+      width: 75px;
       height: 80px;
       &.left {
         margin-left: 1rem;
@@ -444,7 +444,7 @@ nav {
   background: rgba(0,77,64,.9);
 }
 #chart-card {
-  padding: 1rem;
+  padding: 0.5rem;
   background: #ffff
 }
 #chart-info {
