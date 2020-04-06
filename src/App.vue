@@ -342,21 +342,21 @@ export default {
       if (this.allStations === null) {
         await this.setAllStationsState()
       }
-      // let minDist = Infinity
-      // let markerDist
+      let minDist = Infinity
+      let markerDist
       let closestStationDetails
-      // this.allStations.forEach(station => {
-      //   markerDist = this.functions.getDistance(station.coordinates.map(Number), userLocation)
-      //   if (markerDist < minDist) {
-      //     minDist = markerDist
-      //     closestStationDetails = station
-      //   }
-      // })
       this.allStations.forEach(station => {
-        if (station.id === 10158) {
+        markerDist = this.functions.getDistance(station.coordinates.map(Number), userLocation)
+        if (markerDist < minDist) {
+          minDist = markerDist
           closestStationDetails = station
         }
       })
+      // this.allStations.forEach(station => {
+      //   if (station.id === 10158) {
+      //     closestStationDetails = station
+      //   }
+      // })
       let response = (await this.stationsService.getStation(closestStationDetails.id)).filter(({ measurement }) => measurement.length > 0)
       this.setApiResponseStateDashboard(response)
       let sensorsDetails = response.map(({ details }) => details)
