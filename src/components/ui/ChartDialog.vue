@@ -5,7 +5,7 @@
     max-width="900px"
   >
     <div id="chart-dialog-card">
-      <div id="chart-card">
+<!--      <div id="chart-card">-->
         <h3 class="silver" v-if="barDataCollectionState.datasets.length === 0 || lineDataCollectionState.datasets.length === 0">
           Brak pomiarów
         </h3>
@@ -23,7 +23,7 @@
             />
           </div>
         </transition>
-      </div>
+<!--      </div>-->
       <div v-if="barDataCollectionState.datasets.length > 0 || lineDataCollectionState.datasets.length > 0">
         <div class="row chart">
           <v-btn-toggle rounded v-model="alignment">
@@ -219,7 +219,7 @@ export default {
       if (this.$vuetify.breakpoint.mdAndUp) {
         return this.height / 4.6
       } else {
-        return 230
+        return 300
       }
     },
     ...mapState('sensors', ['barDataCollectionState', 'lineDataCollectionState', 'sensorDetailsState', 'chartDialogVisibilityState', 'apiResponseStateDashboard', 'apiResponseStateMap'])

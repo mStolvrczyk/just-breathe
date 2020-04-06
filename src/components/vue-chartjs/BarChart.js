@@ -18,6 +18,13 @@ export default {
       scales: {
         xAxes: [{
           ticks: {
+            fontColor: '#fff',
+            beginAtZero: true
+          }
+        }],
+        yAxes: [{
+          ticks: {
+            fontColor: '#fff',
             beginAtZero: true
           }
         }]
