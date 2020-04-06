@@ -1,31 +1,31 @@
 <template>
   <v-dialog
     persistent
-    v-model="chartDialogVisibility"
+    v-model="chartDialogVisibilityState"
     max-width="900px"
   >
     <div id="chart-dialog-card">
       <div id="chart-card">
-        <h3 class="silver" v-if="barDataCollection === null || lineDataCollection === null">
+        <h3 class="silver" v-if="barDataCollectionState.datasets.length === 0 || lineDataCollectionState.datasets.length === 0">
           Brak pomiarów
         </h3>
         <transition name="popup">
-          <div v-if="(barDataCollection !== null || lineDataCollection !== null) && chartVisibility">
+          <div v-if="(barDataCollectionState.datasets.length > 0 || barDataCollectionState.datasets.length > 0) && chartDialogVisibilityState">
             <bar-chart
               v-if="chartSwitch"
-              :chart-data="barDataCollection"
+              :chart-data="barDataCollectionState"
               :height.sync="chartHeight"
             />
             <line-chart
               v-else
-              :chart-data="lineDataCollection"
+              :chart-data="lineDataCollectionState"
               :height.sync="chartHeight"
             />
           </div>
         </transition>
       </div>
-      <div v-if="barDataCollection !== null || lineDataCollection !== null">
-        <div class="chart-row">
+      <div v-if="barDataCollectionState.datasets.length > 0 || lineDataCollectionState.datasets.length > 0">
+        <div class="row chart">
           <v-btn-toggle rounded v-model="alignment">
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
@@ -37,7 +37,7 @@
             </v-tooltip>
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
-                <v-btn @click="compareWithYesterday(sensorDetails.sensorId, apiResponse), comparison = !comparison" color="white" v-on="on">
+                <v-btn @click="compareWithYesterday(sensorDetailsState.sensorId, apiResponseHolder), comparison = !comparison" color="white" v-on="on">
                   <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
                 </v-btn>
               </template>
@@ -53,13 +53,14 @@
             </v-tooltip>
           </v-btn-toggle>
         </div>
-        <h3 class="chart-info-text">Uśredniony pomiar z dziś: <br v-if="$vuetify.breakpoint.xs"> <span :style="{'color':sensorDetails.averageMeasurement.color}">{{sensorDetails.averageMeasurement.procentValue + '%'}}({{sensorDetails.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
-          {{sensorDetails.averageMeasurement.pollutionLevel}}</span></h3> <h3 class="chart-info-text">Ostatni pomiar:
-        <br v-if="$vuetify.breakpoint.xs"> <span :style="{'color':sensorDetails.lastMeasurement.color}">{{sensorDetails.lastMeasurement.procentValue + '%'}}
-          ({{sensorDetails.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
-          {{sensorDetails.lastMeasurement.pollutionLevel}}</span></h3>
+        <h3 class="chart-info-text">Uśredniony pomiar z dziś: <br v-if="$vuetify.breakpoint.xs"> <span :style="{'color':sensorDetailsState.averageMeasurement.color}">{{sensorDetailsState.averageMeasurement.procentValue
+          + '%'}}({{sensorDetailsState.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
+          {{sensorDetailsState.averageMeasurement.pollutionLevel}}</span></h3> <h3 class="chart-info-text">Ostatni pomiar:
+        <br v-if="$vuetify.breakpoint.xs"> <span :style="{'color':sensorDetailsState.lastMeasurement.color}">{{sensorDetailsState.lastMeasurement.procentValue + '%'}}
+          ({{sensorDetailsState.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
+          {{sensorDetailsState.lastMeasurement.pollutionLevel}}</span></h3>
       </div>
-      <div class="chart-row button">
+      <div class="row chart button">
         <v-btn @click="closeDialog" class="teal--text font-weight-bold" rounded color="#EEEEEE" dark>Wróć</v-btn>
       </div>
     </div>
@@ -70,6 +71,8 @@
 import BarChart from '@/components/vue-chartjs/BarChart'
 import LineChart from '@/components/vue-chartjs/LineChart'
 import Functions from '@/libs/helperFunctions'
+import { mapActions, mapState } from 'vuex'
+import pollutionLevels from '@/libs/pollutionLevels'
 
 export default {
   name: 'ChartDialog',
@@ -78,6 +81,7 @@ export default {
   },
   data () {
     return {
+      apiResponseHolder: null,
       functions: new Functions(),
       updatedBarDataCollection: null,
       updatedLineDataCollection: null,
@@ -87,17 +91,79 @@ export default {
       alignment: 0
     }
   },
-  props: {
-    chartDialogVisibility: Boolean,
-    chartVisibility: Boolean,
-    sensorDetails: Object,
-    apiResponse: Array,
-    barDataCollection: Object,
-    lineDataCollection: Object
-  },
+  // props: {
+  //   chartDialogVisibility: Boolean,
+  //   chartVisibility: Boolean,
+  //   sensorDetails: Object,
+  //   apiResponse: Array,
+  //   barDataCollection: Object,
+  //   lineDataCollection: Object
+  // },
   methods: {
+    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState']),
     closeDialog () {
-      this.$emit('closeChartDialog', false)
+      let barDataCollectionState = {
+        labels: null,
+        datasets: []
+      }
+      let lineDataCollectionState = {
+        labels: null,
+        datasets: []
+      }
+      let sensorDetailsState = {
+        sensorId: null,
+        averageMeasurement: null,
+        lastMeasurement: null
+      }
+      this.setBarDataCollectionState(barDataCollectionState)
+      this.setLineDataCollectionState(lineDataCollectionState)
+      this.setSensorDetailsState(sensorDetailsState)
+      this.setChartDialogVisibilityState(false)
+    },
+    async fillDatacollection (id, apiResponse) {
+      let sensor = apiResponse.find(sensor => sensor.details.id === id)
+      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
+      let filteredValues = filteredMeasurements.map(({ value }) => value)
+      let averageMeasurement = this.functions.getAverage(filteredValues)
+      let lastMeasurement = this.functions.getLastMeasurement(filteredValues)
+      let barDataCollection = {
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
+            backgroundColor: this.functions.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
+            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
+          }
+        ]
+      }
+      this.setBarDataCollectionState(barDataCollection)
+      let lineDataCollection = {
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
+            backgroundColor: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, true)[0],
+            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
+          }
+        ]
+      }
+      this.setLineDataCollectionState(lineDataCollection)
+      let sensorDetails = {
+        sensorId: sensor.details.id,
+        averageMeasurement: {
+          value: averageMeasurement.toFixed(2),
+          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement),
+          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]],
+          color: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]
+        },
+        lastMeasurement: {
+          value: lastMeasurement.toFixed(2),
+          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement),
+          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]],
+          color: this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]
+        }
+      }
+      this.setSensorDetailsState(sensorDetails)
     },
     async compareWithYesterday (id, apiResponse) {
       let yesterdaysDate = this.getYesterdaysDate()
@@ -109,7 +175,7 @@ export default {
       let yesterdaysMeasurements = (sensor.measurement.filter(({ date }) => date >= yesterdaysDate + ' 00:00:00' && date <= yesterdaysDate + ' ' + lastMeasurementsTime)).reverse()
       let yesterdayValues = yesterdaysMeasurements.map(({ value }) => value)
       let yesterdaysAverageMeasurement = this.functions.getAverage(yesterdayValues)
-      this.updatedBarDataCollection = {
+      let updatedBarDataCollection = {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
@@ -124,23 +190,23 @@ export default {
           }
         ]
       }
-      this.$emit('barDataComparison', this.updatedBarDataCollection)
-      this.updatedLineDataCollection = {
+      this.setBarDataCollectionState(updatedBarDataCollection)
+      let updatedLineDataCollection = {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
             label: yesterdaysDate,
-            backgroundColor: this.functions.setBackgroundColor(yesterdaysAverageMeasurement, sensor.details.paramTwo, true)[0],
+            backgroundColor: this.functions.setBackgroundColor([yesterdaysAverageMeasurement], sensor.details.paramTwo, true)[0],
             data: yesterdayValues
           },
           {
             label: this.functions.formatDate(new Date()),
-            backgroundColor: this.functions.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, true)[0],
+            backgroundColor: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, true)[0],
             data: filteredMeasurements.map(({ value }) => value)
           }
         ]
       }
-      this.$emit('lineDataComparison', this.updatedLineDataCollection)
+      this.setLineDataCollectionState(updatedLineDataCollection)
     },
     getYesterdaysDate () {
       let yesterdayDate = new Date()
@@ -155,26 +221,39 @@ export default {
       } else {
         return 270
       }
-    }
+    },
+    ...mapState('sensors', ['barDataCollectionState', 'lineDataCollectionState', 'sensorDetailsState', 'chartDialogVisibilityState', 'apiResponseStateDashboard', 'apiResponseStateMap'])
   },
   watch: {
     'alignment' (value) {
-      if (value === 0 && this.comparison === true && this.chartSwitch === true) {
-        this.$emit('withoutComparison', this.sensorDetails.sensorId)
+      if (value === 0 && this.chartSwitch === true && this.chartDialogVisibilityState === true) {
+        this.fillDatacollection(this.sensorDetailsState.sensorId, this.apiResponseHolder)
         this.comparison = false
-      } else if (value === 2 && this.comparison === true && this.chartSwitch === false) {
-        this.$emit('withoutComparison', this.sensorDetails.sensorId)
+      } else if (value === 2 && this.chartSwitch === false && this.chartDialogVisibilityState === true) {
+        this.fillDatacollection(this.sensorDetailsState.sensorId, this.apiResponseHolder)
         this.comparison = false
       }
     },
     'comparison' (value) {
-      if (value === false) {
-        this.$emit('withoutComparison', this.sensorDetails.sensorId)
+      if (value === false && this.chartDialogVisibilityState === true) {
+        this.fillDatacollection(this.sensorDetailsState.sensorId, this.apiResponseHolder)
       }
     },
-    'sensorDetails.sensorId' () {
-      this.alignment = 0
-      this.chartSwitch = true
+    chartDialogVisibilityState: {
+      handler: function (value) {
+        if (value === false) {
+          this.alignment = 0
+          this.chartSwitch = true
+          this.comparison = false
+        } else {
+          if (this.$route.path === '/dashboard') {
+            this.apiResponseHolder = this.apiResponseStateDashboard
+          } else if (this.$route.path === '/map') {
+            this.apiResponseHolder = this.apiResponseStateMap
+          }
+        }
+      },
+      deep: true
     }
   }
 }
