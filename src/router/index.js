@@ -22,6 +22,6 @@ Vue.use(Router)
 export default new Router({
   mode: 'history',
   routes: paths.map(path => route(path.path, path.view, path.name)).concat([
-    { path: '*', redirect: '/dashboard' }
+    { path: '*', redirect: '/map' }
   ])
 })

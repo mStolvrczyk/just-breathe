@@ -1,33 +1,47 @@
-// import axios from 'axios'
-//
-// const state = {
-//   stations: [],
-//   selectedStation: []
-// }
-//
-// const mutations = {
-//   setStations: (state, stations) => (state.stations = stations)
-// }
-//
-// const actions = {
-//   async getStations ({ commit }) {
-//     if (!localStorage.getItem('stations')) {
-//       const response = await axios.get('http://localhost:8000/api/stations')
-//       localStorage.setItem('stations', JSON.stringify(response.data))
-//     }
-//     const localResponse = JSON.parse(localStorage.getItem('stations'))
-//     commit('setStations', localResponse)
-//   }
-// }
-//
+import StationsService from '../../services/StationsService'
+const stationsService = new StationsService()
+const state = {
+  allStationsState: [],
+  userLocationState: null,
+  closestStationState: null,
+  selectedStationState: null
+}
+
 // const getters = {
-//   allStations: state => state.stations
+//   loadStations: state => state.stations,
+//   loadUserLocation: state => state.userLocation
 // }
-//
-// export default {
-//   namespaced: true,
-//   state,
-//   mutations,
-//   actions,
-//   getters
-// }
+
+const actions = {
+  async setAllStationsState ({ commit }) {
+    const stationsServiceResponse = await stationsService.getAll()
+    commit('setAllStationsState', stationsServiceResponse)
+  },
+  async setClosestStationState ({ commit }, closestStation) {
+    await commit('setClosestStationState', closestStation)
+  },
+  async setUserLocationState ({ commit }, userLocation) {
+    await commit('setUserLocationState', userLocation)
+  },
+  async setSelectedStationState ({ commit }, selectedStation) {
+    await commit('setSelectedStationState', selectedStation)
+  }
+}
+
+const mutations = {
+  // eslint-disable-next-line no-return-assign
+  setAllStationsState: (state, allStations) => state.allStationsState = allStations,
+  // eslint-disable-next-line no-return-assign
+  setClosestStationState: (state, closestStation) => state.closestStationState = closestStation,
+  // eslint-disable-next-line no-return-assign
+  setUserLocationState: (state, userLocation) => state.userLocationState = userLocation,
+  // eslint-disable-next-line no-return-assign
+  setSelectedStationState: (state, selectedStation) => state.selectedStationState = selectedStation
+}
+
+export default {
+  namespaced: true,
+  state,
+  mutations,
+  actions
+}

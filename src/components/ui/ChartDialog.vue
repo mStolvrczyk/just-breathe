@@ -1,98 +1,69 @@
 <template>
-  <v-row justify="center">
-    <v-dialog
-      persistent
-      v-model="chartDialogVisibility"
-      max-width="900px"
-    >
-          <v-card
-            class="pa-3"
-            color="teal lighten-4"
-          >
-            <div align="center">
-                <v-card
-                  id="charts"
-                  color="white"
-                >
-                  <v-card-text
-                    align="center"
-                    v-if="barDataCollection === null"
-                  >
-                    <strong>
-                      Brak pomiarów
-                    </strong>
-                  </v-card-text>
-                  <transition name="station_popup">
-                    <div v-if="barDataCollection !== null && chartVisibility">
-                        <bar-chart
-                          v-if="chartSwitch"
-                          :chart-data="barDataCollection"
-                          :height="chartHeight"
-                        />
-                        <line-chart
-                          v-else
-                          :chart-data="lineDataCollection"
-                          :height="chartHeight"
-                        />
-                    </div>
-                  </transition>
-                </v-card>
-              <div class="text-center pa-2" v-if="barDataCollection != null">
-                <v-btn-toggle rounded v-model="alignment">
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                      <v-btn @click="chartSwitch = true" color="white" v-on="on">
-                        <v-icon style="font-size:23px;color: teal">mdi-chart-bar</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Wykres słupkowy</span>
-                  </v-tooltip>
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                      <v-btn @click="compareWithYesterday(sensorDetails.sensorId, apiResponse), comparison = !comparison" color="white" v-on="on">
-                        <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Porównaj z wczoraj</span>
-                  </v-tooltip>
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                      <v-btn @click="chartSwitch = false" color="white" v-on="on">
-                        <v-icon style="font-size:23px;color: teal">mdi-chart-bell-curve</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Wykres liniowy</span>
-                  </v-tooltip>
-                </v-btn-toggle>
-              </div>
-              <v-container fluid class="pa-0" v-if="barDataCollection != null">
-                <v-row align="center">
-                  <v-col cols="12" sm="12">
-                    <div class="text-center">
-                      <v-card
-                        color="teal lighten-1"
-                      >
-                        <v-card-text class="white--text">
-                          <strong>uśredniony pomiar z dziś:<br v-if="width < 768">{{sensorDetails.averageMeasurement.procentValue + '%'}}
-                            ({{sensorDetails.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
-                            {{sensorDetails.averageMeasurement.pollutionLevel}}</strong><br>
-                          <strong>ostatni pomiar:<br v-if="width < 768"> {{sensorDetails.lastMeasurement.procentValue + '%'}}
-                            ({{sensorDetails.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
-                            {{sensorDetails.lastMeasurement.pollutionLevel}}</strong>
-
-                        </v-card-text>
-                      </v-card>
-                    </div>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </div>
-            <div class="text-center">
-              <v-btn @click="closeDialog" class="teal--text font-weight-bold" rounded color="white" dark>Wróć</v-btn>
-            </div>
-          </v-card>
-    </v-dialog>
-  </v-row>
+  <v-dialog
+    persistent
+    v-model="chartDialogVisibility"
+    max-width="900px"
+  >
+    <div id="chart-dialog-card">
+      <div id="chart-card">
+        <h3 class="silver" v-if="barDataCollection === null || lineDataCollection === null">
+          Brak pomiarów
+        </h3>
+        <transition name="popup">
+          <div v-if="(barDataCollection !== null || lineDataCollection !== null) && chartVisibility">
+            <bar-chart
+              v-if="chartSwitch"
+              :chart-data="barDataCollection"
+              :height.sync="chartHeight"
+            />
+            <line-chart
+              v-else
+              :chart-data="lineDataCollection"
+              :height.sync="chartHeight"
+            />
+          </div>
+        </transition>
+      </div>
+      <div v-if="barDataCollection !== null || lineDataCollection !== null">
+        <div class="chart-row">
+          <v-btn-toggle rounded v-model="alignment">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn @click="chartSwitch = true" color="white" v-on="on">
+                  <v-icon style="font-size:23px;color: teal">mdi-chart-bar</v-icon>
+                </v-btn>
+              </template>
+              <span>Wykres słupkowy</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn @click="compareWithYesterday(sensorDetails.sensorId, apiResponse), comparison = !comparison" color="white" v-on="on">
+                  <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
+                </v-btn>
+              </template>
+              <span>Porównaj z wczoraj</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn @click="chartSwitch = false" color="white" v-on="on">
+                  <v-icon style="font-size:23px;color: teal">mdi-chart-bell-curve</v-icon>
+                </v-btn>
+              </template>
+              <span>Wykres liniowy</span>
+            </v-tooltip>
+          </v-btn-toggle>
+        </div>
+        <h3 class="chart-info-text">Uśredniony pomiar z dziś: <br v-if="$vuetify.breakpoint.xs"> <span :style="{'color':sensorDetails.averageMeasurement.color}">{{sensorDetails.averageMeasurement.procentValue + '%'}}({{sensorDetails.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
+          {{sensorDetails.averageMeasurement.pollutionLevel}}</span></h3> <h3 class="chart-info-text">Ostatni pomiar:
+        <br v-if="$vuetify.breakpoint.xs"> <span :style="{'color':sensorDetails.lastMeasurement.color}">{{sensorDetails.lastMeasurement.procentValue + '%'}}
+          ({{sensorDetails.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
+          {{sensorDetails.lastMeasurement.pollutionLevel}}</span></h3>
+      </div>
+      <div class="chart-row button">
+        <v-btn @click="closeDialog" class="teal--text font-weight-bold" rounded color="#EEEEEE" dark>Wróć</v-btn>
+      </div>
+    </div>
+  </v-dialog>
 </template>
 
 <script>
@@ -110,12 +81,10 @@ export default {
       functions: new Functions(),
       updatedBarDataCollection: null,
       updatedLineDataCollection: null,
-      chartHeight: null,
-      width: document.documentElement.clientWidth,
       height: document.documentElement.clientHeight,
       chartSwitch: true,
       comparison: false,
-      alignment: 0,
+      alignment: 0
     }
   },
   props: {
@@ -179,6 +148,15 @@ export default {
       return this.functions.formatDate(yesterdayDate)
     }
   },
+  computed: {
+    chartHeight () {
+      if (this.$vuetify.breakpoint.mdAndUp) {
+        return this.height / 4.6
+      } else {
+        return 270
+      }
+    }
+  },
   watch: {
     'alignment' (value) {
       if (value === 0 && this.comparison === true && this.chartSwitch === true) {
@@ -198,40 +176,6 @@ export default {
       this.alignment = 0
       this.chartSwitch = true
     }
-  },
-  mounted () {
-    if (this.width < 415) {
-      this.chartHeight = 280
-    } else {
-      this.chartHeight = this.height / 4.1
-    }
   }
 }
 </script>
-
-<style>
-  .station_popup-enter,
-  .station_popup-leave-to{
-    transform: rotateY(50deg);
-  }
-  .station_popup-enter-to,
-  .station_popup-leave {
-    transform: rotateY(0deg);
-  }
-  .station_popup-enter-active,
-  .station_popup-leave-active {
-    transition: transform 400ms;
-  }
-  @media only screen and (min-width: 768px) {
-    #chart_card {
-      width: 60%;
-      left: 20%;
-    }
-  }
-  @media only screen and (min-width: 411px) and (max-width: 767px) {
-    #chart_card {
-      top: 5%;
-      left: 20%;
-    }
-  }
-</style>

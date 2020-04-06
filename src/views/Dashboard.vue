@@ -1,45 +1,42 @@
 <template>
   <div id="dashboard">
-    <LeafletMap
-      :stationInputVisibility.sync="stationInputVisibility"
-      :stations="stations"
-      v-on:closeStationInput="closeStationInput"
-    />
-    <UserPanel
-      :userPanelVisibility.sync="userPanelVisibility"
-      v-on:closeUserPanel="closeUserPanel"
-    />
+    {{ closestStationState }}
   </div>
 </template>
-<script>
-import LeafletMap from '@/components/ui/LeafletMap'
-import StationsService from '@/services/StationsService'
-import UserPanel from '@/components/ui/UserPanel'
 
+<script>
+import { mapState } from 'vuex'
+import HelperFunctions from '@/libs/helperFunctions'
+import StationsService from '@/services/StationsService'
 export default {
   name: 'Dashboard',
-  components: { UserPanel, LeafletMap },
-  data: () => ({
-    stationsService: new StationsService(),
-    stations: []
-  }),
-  props: {
-    stationInputVisibility: Boolean,
-    userPanelVisibility: Boolean
-  },
-  methods: {
-    async getAllStations () {
-      this.stations = await this.stationsService.getAll()
-    },
-    closeStationInput (value) {
-      this.$emit('closeStationInput', value)
-    },
-    closeUserPanel (value) {
-      this.$emit('closeUserPanel', value)
+  data () {
+    return {
+      functions: new HelperFunctions(),
+      stationsService: new StationsService(),
+      userLocation: null,
+      allStations: null,
+      closestStation: null
     }
   },
-  mounted () {
-    this.getAllStations()
+  computed: {
+    ...mapState('stations', ['closestStationState'])
+  },
+  watch: {
+    closestStationState: {
+      handler: function (value) {
+        this.closestStation = value
+      },
+      deep: true
+    }
   }
 }
 </script>
+
+<style scoped>
+  #dashboard {
+    width: 100%;
+    height: 100%;
+    background: #E0F2F1;
+  }
+</style>

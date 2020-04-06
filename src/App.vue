@@ -1,83 +1,444 @@
 <template>
-  <v-app>
-    <div class="navbar">
-      <v-app-bar
-        flat
-        persistent
-        dark
-        app
-        fixed
-        :scroll-threshold="1"
-        :scroll-off-screen="true"
-        :src="require('@/assets/appImage.jpg')"
+  <v-app
+  >
+    <v-navigation-drawer
+      height="100vh"
+      light
+      clipped
+      v-model="drawer"
+      :mini-variant="miniVariant"
+      :permanent="$vuetify.breakpoint.mdOnly"
+      stateless
+      app
+      :width="navbarWidth"
+      :src="require('@/assets/appImage.jpg')"
+    >
+      <template v-slot:img="props">
+        <v-img
+          :gradient="'to top right, rgba(0,77,64,.9), rgba(0,77,64,.9)'"
+          v-bind="props"
+        />
+      </template>
+      <v-container
+      id="container"
       >
-        <template v-slot:img="{ props }">
-          <v-img
-            v-bind="props"
-            gradient="to top right, rgba(55,236,186,.7), rgba(25,32,72,.7)"
-          />
-        </template>
-        <div class="v-toolbar-title">
-          <v-toolbar-title>
-            Air Quality Check
-          </v-toolbar-title>
-        </div>
-        <v-spacer/>
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" @click="stationInputVisibility = !stationInputVisibility" icon>
-              <v-icon>
-                search
-              </v-icon>
-            </v-btn>
-          </template>
-          <span>Znajdź stację</span>
-        </v-tooltip>
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" @click="userPanelVisibility = true" icon>
-              <v-icon>
-                person
-              </v-icon>
-            </v-btn>
-          </template>
-          <span>Panel użytkownika</span>
-        </v-tooltip>
-      </v-app-bar>
-    </div>
+        <nav>
+          <div
+            id="image-container"
+          >
+            <v-img
+              class="logo-image"
+              v-if="miniVariant"
+              :src="require('@/assets/jb-sygnet.png')"
+            />
+            <v-img
+              v-else
+              :src="require('@/assets/jb-logo.png')"
+            />
+          </div>
+          <div align="center" id="view-icons">
+<!--            <v-tooltip bottom>-->
+<!--              <template v-slot:activator="{ on }">-->
+<!--                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on"-->
+<!--                       @click="$router.push('/dashboard')" icon>-->
+<!--                  <v-icon>-->
+<!--                    mdi-tablet-dashboard-->
+<!--                  </v-icon>-->
+<!--                </v-btn>-->
+<!--                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/dashboard')" icon>-->
+<!--                  <v-icon>-->
+<!--                    mdi-tablet-dashboard-->
+<!--                  </v-icon>-->
+<!--                </v-btn>-->
+<!--              </template>-->
+<!--              <span>Panel użytkownika</span>-->
+<!--            </v-tooltip>-->
+<!--            <v-tooltip bottom>-->
+<!--              <template v-slot:activator="{ on }">-->
+<!--                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="$router.push('/map')"-->
+<!--                       icon>-->
+<!--                  <v-icon>-->
+<!--                    mdi-map-marker-->
+<!--                  </v-icon>-->
+<!--                </v-btn>-->
+<!--                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/map')" icon>-->
+<!--                  <v-icon>-->
+<!--                    mdi-map-marker-->
+<!--                  </v-icon>-->
+<!--                </v-btn>-->
+<!--              </template>-->
+<!--              <span>Mapa</span>-->
+<!--            </v-tooltip>-->
+            <v-tooltip bottom v-if=" $route.path === '/map'">
+              <template v-slot:activator="{ on }">
+                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="setStationInput" icon>
+                  <v-icon>
+                    search
+                  </v-icon>
+                </v-btn>
+                <v-btn v-else x-large color="white" v-on="on" @click="setStationInput" icon>
+                  <v-icon>
+                    search
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>Szukaj stacji</span>
+            </v-tooltip>
+          </div>
+          <transition name="popup">
+            <v-autocomplete
+              v-if="inputVisibility && $route.path === '/map'"
+              background-color="white"
+              v-model="selectedStation"
+              :items="allStationsState"
+              flat
+              append-icon="false"
+              search="searchValue"
+              hide-no-data
+              item-value="id"
+              item-text="stationName"
+              label="Wybierz stację"
+              solo
+              return-object
+            >
+              <template v-slot:no-data>
+                <v-list-item>
+                  <v-list-item-title>
+                    Brak stacji
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
+            </v-autocomplete>
+          </transition>
+        </nav>
+        <transition name="popup">
+          <div
+            id="station-content"
+            class="scrollable-content"
+          >
+            <div v-if="stationDetails !== null && !miniVariant">
+              <div align="center" class="sidebar-element">
+                <v-img
+                  :src="require('@/assets/place-yellow.png')"
+                  class="sidebar-icon"
+                />
+               <p class="icon-text">Stacja pomiarowa</p>
+                <p class="station-name-text">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails.city}}</span></p>
+              </div>
+              <div align="center" class="sidebar-element">
+                <v-img
+                :src="require('@/assets/road-yellow.png')"
+                class="sidebar-icon"
+                />
+                <p class="icon-text">Odległość</p>
+                <p class="distance-text">{{stationDetails.stationDistance}}</p>
+              </div>
+              <div align="center" class="sidebar-element" v-if="stationDetails.temperature !== null">
+                <v-img
+                  :src="require('@/assets/termometer.png')"
+                  class="sidebar-icon"
+                />
+                <p class="icon-text">Temperatura</p>
+                <p class="distance-text">{{stationDetails.temperature+' &ordm;C'}}</p>
+              </div>
+              <div align="center" class="sidebar-element" v-if="stationDetails.pressure !== null">
+                <v-img
+                  :src="require('@/assets/pressure.png')"
+                  class="sidebar-icon"
+                />
+                <p class="icon-text">Ciśnienie</p>
+                <p class="distance-text">{{stationDetails.pressure+' hPa'}}</p>
+              </div>
+              <div align="center" class="sidebar-element">
+                <v-img
+                  :src="require('@/assets/fog-yellow.png')"
+                  class="sidebar-icon"
+                />
+                <p class="icon-text">Jakość powietrza</p>
+                <div
+                  class="sensor-row"
+                  v-for="sensor in stationDetails.sensors"
+                  :key="sensor.index"
+                >
+                  <div class="sensor-column">
+                    <p class="sensor-symbol">{{sensor.symbol}}</p>
+                  </div>
+                  <div class="sensor-column">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.pollutionLimit+'%'}}</p>
+                      </template>
+                      <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
+                    </v-tooltip>
+                  </div>
+                  <div class="button-column">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-btn @click="fillDatacollection(sensor.id, apiResponse)" normal color="white" v-on="on" icon>
+                          <v-icon>
+                            mdi-dots-horizontal
+                          </v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Pokaż szczegóły</span>
+                    </v-tooltip>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </transition>
+      </v-container>
+    </v-navigation-drawer>
     <v-content>
-      <Dashboard
-        :userPanelVisibility.sync="userPanelVisibility"
-        v-on:closeUserPanel="closeUserPanel"
-        :stationInputVisibility.sync="stationInputVisibility"
-        v-on:closeStationInput="closeStationInput"
+      <router-view/>
+      <ChartDialog
+        :sensorDetails="sensorDetails"
+        :apiResponse="apiResponse"
+        :barDataCollection="barDataCollection"
+        :lineDataCollection="lineDataCollection"
+        :chartDialogVisibility.sync="chartDialogVisibility"
+        :chartVisibility.sync="chartVisibility"
+        v-on:closeChartDialog="closeChartDialog"
+        v-on:barDataComparison="barDataComparison"
+        v-on:lineDataComparison="lineDataComparison"
+        v-on:withoutComparison="withoutComparison"
       />
     </v-content>
   </v-app>
 </template>
 <script>
-import Dashboard from '@/views/Dashboard'
+import ChartDialog from '@/components/ui/ChartDialog'
+import { bus } from '@/main'
+import { mapActions, mapState } from 'vuex'
+import Functions from '@/libs/helperFunctions'
+import StationsService from '@/services/StationsService'
+import pollutionLevels from '@/libs/pollutionLevels'
 
 export default {
-  components: { Dashboard },
-  data: () => ({
-    stationInputVisibility: false,
-    userPanelVisibility: false
-  }),
-  methods: {
-    closeStationInput (value) {
-      this.stationInputVisibility = value
-    },
-    closeUserPanel (value) {
-      this.userPanelVisibility = value
+  components: { ChartDialog },
+  data () {
+    return {
+      inputVisibility: false,
+      searchValue: '',
+      apiResponse: null,
+      sensorDetails: {
+        sensorId: null,
+        averageMeasurement: null,
+        lastMeasurement: null
+      },
+      chartDialogVisibility: false,
+      chartVisibility: false,
+      barDataCollection: null,
+      lineDataCollection: null,
+      stationDetails: null,
+      drawer: true,
+      mini: true,
+      stationsService: new StationsService(),
+      functions: new Functions(),
+      watcher: navigator.geolocation.watchPosition(this.getLocation, this.handleError, {
+        enableHighAccuracy: true,
+        maximumAge: 0
+      }),
+      allStations: null,
+      selectedStation: null
     }
+  },
+  methods: {
+    ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState', 'setSelectedStationState']),
+    async fillDatacollection (id, apiResponse) {
+      let sensor = apiResponse.find(sensor => sensor.details.id === id)
+      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
+      let filteredValues = filteredMeasurements.map(({ value }) => value)
+      let averageMeasurement = this.functions.getAverage(filteredValues)
+      let lastMeasurement = this.getLastMeasurement(filteredValues)
+      this.barDataCollection = {
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
+            backgroundColor: this.functions.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
+            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
+          }
+        ]
+      }
+      this.lineDataCollection = {
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
+            backgroundColor: this.functions.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, true)[0],
+            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
+          }
+        ]
+      }
+      this.sensorDetails.averageMeasurement = {
+        value: averageMeasurement[0].toFixed(2),
+        procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement[0]),
+        pollutionLevel: pollutionLevels[this.functions.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, false)[0]],
+        color: this.functions.setBackgroundColor(averageMeasurement, sensor.details.paramTwo, false)[0]
+      }
+      this.sensorDetails.lastMeasurement = {
+        value: lastMeasurement[0].toFixed(2),
+        procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement[0]),
+        pollutionLevel: pollutionLevels[this.functions.setBackgroundColor(lastMeasurement, sensor.details.paramTwo, false)[0]],
+        color: this.functions.setBackgroundColor(lastMeasurement, sensor.details.paramTwo, false)[0]
+      }
+      this.chartDialogVisibility = true
+      this.sensorDetails.sensorId = sensor.details.id
+    },
+    setStationInput () {
+      this.inputVisibility = !this.inputVisibility
+      // let content = document.getElementById('station-content')
+      // if (this.inputVisibility === true) {
+      //   content.className = 'scrollable-content-input'
+      // } else {
+      //   content.className = 'scrollable-content'
+      // }
+      // if (this.mini) {
+      //   this.mini = false
+      // }
+    },
+    getLastMeasurement (measurements) {
+      return [
+        measurements[measurements.length - 1]
+      ]
+    },
+    async closestStation (userLocation) {
+      if (this.allStations === null) {
+        await this.setAllStationsState()
+      }
+      let minDist = Infinity
+      let markerDist
+      let closestStationDetails
+      this.allStations.forEach(station => {
+        markerDist = this.functions.getDistance(station.coordinates.map(Number), userLocation)
+        if (markerDist < minDist) {
+          minDist = markerDist
+          closestStationDetails = station
+        }
+      })
+      let response = (await this.stationsService.getStation(closestStationDetails.id)).filter(({ measurement }) => measurement.length > 0)
+      let sensorsDetails = response.map(({ details }) => details)
+      let lastSensorsValues = this.functions.mapLastValues(response)
+      let closestStation = {
+        id: closestStationDetails.id,
+        stationName: closestStationDetails.stationName,
+        city: closestStationDetails.city,
+        coordinates: closestStationDetails.coordinates,
+        sensors: this.functions.mapSensors(sensorsDetails, lastSensorsValues),
+        stationDistance: this.functions.roundStationDistance(this.functions.getDistance(closestStationDetails.coordinates,
+          userLocation))
+      }
+      this.setClosestStationState(closestStation)
+    },
+    getLocation (pos) {
+      let userLocation = [
+        pos.coords.latitude,
+        pos.coords.longitude
+      ]
+      this.closestStation(userLocation)
+      this.setUserLocationState(userLocation)
+      navigator.geolocation.clearWatch(this.watcher)
+    },
+    handleError (error) {
+      switch (error.code) {
+        case 1:
+          alert('permission denied')
+          break
+        case 2:
+          alert('position unavailable')
+          break
+        case 3:
+          alert('timeout')
+          break
+        default:
+          alert('unknown error')
+          break
+      }
+    },
+    closeChartDialog (value) {
+      this.chartDialogVisibility = value
+      this.chartVisibility = value
+    },
+    withoutComparison (value) {
+      this.fillDatacollection(value, this.apiResponse)
+    },
+    barDataComparison (value) {
+      this.barDataCollection = value
+    },
+    lineDataComparison (value) {
+      this.lineDataCollection = value
+    }
+  },
+  computed: {
+    miniVariant () {
+      return this.stationDetails === null && this.inputVisibility === false
+    },
+    navbarWidth () {
+      if (this.$vuetify.breakpoint.xsOnly) {
+        return 200
+      } else {
+        return 270
+      }
+    },
+    ...mapState('stations', ['allStationsState', 'selectedStationState'])
+  },
+  watch: {
+    'inputVisibility' (value) {
+      let content = document.getElementById('station-content')
+      if (value === true) {
+        content.className = 'scrollable-content-input'
+      } else {
+        content.className = 'scrollable-content'
+      }
+    },
+    'chartDialogVisibility' (value) {
+      if (value === true) {
+        setTimeout(function () { this.chartVisibility = true }
+          .bind(this),
+        50)
+      }
+    },
+    allStationsState: {
+      handler: function (value) {
+        this.allStations = value
+      },
+      deep: true
+    },
+    selectedStationState: {
+      handler: function (value) {
+        this.selectedStation = value
+        setTimeout(function () { this.inputVisibility = false }
+          .bind(this),
+        50)
+      },
+      deep: true
+    },
+    'selectedStation' (value) {
+      this.setSelectedStationState(value)
+    }
+  },
+  created () {
+    bus.$on('setStationDetails', (data) => {
+      this.stationDetails = data.stationDetails
+      this.apiResponse = data.response
+    })
+    bus.$on('setMini', (value) => {
+      this.mini = value
+    })
+    bus.$on('resetStationDetails', (value) => {
+      this.stationDetails = value
+    })
+    bus.$on('resetSelectedStation', (value) => {
+      this.selectedStation = value
+    })
+  },
+  mounted () {
+    this.setAllStationsState()
   }
 }
 </script>
-<style>
-    #app {
-      background-image:
-        linear-gradient(to bottom, rgba(30, 230, 176, 0.5), rgba(30, 230, 176, 0.5))
-
-    }
+<style lang="scss">
+  @import "style";
 </style>

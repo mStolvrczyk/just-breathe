@@ -105,4 +105,37 @@ export default class Functions {
     let limit = pollutionLimits[symbol]
     return ((value * 100) / limit).toFixed(1)
   }
+  mapLastValues (response) {
+    let values = response.map(({ measurement }) => measurement)
+    let valuesArray = []
+    values.forEach(value => {
+      value.reverse()
+      valuesArray.push(value[value.length - 1].value)
+      valuesArray.push(value[value.length - 1].value)
+    })
+    return valuesArray
+  }
+  mapSensors (sensorsDetails, lastSensorsValues) {
+    let sensorsArray = []
+    for (let i = 0; i < sensorsDetails.length && i < lastSensorsValues.length; i++) {
+      let currentValue = [lastSensorsValues[i]]
+      sensorsArray.push({
+        id: sensorsDetails[i].id,
+        name: sensorsDetails[i].param,
+        symbol: sensorsDetails[i].paramTwo,
+        lastValue: (lastSensorsValues[i]).toFixed(1),
+        backgroundColor: this.setBackgroundColor(currentValue, sensorsDetails[i].paramTwo, false)[0],
+        pollutionLimit: this.getPollutionLimit(sensorsDetails[i].paramTwo, (lastSensorsValues[i]).toFixed(1))
+      })
+    }
+    return sensorsArray
+  }
+  roundStationDistance (stationDistance) {
+    if (stationDistance >= 1000) {
+      stationDistance = (stationDistance / 1000).toFixed(1) + ' km'
+    } else {
+      stationDistance = stationDistance.toFixed(0) + ' m'
+    }
+    return stationDistance
+  }
 }
