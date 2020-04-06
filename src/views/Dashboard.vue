@@ -55,13 +55,13 @@
                   <animated-number
                     :value="closestStationState.gaugeChartData.lastPercentValue"
                     :formatValue="formatPercentValue"
-                    :duration="closestStationState.gaugeChartData.lastPercentValue * 30"
+                    :duration="closestStationState.gaugeChartData.lastPercentValue * 15"
                     :round="1"
                   /><br>
                   <animated-number
                     :value="closestStationState.gaugeChartData.lastValue"
                     :formatValue="formatValue"
-                    :duration="closestStationState.gaugeChartData.lastValue * 30"
+                    :duration="closestStationState.gaugeChartData.lastValue * 15"
                     :round="1"
                   /><br>
                   {{closestStationState.gaugeChartData.symbol}}
@@ -336,7 +336,7 @@ export default {
     },
     gaugeTransitionDuration () {
       if (this.closestStationState.gaugeChartData.lastPercentValue <= 100) {
-        return this.closestStationState.gaugeChartData.lastPercentValue * 30
+        return this.closestStationState.gaugeChartData.lastPercentValue * 15
       } else {
         return 3000
       }
