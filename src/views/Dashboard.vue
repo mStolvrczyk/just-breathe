@@ -55,13 +55,13 @@
                   <animated-number
                     :value="closestStationState.gaugeChartData.lastPercentValue"
                     :formatValue="formatPercentValue"
-                    :duration="closestStationState.gaugeChartData.lastPercentValue * 15"
+                    :duration="closestStationState.gaugeChartData.lastPercentValue * 20"
                     :round="1"
                   /><br>
                   <animated-number
                     :value="closestStationState.gaugeChartData.lastValue"
                     :formatValue="formatValue"
-                    :duration="closestStationState.gaugeChartData.lastValue * 15"
+                    :duration="closestStationState.gaugeChartData.lastValue * 20"
                     :round="1"
                   /><br>
                   {{closestStationState.gaugeChartData.symbol}}
@@ -185,6 +185,7 @@ export default {
   name: 'Dashboard',
   data () {
     return {
+      dataTest: false,
       functions: new HelperFunctions(),
       stationsService: new StationsService(),
       chartValue: null,
@@ -329,14 +330,14 @@ export default {
   },
   computed: {
     dataStatement () {
-      return this.closestStationState.stationDistance !== null && this.closestStationState.stationName !== null && this.closestStationState.gaugeChartData.time !== null && this.routeState === '/dashboard'
+      return this.closestStationState.stationDistance !== null && this.closestStationState.stationName !== null && this.closestStationState.gaugeChartData.time !== null && this.routeState === '/dashboard' && this.dataTest === true
     },
     thirdRowStatement () {
-      return this.closestStationState.temperature !== null || this.closestStationState.pressure !== null || this.closestStationState.wind !== null || this.closestStationState.humidity !== null
+      return (this.closestStationState.temperature !== null || this.closestStationState.pressure !== null || this.closestStationState.wind !== null || this.closestStationState.humidity !== null) && this.dataTest === true
     },
     gaugeTransitionDuration () {
       if (this.closestStationState.gaugeChartData.lastPercentValue <= 100) {
-        return this.closestStationState.gaugeChartData.lastPercentValue * 15
+        return this.closestStationState.gaugeChartData.lastPercentValue * 20
       } else {
         return 3000
       }
@@ -357,6 +358,15 @@ export default {
     },
     ...mapState('stations', ['closestStationState', 'routeState']),
     ...mapState('sensors', ['apiResponseStateDashboard'])
+  },
+  watch: {
+    'gaugeTransitionDuration' (value) {
+      setTimeout(function () {
+        this.dataTest = true
+      }
+        .bind(this),
+      value)
+    }
   }
 }
 </script>
