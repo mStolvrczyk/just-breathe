@@ -4,12 +4,12 @@
   "icons": [
     {
       "src": "./img/icons/jb-sygnet.png",
-      "sizes": "300x300",
+      "sizes": "800x800",
       "type": "image/png"
     },
     {
       "src": "./img/icons/jb-sygnet.png",
-      "sizes": "512x512",
+      "sizes": "800x800",
       "type": "image/png"
     }
   ],
