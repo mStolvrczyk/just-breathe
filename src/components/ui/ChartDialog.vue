@@ -219,7 +219,7 @@ export default {
       if (this.$vuetify.breakpoint.mdAndUp) {
         return this.height / 4.6
       } else {
-        return 300
+        return 280
       }
     },
     ...mapState('sensors', ['barDataCollectionState', 'lineDataCollectionState', 'sensorDetailsState', 'chartDialogVisibilityState', 'apiResponseStateDashboard', 'apiResponseStateMap'])

@@ -1,12 +1,16 @@
-import {Line, mixins} from 'vue-chartjs'
+import { Line, mixins } from 'vue-chartjs'
 const { reactiveProp } = mixins
-
 
 export default {
   extends: Line,
   mixins: [reactiveProp],
   data: () => ({
     options: {
+      legend: {
+        labels: {
+          fontColor: '#fff'
+        }
+      },
       responsive: true,
       maintainAspectRatio: true,
       scales: {
