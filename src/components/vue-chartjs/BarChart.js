@@ -13,6 +13,11 @@ export default {
     //   }
     // },
     options: {
+      legend: {
+        labels: {
+          fontColor: '#fff'
+        }
+      },
       responsive: true,
       maintainAspectRatio: true,
       scales: {
