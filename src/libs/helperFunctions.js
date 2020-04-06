@@ -1,4 +1,5 @@
 import pollutionLimits from './pollutionLimits'
+import pollutionLevels from '@/libs/pollutionLevels'
 
 export default class Functions {
   setBackgroundColor (measurements, symbol, opacity) {
@@ -97,12 +98,55 @@ export default class Functions {
     values.forEach((value) => {
       sum = sum + value
     })
-    return [
-      sum / values.length
-    ]
+    return sum / values.length
+  }
+  getLastMeasurement (measurements) {
+    return measurements[measurements.length - 1]
   }
   getPollutionLimit (symbol, value) {
     let limit = pollutionLimits[symbol]
     return ((value * 100) / limit).toFixed(1)
+  }
+  mapLastValues (response) {
+    let sensorsMeasurements = response.map(({ measurement }) => measurement)
+    let measurementsArray = []
+    sensorsMeasurements.forEach(sensorMeasurements => {
+      sensorMeasurements.reverse()
+      measurementsArray.push({
+        value: sensorMeasurements[sensorMeasurements.length - 1].value,
+        date: sensorMeasurements[sensorMeasurements.length - 1].date
+      })
+    })
+    return measurementsArray
+  }
+  mapSensors (sensorsDetails, lastSensorsValues) {
+    let sensorsArray = []
+    for (let i = 0; i < sensorsDetails.length && i < lastSensorsValues.length; i++) {
+      sensorsArray.push({
+        id: sensorsDetails[i].id,
+        name: sensorsDetails[i].param,
+        symbol: sensorsDetails[i].paramTwo,
+        lastValue: parseInt((lastSensorsValues[i].value).toFixed(1)),
+        pollutionLevel: pollutionLevels[this.setBackgroundColor([lastSensorsValues[i].value], sensorsDetails[i].paramTwo, false)[0]],
+        time: lastSensorsValues[i].date.substring(11, 16),
+        backgroundColor: this.setBackgroundColor([lastSensorsValues[i].value], sensorsDetails[i].paramTwo, false)[0],
+        lastPercentValue: parseInt(this.getPollutionLimit(sensorsDetails[i].paramTwo, (lastSensorsValues[i].value).toFixed(1)))
+      })
+    }
+    return sensorsArray
+  }
+  roundStationDistance (stationDistance) {
+    if (stationDistance >= 1000) {
+      stationDistance = (stationDistance / 1000).toFixed(1) + ' km'
+    } else {
+      stationDistance = stationDistance.toFixed(0) + ' m'
+    }
+    return stationDistance
+  }
+  chartDataFilter ({ pollutionLimit, backgroundColor }) {
+    return {
+      pollutionLimit: pollutionLimit,
+      backgroundColor: backgroundColor
+    }
   }
 }
