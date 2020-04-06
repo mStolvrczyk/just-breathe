@@ -185,7 +185,7 @@ export default {
   name: 'Dashboard',
   data () {
     return {
-      dataTest: false,
+      dataStatement: false,
       functions: new HelperFunctions(),
       stationsService: new StationsService(),
       chartValue: null,
@@ -329,17 +329,17 @@ export default {
     }
   },
   computed: {
-    dataStatement () {
-      return this.closestStationState.stationDistance !== null && this.closestStationState.stationName !== null && this.closestStationState.gaugeChartData.time !== null && this.routeState === '/dashboard' && this.dataTest === true
+    dataStatementHolder () {
+      return this.closestStationState.stationDistance !== null && this.closestStationState.stationName !== null && this.closestStationState.gaugeChartData.time !== null && this.routeState === '/dashboard'
     },
     thirdRowStatement () {
-      return (this.closestStationState.temperature !== null || this.closestStationState.pressure !== null || this.closestStationState.wind !== null || this.closestStationState.humidity !== null) && this.dataTest === true
+      return this.closestStationState.temperature !== null || this.closestStationState.pressure !== null || this.closestStationState.wind !== null || this.closestStationState.humidity !== null
     },
     gaugeTransitionDuration () {
       if (this.closestStationState.gaugeChartData.lastPercentValue <= 100) {
         return this.closestStationState.gaugeChartData.lastPercentValue * 20
       } else {
-        return 3000
+        return 2000
       }
     },
     horizontalChartWidth () {
@@ -360,12 +360,14 @@ export default {
     ...mapState('sensors', ['apiResponseStateDashboard'])
   },
   watch: {
-    'gaugeTransitionDuration' (value) {
-      setTimeout(function () {
-        this.dataTest = true
+    'dataStatementHolder' (value) {
+      if (value === true) {
+        setTimeout(function () {
+          this.dataStatement = true
+        }
+          .bind(this),
+        this.closestStationState.gaugeChartData.lastPercentValue * 20)
       }
-        .bind(this),
-      value)
     }
   }
 }
