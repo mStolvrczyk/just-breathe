@@ -3,6 +3,9 @@
     persistent
     v-model="chartDialogVisibilityState"
     max-width="100%"
+    fullscreen
+    hide-overlay
+    transition="dialog-bottom-transition"
   >
     <div id="chart-dialog-card">
 <!--      <div id="chart-card">-->
@@ -219,7 +222,7 @@ export default {
       if (this.$vuetify.breakpoint.mdAndUp) {
         return this.height / 5.7
       } else {
-        return this.height 
+        return this.height
       }
     },
     ...mapState('sensors', ['barDataCollectionState', 'lineDataCollectionState', 'sensorDetailsState', 'chartDialogVisibilityState', 'apiResponseStateDashboard', 'apiResponseStateMap'])
