@@ -55,12 +55,8 @@
             </v-tooltip>
           </v-btn-toggle>
         </div>
-        <h3 class="chart-info-text">Uśredniony pomiar z dziś: <br v-if="$vuetify.breakpoint.xs"> <span :style="{'color':sensorDetailsState.averageMeasurement.color}">{{sensorDetailsState.averageMeasurement.procentValue
-          + '%'}}({{sensorDetailsState.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
-          {{sensorDetailsState.averageMeasurement.pollutionLevel}}</span></h3> <h3 class="chart-info-text">Ostatni pomiar:
-        <br v-if="$vuetify.breakpoint.xs"> <span :style="{'color':sensorDetailsState.lastMeasurement.color}">{{sensorDetailsState.lastMeasurement.procentValue + '%'}}
-          ({{sensorDetailsState.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) -
-          {{sensorDetailsState.lastMeasurement.pollutionLevel}}</span></h3>
+        <p class="chart-dialog-paragraph">Średni pomiar: <span :style="{'color':sensorDetailsState.averageMeasurement.color}">{{sensorDetailsState.averageMeasurement.procentValue + '%'}}({{sensorDetailsState.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) - {{sensorDetailsState.averageMeasurement.pollutionLevel}}</span></p>
+        <p class="chart-dialog-paragraph">Ostatni pomiar: <span :style="{'color':sensorDetailsState.lastMeasurement.color}">{{sensorDetailsState.lastMeasurement.procentValue + '%'}}({{sensorDetailsState.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) -{{sensorDetailsState.lastMeasurement.pollutionLevel}}</span></p>
       </div>
       <div class="row chart button">
         <v-btn @click="closeDialog" class="teal--text font-weight-bold" rounded color="#EEEEEE" dark>Wróć</v-btn>
@@ -219,7 +215,7 @@ export default {
   computed: {
     chartHeight () {
       if (this.$vuetify.breakpoint.mdAndUp) {
-        return this.height / 5.7
+        return this.height / 6.5
       } else {
         return this.height / 1.4
       }

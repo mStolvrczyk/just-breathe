@@ -154,7 +154,9 @@ h3 {
     }
     &.data-paragraph {
       font-weight: bold;
-      font-size: 14px;
+    }
+    &.chart-dialog-paragraph {
+      font-size: 18px;
     }
   }
   span {
@@ -251,6 +253,10 @@ h3 {
     &.data-paragraph {
       font-weight: bold;
       font-size: 12px;
+    }
+    &.chart-dialog-paragraph {
+      font-size: 14px;
+      padding-bottom: 0.3rem;
     }
   }
   span {
