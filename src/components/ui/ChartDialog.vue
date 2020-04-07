@@ -9,24 +9,23 @@
   >
     <div id="chart-dialog-card">
 <!--      <div id="chart-card">-->
-        <h3 class="silver" v-if="barDataCollectionState.datasets.length === 0 || lineDataCollectionState.datasets.length === 0">
-          Brak pomiarów
-        </h3>
-        <transition name="popup">
-          <div v-if="(barDataCollectionState.datasets.length > 0 || barDataCollectionState.datasets.length > 0) && chartDialogVisibilityState">
-            <bar-chart
-              v-if="chartSwitch"
-              :chart-data="barDataCollectionState"
-              :height.sync="chartHeight"
-            />
-            <line-chart
-              v-else
-              :chart-data="lineDataCollectionState"
-              :height.sync="chartHeight"
-            />
-          </div>
-        </transition>
-<!--      </div>-->
+      <h3 class="silver" v-if="barDataCollectionState.datasets.length === 0 || lineDataCollectionState.datasets.length === 0">
+        Brak pomiarów
+      </h3>
+      <transition name="popup">
+        <div v-if="(barDataCollectionState.datasets.length > 0 || barDataCollectionState.datasets.length > 0) && chartDialogVisibilityState">
+          <bar-chart
+            v-if="chartSwitch"
+            :chart-data="barDataCollectionState"
+            :height.sync="chartHeight"
+          />
+          <line-chart
+            v-else
+            :chart-data="lineDataCollectionState"
+            :height.sync="chartHeight"
+          />
+        </div>
+      </transition>
       <div v-if="barDataCollectionState.datasets.length > 0 || lineDataCollectionState.datasets.length > 0">
         <div class="row chart">
           <v-btn-toggle rounded v-model="alignment">
@@ -222,7 +221,7 @@ export default {
       if (this.$vuetify.breakpoint.mdAndUp) {
         return this.height / 5.7
       } else {
-        return this.height
+        return this.height / 2
       }
     },
     ...mapState('sensors', ['barDataCollectionState', 'lineDataCollectionState', 'sensorDetailsState', 'chartDialogVisibilityState', 'apiResponseStateDashboard', 'apiResponseStateMap'])
