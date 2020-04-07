@@ -8,7 +8,6 @@
     transition="dialog-bottom-transition"
   >
     <div id="chart-dialog-card">
-<!--      <div id="chart-card">-->
       <h3 class="silver" v-if="barDataCollectionState.datasets.length === 0 || lineDataCollectionState.datasets.length === 0">
         Brak pomiarów
       </h3>
@@ -24,39 +23,43 @@
             :chart-data="lineDataCollectionState"
             :height.sync="chartHeight"
           />
+          <div class="row chart">
+            <v-btn-toggle rounded v-model="alignment">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn @click="chartSwitch = true" color="white" v-on="on">
+                    <v-icon style="font-size:23px;color: teal">mdi-chart-bar</v-icon>
+                  </v-btn>
+                </template>
+                <span>Wykres słupkowy</span>
+              </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn @click="compareWithYesterday(sensorDetailsState.sensorId, apiResponseHolder), comparison = !comparison" color="white" v-on="on">
+                    <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
+                  </v-btn>
+                </template>
+                <span>Porównaj z wczoraj</span>
+              </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn @click="chartSwitch = false" color="white" v-on="on">
+                    <v-icon style="font-size:23px;color: teal">mdi-chart-bell-curve</v-icon>
+                  </v-btn>
+                </template>
+                <span>Wykres liniowy</span>
+              </v-tooltip>
+            </v-btn-toggle>
+          </div>
         </div>
       </transition>
-      <div v-if="barDataCollectionState.datasets.length > 0 || lineDataCollectionState.datasets.length > 0">
-        <div class="row chart">
-          <v-btn-toggle rounded v-model="alignment">
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn @click="chartSwitch = true" color="white" v-on="on">
-                  <v-icon style="font-size:23px;color: teal">mdi-chart-bar</v-icon>
-                </v-btn>
-              </template>
-              <span>Wykres słupkowy</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn @click="compareWithYesterday(sensorDetailsState.sensorId, apiResponseHolder), comparison = !comparison" color="white" v-on="on">
-                  <v-icon style="font-size:23px;color: teal">mdi-compare</v-icon>
-                </v-btn>
-              </template>
-              <span>Porównaj z wczoraj</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn @click="chartSwitch = false" color="white" v-on="on">
-                  <v-icon style="font-size:23px;color: teal">mdi-chart-bell-curve</v-icon>
-                </v-btn>
-              </template>
-              <span>Wykres liniowy</span>
-            </v-tooltip>
-          </v-btn-toggle>
+      <div class="row" v-if="barDataCollectionState.datasets.length > 0 || lineDataCollectionState.datasets.length > 0">
+        <div class="row">
+          <p class="chart-dialog-paragraph">Średni pomiar: <span :style="{'color':sensorDetailsState.averageMeasurement.color}">{{sensorDetailsState.averageMeasurement.procentValue + '%'}}({{sensorDetailsState.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) - {{sensorDetailsState.averageMeasurement.pollutionLevel}}</span></p>
         </div>
-        <p class="chart-dialog-paragraph">Średni pomiar: <span :style="{'color':sensorDetailsState.averageMeasurement.color}">{{sensorDetailsState.averageMeasurement.procentValue + '%'}}({{sensorDetailsState.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) - {{sensorDetailsState.averageMeasurement.pollutionLevel}}</span></p>
-        <p class="chart-dialog-paragraph">Ostatni pomiar: <span :style="{'color':sensorDetailsState.lastMeasurement.color}">{{sensorDetailsState.lastMeasurement.procentValue + '%'}}({{sensorDetailsState.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) -{{sensorDetailsState.lastMeasurement.pollutionLevel}}</span></p>
+        <div class="row">
+          <p class="chart-dialog-paragraph">Ostatni pomiar: <span :style="{'color':sensorDetailsState.lastMeasurement.color}">{{sensorDetailsState.lastMeasurement.procentValue + '%'}}({{sensorDetailsState.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) -{{sensorDetailsState.lastMeasurement.pollutionLevel}}</span></p>
+        </div>
       </div>
       <div class="row chart button">
         <v-btn @click="closeDialog" class="teal--text font-weight-bold" rounded color="#EEEEEE" dark>Wróć</v-btn>
@@ -215,7 +218,7 @@ export default {
   computed: {
     chartHeight () {
       if (this.$vuetify.breakpoint.mdAndUp) {
-        return this.height / 6.5
+        return this.height / 6
       } else {
         return this.height / 1.4
       }
