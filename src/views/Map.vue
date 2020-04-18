@@ -111,12 +111,12 @@ export default {
     },
     async getStationDetails (id, stations, userLocation, extraZoom) {
       this.stationId = id
-      let response = (await this.stationsService.getStation(id)).filter(({ measurement }) => measurement.length > 0)
+      const response = (await this.stationsService.getStation(id)).filter(({ measurement }) => measurement.length > 0)
       this.setApiResponseStateMap(response)
-      let stationId = id
-      let station = await stations.find(({ id }) => id === stationId)
-      let sensorsDetails = response.map(({ details }) => details)
-      let lastSensorsValues = this.mapLastValues(response)
+      const stationId = id
+      const station = await stations.find(({ id }) => id === stationId)
+      const sensorsDetails = response.map(({ details }) => details)
+      const lastSensorsValues = this.mapLastValues(response)
       if (this.zoom === 5 || this.zoom === 6) {
         this.$refs.map.mapObject.flyTo([station.coordinates[0], station.coordinates[1]], 7)
       } else {
@@ -125,7 +125,7 @@ export default {
       if (extraZoom) {
         this.$refs.map.mapObject.flyTo([station.coordinates[0], station.coordinates[1]], 10)
       }
-      let stationDetails = {
+      const stationDetails = {
         stationName: station.stationName,
         city: station.city,
         temperature: station.temperature,
@@ -149,8 +149,8 @@ export default {
       return stationDistance
     },
     mapLastValues (response) {
-      let values = response.map(({ measurement }) => measurement)
-      let valuesArray = []
+      const values = response.map(({ measurement }) => measurement)
+      const valuesArray = []
       values.forEach(value => {
         value.reverse()
         valuesArray.push(value[value.length - 1].value)
@@ -158,9 +158,9 @@ export default {
       return valuesArray
     },
     mapSensors (sensorsDetails, lastSensorsValues) {
-      let sensorsArray = []
+      const sensorsArray = []
       for (let i = 0; i < sensorsDetails.length && i < lastSensorsValues.length; i++) {
-        let currentValue = [lastSensorsValues[i]]
+        const currentValue = [lastSensorsValues[i]]
         sensorsArray.push({
           id: sensorsDetails[i].id,
           name: sensorsDetails[i].param,

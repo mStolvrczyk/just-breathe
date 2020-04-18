@@ -200,7 +200,7 @@
                       <template v-slot:activator="{ on }">
                         <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.lastPercentValue+'%'}}</p>
                       </template>
-                      <span>{{sensor.lastValue+' &#181/m'}}<sup>3</sup></span>
+                      <span>{{sensor.lastValue+' &#181;/m'}}<sup>3</sup></span>
                     </v-tooltip>
                   </div>
                   <div class="column button">
@@ -290,12 +290,12 @@ export default {
     ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState', 'setSelectedStationState', 'setRouteState']),
     ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState', 'setApiResponseStateDashboard']),
     async fillDatacollection (id, apiResponse) {
-      let sensor = apiResponse.find(sensor => sensor.details.id === id)
-      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
-      let filteredValues = filteredMeasurements.map(({ value }) => value)
-      let averageMeasurement = this.functions.getAverage(filteredValues)
-      let lastMeasurement = this.functions.getLastMeasurement(filteredValues)
-      let barDataCollection = {
+      const sensor = apiResponse.find(sensor => sensor.details.id === id)
+      const filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
+      const filteredValues = filteredMeasurements.map(({ value }) => value)
+      const averageMeasurement = this.functions.getAverage(filteredValues)
+      const lastMeasurement = this.functions.getLastMeasurement(filteredValues)
+      const barDataCollection = {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
@@ -306,7 +306,7 @@ export default {
         ]
       }
       this.setBarDataCollectionState(barDataCollection)
-      let lineDataCollection = {
+      const lineDataCollection = {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
@@ -317,7 +317,7 @@ export default {
         ]
       }
       this.setLineDataCollectionState(lineDataCollection)
-      let sensorDetails = {
+      const sensorDetails = {
         sensorId: sensor.details.id,
         averageMeasurement: {
           value: averageMeasurement.toFixed(2),
@@ -357,11 +357,11 @@ export default {
       //     closestStationDetails = station
       //   }
       // })
-      let response = (await this.stationsService.getStation(closestStationDetails.id)).filter(({ measurement }) => measurement.length > 0)
+      const response = (await this.stationsService.getStation(closestStationDetails.id)).filter(({ measurement }) => measurement.length > 0)
       this.setApiResponseStateDashboard(response)
-      let sensorsDetails = response.map(({ details }) => details)
-      let lastSensorsValues = this.functions.mapLastValues(response)
-      let closestStation = {
+      const sensorsDetails = response.map(({ details }) => details)
+      const lastSensorsValues = this.functions.mapLastValues(response)
+      const closestStation = {
         response: response,
         id: closestStationDetails.id,
         stationName: closestStationDetails.stationName,
@@ -379,7 +379,7 @@ export default {
       this.setClosestStationState(closestStation)
     },
     getLocation (pos) {
-      let userLocation = [
+      const userLocation = [
         pos.coords.latitude,
         pos.coords.longitude
       ]
@@ -388,10 +388,10 @@ export default {
       navigator.geolocation.clearWatch(this.watcher)
     },
     mapHorizontalBarChartLimit (sensors) {
-      let lastPercentValuesArray = sensors.map((sensor) => {
+      const lastPercentValuesArray = sensors.map((sensor) => {
         return sensor.lastPercentValue
       })
-      let highestPercentValue = lastPercentValuesArray.reduce((prev, current) => (prev > current) ? prev : current)
+      const highestPercentValue = lastPercentValuesArray.reduce((prev, current) => (prev > current) ? prev : current)
       // lastPercentValuesArray.sort(function (a, b) {
       //   return a - b
       // })
@@ -465,14 +465,14 @@ export default {
       }
     },
     mapGaugeChartData (sensors) {
-      let sensorsTable = sensors.map((sensor) => {
+      const sensorsTable = sensors.map((sensor) => {
         return pollutionLevelsSort[sensor.pollutionLevel]
       })
-      let worstPollutionLevelSensor = sensorsTable.reduce((prev, current) => (prev > current) ? prev : current)
+      const worstPollutionLevelSensor = sensorsTable.reduce((prev, current) => (prev > current) ? prev : current)
       // sensorsTable.sort(function (a, b) {
       //   return a - b
       // })
-      let worstPollutionLevelSensors = sensors.filter(({ pollutionLevel }) => pollutionLevel === pollutionLevelsSortReversed[worstPollutionLevelSensor])
+      const worstPollutionLevelSensors = sensors.filter(({ pollutionLevel }) => pollutionLevel === pollutionLevelsSortReversed[worstPollutionLevelSensor])
       if (worstPollutionLevelSensors.includes(worstPollutionLevelSensors.find(({ symbol }) => symbol === 'PM10'))) {
         return worstPollutionLevelSensors.find(({ symbol }) => symbol === 'PM10')
       } else if (worstPollutionLevelSensors.includes(worstPollutionLevelSensors.find(({ symbol }) => symbol === 'PM2.5'))) {
@@ -539,7 +539,7 @@ export default {
       }
     },
     'inputVisibility' (value) {
-      let content = document.getElementById('station-content')
+      const content = document.getElementById('station-content')
       if (value === true) {
         content.className = 'scrollable-content-input'
       } else {

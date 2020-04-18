@@ -13,7 +13,7 @@ module.exports = {
     const imgwData = await axios.get(`${apiImgwUrl}`)
       .then(functions.getData)
       .then((data) => data.map(functions.imgwFilter))
-    let indexedImgwData = indexBy(prop('station'), imgwData)
+    const indexedImgwData = indexBy(prop('station'), imgwData)
     return giosData.map((obiect) => {
       return {
         ...obiect,

@@ -203,12 +203,12 @@ export default {
   methods: {
     ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState']),
     async fillDatacollection (id, apiResponse) {
-      let sensor = apiResponse.find(sensor => sensor.details.id === id)
-      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
-      let filteredValues = filteredMeasurements.map(({ value }) => value)
-      let averageMeasurement = this.functions.getAverage(filteredValues)
-      let lastMeasurement = this.functions.getLastMeasurement(filteredValues)
-      let barDataCollection = {
+      const sensor = apiResponse.find(sensor => sensor.details.id === id)
+      const filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
+      const filteredValues = filteredMeasurements.map(({ value }) => value)
+      const averageMeasurement = this.functions.getAverage(filteredValues)
+      const lastMeasurement = this.functions.getLastMeasurement(filteredValues)
+      const barDataCollection = {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
@@ -219,7 +219,7 @@ export default {
         ]
       }
       this.setBarDataCollectionState(barDataCollection)
-      let lineDataCollection = {
+      const lineDataCollection = {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
@@ -230,7 +230,7 @@ export default {
         ]
       }
       this.setLineDataCollectionState(lineDataCollection)
-      let sensorDetails = {
+      const sensorDetails = {
         sensorId: sensor.details.id,
         averageMeasurement: {
           value: averageMeasurement.toFixed(2),
