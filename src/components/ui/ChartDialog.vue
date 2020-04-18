@@ -55,10 +55,10 @@
       </transition>
       <div class="row" v-if="barDataCollectionState.datasets.length > 0 || lineDataCollectionState.datasets.length > 0">
         <div class="row">
-          <p class="chart-dialog-paragraph">Średni pomiar: <span :style="{'color':sensorDetailsState.averageMeasurement.color}">{{sensorDetailsState.averageMeasurement.procentValue + '%'}}({{sensorDetailsState.averageMeasurement.value + ' &#181/m'}}<sup>3</sup>) - {{sensorDetailsState.averageMeasurement.pollutionLevel}}</span></p>
+          <p class="chart-dialog-paragraph">Średni pomiar: <span :style="{'color':sensorDetailsState.averageMeasurement.color}">{{sensorDetailsState.averageMeasurement.procentValue + '%'}}({{sensorDetailsState.averageMeasurement.value + ' &#181;/m'}}<sup>3</sup>) - {{sensorDetailsState.averageMeasurement.pollutionLevel}}</span></p>
         </div>
         <div class="row">
-          <p class="chart-dialog-paragraph">Ostatni pomiar: <span :style="{'color':sensorDetailsState.lastMeasurement.color}">{{sensorDetailsState.lastMeasurement.procentValue + '%'}}({{sensorDetailsState.lastMeasurement.value + ' &#181/m'}}<sup>3</sup>) -{{sensorDetailsState.lastMeasurement.pollutionLevel}}</span></p>
+          <p class="chart-dialog-paragraph">Ostatni pomiar: <span :style="{'color':sensorDetailsState.lastMeasurement.color}">{{sensorDetailsState.lastMeasurement.procentValue + '%'}}({{sensorDetailsState.lastMeasurement.value + ' &#181;/m'}}<sup>3</sup>) -{{sensorDetailsState.lastMeasurement.pollutionLevel}}</span></p>
         </div>
       </div>
       <div class="row chart button">
@@ -103,15 +103,15 @@ export default {
   methods: {
     ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState']),
     closeDialog () {
-      let barDataCollectionState = {
+      const barDataCollectionState = {
         labels: null,
         datasets: []
       }
-      let lineDataCollectionState = {
+      const lineDataCollectionState = {
         labels: null,
         datasets: []
       }
-      let sensorDetailsState = {
+      const sensorDetailsState = {
         sensorId: null,
         averageMeasurement: null,
         lastMeasurement: null
@@ -122,12 +122,12 @@ export default {
       this.setChartDialogVisibilityState(false)
     },
     async fillDatacollection (id, apiResponse) {
-      let sensor = apiResponse.find(sensor => sensor.details.id === id)
-      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
-      let filteredValues = filteredMeasurements.map(({ value }) => value)
-      let averageMeasurement = this.functions.getAverage(filteredValues)
-      let lastMeasurement = this.functions.getLastMeasurement(filteredValues)
-      let barDataCollection = {
+      const sensor = apiResponse.find(sensor => sensor.details.id === id)
+      const filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
+      const filteredValues = filteredMeasurements.map(({ value }) => value)
+      const averageMeasurement = this.functions.getAverage(filteredValues)
+      const lastMeasurement = this.functions.getLastMeasurement(filteredValues)
+      const barDataCollection = {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
@@ -138,7 +138,7 @@ export default {
         ]
       }
       this.setBarDataCollectionState(barDataCollection)
-      let lineDataCollection = {
+      const lineDataCollection = {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
@@ -149,7 +149,7 @@ export default {
         ]
       }
       this.setLineDataCollectionState(lineDataCollection)
-      let sensorDetails = {
+      const sensorDetails = {
         sensorId: sensor.details.id,
         averageMeasurement: {
           value: averageMeasurement.toFixed(2),
@@ -167,16 +167,16 @@ export default {
       this.setSensorDetailsState(sensorDetails)
     },
     async compareWithYesterday (id, apiResponse) {
-      let yesterdaysDate = this.getYesterdaysDate()
-      let sensor = apiResponse.find(sensor => sensor.details.id === id)
-      let filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
-      let filteredValues = filteredMeasurements.map(({ value }) => value)
-      let averageMeasurement = this.functions.getAverage(filteredValues)
-      let lastMeasurementsTime = filteredMeasurements[filteredMeasurements.length - 1].date.substring(11)
-      let yesterdaysMeasurements = (sensor.measurement.filter(({ date }) => date >= yesterdaysDate + ' 00:00:00' && date <= yesterdaysDate + ' ' + lastMeasurementsTime)).reverse()
-      let yesterdayValues = yesterdaysMeasurements.map(({ value }) => value)
-      let yesterdaysAverageMeasurement = this.functions.getAverage(yesterdayValues)
-      let updatedBarDataCollection = {
+      const yesterdaysDate = this.getYesterdaysDate()
+      const sensor = apiResponse.find(sensor => sensor.details.id === id)
+      const filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
+      const filteredValues = filteredMeasurements.map(({ value }) => value)
+      const averageMeasurement = this.functions.getAverage(filteredValues)
+      const lastMeasurementsTime = filteredMeasurements[filteredMeasurements.length - 1].date.substring(11)
+      const yesterdaysMeasurements = (sensor.measurement.filter(({ date }) => date >= yesterdaysDate + ' 00:00:00' && date <= yesterdaysDate + ' ' + lastMeasurementsTime)).reverse()
+      const yesterdayValues = yesterdaysMeasurements.map(({ value }) => value)
+      const yesterdaysAverageMeasurement = this.functions.getAverage(yesterdayValues)
+      const updatedBarDataCollection = {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
@@ -192,7 +192,7 @@ export default {
         ]
       }
       this.setBarDataCollectionState(updatedBarDataCollection)
-      let updatedLineDataCollection = {
+      const updatedLineDataCollection = {
         labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
         datasets: [
           {
@@ -210,7 +210,7 @@ export default {
       this.setLineDataCollectionState(updatedLineDataCollection)
     },
     getYesterdaysDate () {
-      let yesterdayDate = new Date()
+      const yesterdayDate = new Date()
       yesterdayDate.setDate(yesterdayDate.getDate() - 1)
       return this.functions.formatDate(yesterdayDate)
     }

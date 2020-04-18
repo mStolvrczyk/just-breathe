@@ -1,3 +1,4 @@
+/* eslint quote-props: ["error", "always"] */
 const pollutionLimits = {
   'PM10': 50.00,
   'PM2.5': 25.00,

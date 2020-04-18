@@ -1,3 +1,4 @@
+/* eslint quote-props: ["error", "always"] */
 const pollutionLevelsSort = {
   'bardzo dobry': 1,
   'dobry': 2,
