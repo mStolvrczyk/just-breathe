@@ -5,7 +5,7 @@
   "scripts": {
     "build": "run-p build:**",
     "build:app": "vue-cli-service build",
-    "build:lambda": "netlify-lambda build src/express",
+    "build:lambda": "netlify-lambda build server/lambda",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
     "client": "vue-cli-service serve",
