@@ -5,6 +5,7 @@
   "scripts": {
     "build": "run-p build:**",
     "build:app": "vue-cli-service build",
+    "build:lambda": "netlify-lambda build src/express",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
     "client": "vue-cli-service serve",
@@ -19,6 +20,7 @@
     "animated-number-vue": "^1.0.0",
     "apexcharts": "^3.17.1",
     "axios": "^0.19.0",
+    "body-parser": "^1.19.0",
     "celebrate": "^10.0.1",
     "chart.js": "^2.8.0",
     "concurrently": "^5.0.0",
@@ -52,9 +54,10 @@
     "vuex-router-sync": "^5.0.0"
   },
   "devDependencies": {
+    "netlify-lambda": "^1.6.3",
     "@babel/register": " ^7.9.0 ",
-    "@vue/cli-plugin-babel": " ^4.3.1",
     "@vue/cli-plugin-eslint": "^4.3.1",
+    "@vue/cli-plugin-babel": " ^4.3.1",
     "@vue/cli-plugin-pwa": "^3.12.1",
     "@vue/cli-plugin-unit-jest": "^3.11.0",
     "@vue/cli-service": " ^4.3.1 ",
@@ -63,6 +66,7 @@
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^23.6.0",
+    "cors": "^2.8.5",
     "eslint": "^6.8.0",
     "eslint-plugin-vue": "^6.2.2",
     "eslint-plugin-vuetify": "^1.0.0-beta.6",
@@ -72,6 +76,7 @@
     "nodemon": "^1.19.1",
     "sass": "^1.23.0",
     "sass-loader": "^8.0.2",
+    "serverless-http": "^2.3.2",
     "stylus": "^0.54.7",
     "stylus-loader": "^3.0.2",
     "vue-jest": "^3.0.4",
