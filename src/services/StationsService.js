@@ -1,12 +1,16 @@
-import appHttpClient from '../libs/appHttpClient'
+// import appHttpClient from '../libs/appHttpClient'
 import { prop } from 'ramda'
-
+import axios from 'axios'
 export default class StationsService {
   async getAll () {
-    return appHttpClient.get('/stations').then(prop('data'))
+    return axios.get('https://just-breathe-app.netlify.app/.netlify/functions/server/stations').then(prop('data'))
   }
 
   async getStation (id) {
-    return appHttpClient.get(`/stations/${id}`).then(prop('data'))
+    return axios.get(`https://just-breathe-app.netlify.app/.netlify/functions/server/stations/${id}`).then(prop('data'))
   }
+
+  // async getSensor (id) {
+  //   return appHttpClient.get(`/sensors/${id}`).then(prop('data'))
+  // }
 }
