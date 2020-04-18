@@ -7,7 +7,7 @@ function getApiUrl () {
       return './.netlify/functions/server'
     }
     default: {
-      return 'http://localhost:8000/api'
+      return 'http://localhost:8000/.netlify/functions/server'
     }
   }
 }
