@@ -4,7 +4,7 @@ const path = require('path')
 function getApiUrl () {
   switch (process.env.NODE_ENV) {
     case 'production': {
-      return './api'
+      return './.netlify/functions/server'
     }
     default: {
       return 'http://localhost:8000/api'
