@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const userController = require('./controllers/userController.js')
+// const userController = require('./controllers/userController.js')
 
 app.all('/*', function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*')
@@ -8,6 +8,6 @@ app.all('/*', function (req, res, next) {
   next()
 })
 
-app.use('/api', userController)
+// app.use('/api', userController)
 
 module.exports = app
