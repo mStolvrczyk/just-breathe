@@ -381,10 +381,10 @@ export default {
     justify-content: center;
     width: 100%;
     height: 100vh;
-    background: linear-gradient(
-        to top right,
-        rgba(0,77,64,.9),
-        rgba(0,77,64,.9)
-    ),url(../assets/appImage.jpg)
+    /*background: linear-gradient(*/
+    /*    to top right,*/
+    /*    rgba(0,77,64,.9),*/
+    /*    rgba(0,77,64,.9)*/
+    /*),url(../assets/appImage.jpg)*/
   }
 </style>
