@@ -592,7 +592,7 @@ export default {
       window.setInterval(() => {
         window.location.reload(true)
         console.log('dupa')
-      }, 10000)
+      }, 1800000)
     })
   }
 }
