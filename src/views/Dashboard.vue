@@ -50,7 +50,7 @@
         >
           <div class="inner-text">
             <div class="row">
-              <div class="column">
+              <div class="column" v-if="closestStationState.gaugeChartData.lastPercentValue !== 0">
                 <p class="white-data-paragraph">
                   <animated-number
                     :value="closestStationState.gaugeChartData.lastPercentValue"
@@ -69,6 +69,11 @@
                 <p class="index-level-paragraph" :style="{'color': closestStationState.gaugeChartData.backgroundColor}">
                   {{closestStationState.gaugeChartData.pollutionLevel}}</p>
               </div>
+              <v-progress-circular
+                v-else
+                indeterminate
+                color="green"
+              ></v-progress-circular>
             </div>
           </div>
         </vue-svg-gauge>
