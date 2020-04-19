@@ -524,7 +524,7 @@ export default {
         return 270
       }
     },
-    ...mapState('stations', ['allStationsState', 'selectedStationState']),
+    ...mapState('stations', ['allStationsState', 'selectedStationState', 'userLocationState']),
     ...mapState('sensors', ['apiResponseStateMap'])
   },
   watch: {
@@ -590,7 +590,7 @@ export default {
     this.setAllStationsState()
     this.$nextTick(function () {
       window.setInterval(() => {
-        window.location.reload(true)
+        this.closestStation(this.userLocationState)
       }, 1800000)
     })
   }
