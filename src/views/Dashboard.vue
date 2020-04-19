@@ -71,8 +71,10 @@
               </div>
               <v-progress-circular
                 v-else
+                size="100"
                 indeterminate
                 color="green"
+                width="5"
               ></v-progress-circular>
             </div>
           </div>
@@ -361,6 +363,13 @@ export default {
         return 100
       }
     },
+    // progressCircularSize () {
+    //   if (this.$vuetify.breakpoint.xsOnly) {
+    //     return 100
+    //   } else {
+    //     return 100
+    //   }
+    // },
     ...mapState('stations', ['closestStationState', 'routeState']),
     ...mapState('sensors', ['apiResponseStateDashboard'])
   },

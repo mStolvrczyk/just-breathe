@@ -588,6 +588,12 @@ export default {
   },
   mounted () {
     this.setAllStationsState()
+    this.$nextTick(function () {
+      window.setInterval(() => {
+        window.location.reload(true)
+        console.log('dupa')
+      }, 10000)
+    })
   }
 }
 </script>
