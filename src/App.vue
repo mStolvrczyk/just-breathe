@@ -591,7 +591,6 @@ export default {
     this.$nextTick(function () {
       window.setInterval(() => {
         window.location.reload(true)
-        console.log('dupa')
       }, 1800000)
     })
   }
