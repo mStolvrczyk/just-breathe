@@ -283,7 +283,8 @@ export default {
     onRefresh: function () {
       return new Promise(function (resolve, reject) {
         setTimeout(function () {
-          resolve(this.closestStation(this.userLocationState))
+          this.closestStation(this.userLocationState)
+          resolve()
         }, 1000)
       })
     },
