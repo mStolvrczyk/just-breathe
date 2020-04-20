@@ -10,9 +10,15 @@ module.exports = {
     const giosData = await axios.get(`${apiGiosBaseUrl}/station/findAll`)
       .then(functions.getData)
       .then((data) => data.map(functions.stationsFilter))
+      .catch(error => {
+        console.log(error)
+      })
     const imgwData = await axios.get(`${apiImgwUrl}`)
       .then(functions.getData)
       .then((data) => data.map(functions.imgwFilter))
+      .catch(error => {
+        console.log(error)
+      })
     const indexedImgwData = indexBy(prop('station'), imgwData)
     return giosData.map((obiect) => {
       return {
