@@ -294,7 +294,6 @@ export default {
       return new Promise(function (resolve, reject) {
         this.closestStation(this.userLocationState)
         setTimeout(function () {
-          resolve()
         }, 1000)
       })
     },
