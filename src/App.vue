@@ -4,7 +4,7 @@
     <vue-pull-refresh
       :on-refresh="onRefresh"
       :config="{
-        startLabel: 'Start',
+        loadingLabel: 'Ladowanie'
       }"
     >
       <v-navigation-drawer
