@@ -233,10 +233,6 @@ export default {
           }
         }, 1000)
       })
-      // if (navigator.onLine) {
-      // } else {
-      //   alert('dupa')
-      // }
     },
     ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState']),
     async fillDatacollection (id, apiResponse) {
