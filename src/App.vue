@@ -283,8 +283,7 @@ export default {
     onRefresh: function () {
       return new Promise(function (resolve, reject) {
         setTimeout(function () {
-          this.closestStation(this.userLocationState)
-          resolve()
+          window.location.reload(true)
         }, 1000)
       })
     },
