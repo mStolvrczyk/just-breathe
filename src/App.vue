@@ -222,8 +222,8 @@
         </transition>
       </v-container>
     </v-navigation-drawer>
+    <vue-pull-refresh :on-refresh="onRefresh"></vue-pull-refresh>
     <v-content>
-      <vue-pull-refresh :on-refresh="onRefresh"></vue-pull-refresh>
       <router-view/>
       <ChartDialog/>
 <!--        :sensorDetails="sensorDetails"-->
