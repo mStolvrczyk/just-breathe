@@ -260,9 +260,9 @@ export default {
     return {
       pullConfig: {
         errorLabel: 'Wystąpił błąd',
-        startLabel: 'Przeładowywanie',
+        startLabel: 'Start',
         readyLabel: 'Gotowe',
-        loadingLabel: 'Ladowanie'
+        loadingLabel: 'Proszę czekać...'
       },
       drawer: false,
       inputVisibility: false,
