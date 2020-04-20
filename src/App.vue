@@ -3,9 +3,6 @@
   >
     <vue-pull-refresh
       :on-refresh="onRefresh"
-      :config="{
-        loadingLabel: 'Ladowanie'
-      }"
     >
       <v-navigation-drawer
         height="100vh"
