@@ -194,8 +194,6 @@ import HelperFunctions from '@/libs/helperFunctions'
 import StationsService from '@/services/StationsService'
 import VueApexCharts from 'vue-apexcharts'
 import pollutionLevels from '@/libs/pollutionLevels'
-import pollutionLevelsSort from '@/libs/pollutionLevelsSort'
-import pollutionLevelsSortReversed from '@/libs/pollutionLevelsSortReversed'
 export default {
   name: 'Dashboard',
   data () {
@@ -204,8 +202,7 @@ export default {
         errorLabel: 'Wystąpił błąd',
         startLabel: 'Start',
         readyLabel: 'Gotowe',
-        loadingLabel: 'Proszę czekać...',
-        pullDownHeight: this.closestStation(this.userLocationState)
+        loadingLabel: 'Proszę czekać...'
       },
       dataStatement: false,
       functions: new HelperFunctions(),
@@ -224,72 +221,14 @@ export default {
     VueApexCharts
   },
   methods: {
-    // eslint-disable-next-line vue/no-dupe-keys
-    async closestStation (userLocation) {
-      let minDist = Infinity
-      let markerDist
-      let closestStationDetails
-      this.allStationsState.forEach(station => {
-        markerDist = this.functions.getDistance(station.coordinates.map(Number), userLocation)
-        if (markerDist < minDist) {
-          minDist = markerDist
-          closestStationDetails = station
-        }
-      })
-      // this.allStations.forEach(station => {
-      //   if (station.id === 10158) {
-      //     closestStationDetails = station
-      //   }
-      // })
-      const response = (await this.stationsService.getStation(closestStationDetails.id)).filter(({ measurement }) => measurement.length > 0)
-      this.setApiResponseStateDashboard(response)
-      const sensorsDetails = response.map(({ details }) => details)
-      const lastSensorsValues = this.functions.mapLastValues(response)
-      const closestStation = {
-        response: response,
-        id: closestStationDetails.id,
-        stationName: closestStationDetails.stationName,
-        city: closestStationDetails.city,
-        temperature: closestStationDetails.temperature,
-        pressure: closestStationDetails.pressure,
-        wind: closestStationDetails.wind,
-        humidity: closestStationDetails.humidity,
-        sensors: this.functions.mapSensors(sensorsDetails, lastSensorsValues),
-        gaugeChartData: this.mapGaugeChartData(this.functions.mapSensors(sensorsDetails, lastSensorsValues)),
-        horizontalBarChartData: this.mapHorizontalBarChartData(this.functions.mapSensors(sensorsDetails, lastSensorsValues)),
-        stationDistance: this.functions.roundStationDistance(this.functions.getDistance(closestStationDetails.coordinates,
-          userLocation))
-      }
-      this.setClosestStationState(closestStation)
-    },
-    mapGaugeChartData (sensors) {
-      const sensorsTable = sensors.map((sensor) => {
-        return pollutionLevelsSort[sensor.pollutionLevel]
-      })
-      const worstPollutionLevelSensor = sensorsTable.reduce((prev, current) => (prev > current) ? prev : current)
-      // sensorsTable.sort(function (a, b) {
-      //   return a - b
-      // })
-      const worstPollutionLevelSensors = sensors.filter(({ pollutionLevel }) => pollutionLevel === pollutionLevelsSortReversed[worstPollutionLevelSensor])
-      if (worstPollutionLevelSensors.includes(worstPollutionLevelSensors.find(({ symbol }) => symbol === 'PM10'))) {
-        return worstPollutionLevelSensors.find(({ symbol }) => symbol === 'PM10')
-      } else if (worstPollutionLevelSensors.includes(worstPollutionLevelSensors.find(({ symbol }) => symbol === 'PM2.5'))) {
-        return worstPollutionLevelSensors.find(({ symbol }) => symbol === 'PM2.5')
-      } else if (worstPollutionLevelSensors.includes(worstPollutionLevelSensors.find(({ symbol }) => symbol === 'O3'))) {
-        return worstPollutionLevelSensors.find(({ symbol }) => symbol === 'O3')
-      } else {
-        return worstPollutionLevelSensors[Math.floor(Math.random() * worstPollutionLevelSensors.length)]
-      }
-    },
     onRefresh: function () {
       return new Promise(function (resolve, reject) {
         setTimeout(function () {
-          resolve()
+          window.location.reload(true)
         }, 1000)
       })
     },
-    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState', 'setApiResponseStateDashboard']),
-    ...mapActions('stations', ['setClosestStationState']),
+    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState']),
     async fillDatacollection (id, apiResponse) {
       const sensor = apiResponse.find(sensor => sensor.details.id === id)
       const filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
@@ -451,7 +390,7 @@ export default {
     //     return 100
     //   }
     // },
-    ...mapState('stations', ['closestStationState', 'routeState', 'allStationsState', 'userLocationState']),
+    ...mapState('stations', ['closestStationState', 'routeState']),
     ...mapState('sensors', ['apiResponseStateDashboard'])
   },
   watch: {
