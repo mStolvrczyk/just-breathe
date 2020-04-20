@@ -1,186 +1,193 @@
 <template>
-  <div id="dashboard">
-    <div id="dashboard-sidebar">
-      <v-img
-        class="logo-image"
-        :src="require('@/assets/jb-sygnet.png')"
-      />
-      <v-tooltip bottom>
-        <template v-slot:activator="{ on }">
-          <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="navigateTo('/map')"
-                 icon>
-            <v-icon>
-              mdi-map-marker
-            </v-icon>
-          </v-btn>
-          <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/map')" icon>
-            <v-icon>
-              mdi-map-marker
-            </v-icon>
-          </v-btn>
-        </template>
-        <span>Mapa</span>
-      </v-tooltip>
-    </div>
-    <div class="row">
-      <div id="chart">
-        <v-tooltip max-width="250px" bottom>
+  <vue-pull-refresh
+    :on-refresh="onRefresh"
+    :config="pullConfig"
+  >
+    <div id="dashboard">
+      <div id="dashboard-sidebar">
+        <v-img
+          class="logo-image"
+          :src="require('@/assets/jb-sygnet.png')"
+        />
+        <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-icon color="white" class="info-icon" v-on="on">
-              mdi-information
-            </v-icon>
+            <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="navigateTo('/map')"
+                   icon>
+              <v-icon>
+                mdi-map-marker
+              </v-icon>
+            </v-btn>
+            <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/map')" icon>
+              <v-icon>
+                mdi-map-marker
+              </v-icon>
+            </v-btn>
           </template>
-          <span>Wartość polskiego indeksu jakości powietrza liczona jest w oparciu o indywidualne przedziały dla
-            poszczególnych zanieczyszczeń, następnie indeks ogólny przyjmuje wartość najgorszego indeksu
-            indywidualnego spośród zanieczyszczeń mierzonych na tej stacji lub dominującej wartości (pył zawieszony
-            lub ozon).</span>
+          <span>Mapa</span>
         </v-tooltip>
-        <vue-svg-gauge
-          :start-angle="0"
-          :end-angle="360"
-          :value="closestStationState.gaugeChartData.lastPercentValue"
-          :separator-step="0"
-          :min="0"
-          :max="100"
-          :gauge-color="closestStationState.gaugeChartData.backgroundColor"
-          base-color="#E0F2F1"
-          :scale-interval="0"
-          :innerRadius="85"
-          :transitionDuration="gaugeTransitionDuration"
-        >
-          <div class="inner-text">
-            <div class="row">
-              <div class="column" v-if="closestStationState.gaugeChartData.lastPercentValue !== 0">
-                <p class="white-data-paragraph">
-                  <animated-number
-                    :value="closestStationState.gaugeChartData.lastPercentValue"
-                    :formatValue="formatPercentValue"
-                    :duration="closestStationState.gaugeChartData.lastPercentValue * 15"
-                    :round="1"
-                  /><br>
-                  <animated-number
-                    :value="closestStationState.gaugeChartData.lastValue"
-                    :formatValue="formatValue"
-                    :duration="closestStationState.gaugeChartData.lastValue * 15"
-                    :round="1"
-                  /><br>
-                  {{closestStationState.gaugeChartData.symbol}}
-                </p>
-                <p class="index-level-paragraph" :style="{'color': closestStationState.gaugeChartData.backgroundColor}">
-                  {{closestStationState.gaugeChartData.pollutionLevel}}</p>
-              </div>
-              <v-progress-circular
-                v-else
-                size="100"
-                indeterminate
-                color="green"
-                width="5"
-              ></v-progress-circular>
-            </div>
-          </div>
-        </vue-svg-gauge>
       </div>
-    </div>
-    <transition name="popup">
-      <div class="row" v-if="dataStatement">
-        <div id="data-container">
-          <div class="row">
-            <div align="center" class="data-element dashboard">
-              <v-img
-                :src="require('@/assets/road-yellow.png')"
-                class="icon dashboard"
-              />
-              <p class="icon-text-paragraph">Odległość</p>
-                <p class="data-paragraph">{{closestStationState.stationDistance}}</p>
-            </div>
-            <div align="center" class="data-element dashboard station-name">
-              <v-img
-                :src="require('@/assets/place-yellow.png')"
-                class="icon dashboard"
-              />
-              <p class="icon-text-paragraph">Stacja pomiarowa</p>
-              <p class="data-paragraph">{{closestStationState.stationName }}<br><span class="city-text">
-                {{closestStationState.city}}</span></p>
-            </div>
-            <div align="center" class="data-element dashboard">
-              <v-img
-                :src="require('@/assets/clock.png')"
-                class="icon dashboard"
-              />
-              <p class="icon-text-paragraph">Ostatni pomiar ({{closestStationState.gaugeChartData.symbol}})</p>
-              <p class="data-paragraph">{{closestStationState.gaugeChartData.time}}</p>
-            </div>
-          </div>
-          <div class="row">
-            <div align="center" class="data-element">
-              <v-img
-                :src="require('@/assets/fog-yellow.png')"
-                class="icon dashboard"
-              />
-              <p class="icon-text-paragraph">Jakość powietrza</p>
-              <div class="row" v-for="sensor in closestStationState.sensors" :key="sensor.index">
-                <div class="column sensor-symbol">
-                  <p class="sensor-symbol-paragraph">{{sensor.symbol}}</p>
+      <div class="row">
+        <div id="chart">
+          <v-tooltip max-width="250px" bottom>
+            <template v-slot:activator="{ on }">
+              <v-icon color="white" class="info-icon" v-on="on">
+                mdi-information
+              </v-icon>
+            </template>
+            <span>Wartość polskiego indeksu jakości powietrza liczona jest w oparciu o indywidualne przedziały dla
+              poszczególnych zanieczyszczeń, następnie indeks ogólny przyjmuje wartość najgorszego indeksu
+              indywidualnego spośród zanieczyszczeń mierzonych na tej stacji lub dominującej wartości (pył zawieszony
+              lub ozon).</span>
+          </v-tooltip>
+          <vue-svg-gauge
+            :start-angle="0"
+            :end-angle="360"
+            :value="closestStationState.gaugeChartData.lastPercentValue"
+            :separator-step="0"
+            :min="0"
+            :max="100"
+            :gauge-color="closestStationState.gaugeChartData.backgroundColor"
+            base-color="#E0F2F1"
+            :scale-interval="0"
+            :innerRadius="85"
+            :transitionDuration="gaugeTransitionDuration"
+          >
+            <div class="inner-text">
+              <div class="row">
+                <div class="column" v-if="closestStationState.gaugeChartData.lastPercentValue !== 0">
+                  <p class="white-data-paragraph">
+                    <animated-number
+                      :value="closestStationState.gaugeChartData.lastPercentValue"
+                      :formatValue="formatPercentValue"
+                      :duration="closestStationState.gaugeChartData.lastPercentValue * 15"
+                      :round="1"
+                    /><br>
+                    <animated-number
+                      :value="closestStationState.gaugeChartData.lastValue"
+                      :formatValue="formatValue"
+                      :duration="closestStationState.gaugeChartData.lastValue * 15"
+                      :round="1"
+                    /><br>
+                    {{closestStationState.gaugeChartData.symbol}}
+                  </p>
+                  <p class="index-level-paragraph" :style="{'color': closestStationState.gaugeChartData.backgroundColor}">
+                    {{closestStationState.gaugeChartData.pollutionLevel}}</p>
                 </div>
-                <div class="column">
-                  <vue-apex-charts type="bar" :height="horizontalChartHeight" :width="horizontalChartWidth" :options="mapHorizontalBarChartOptions(sensor)" :series="mapHorizontalBarChartSeries(sensor)"></vue-apex-charts>
-                </div>
-                <div class="column">
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                      <v-btn @click="fillDatacollection(sensor.id, apiResponseStateDashboard)" class="details-button" normal color="white" v-on="on" icon>
-                        <v-icon>
-                          mdi-dots-horizontal
-                        </v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Pokaż szczegóły</span>
-                  </v-tooltip>
+                <v-progress-circular
+                  v-else
+                  size="100"
+                  indeterminate
+                  color="#FFD600"
+                  width="8"
+                ></v-progress-circular>
+              </div>
+            </div>
+          </vue-svg-gauge>
+        </div>
+      </div>
+      <transition name="popup">
+        <div class="row" v-if="dataStatement">
+          <div id="data-container">
+            <div class="row">
+              <div align="center" class="data-element dashboard">
+                <v-img
+                  :src="require('@/assets/road-yellow.png')"
+                  class="icon dashboard"
+                />
+                <p class="icon-text-paragraph">Odległość</p>
+                  <p class="data-paragraph">{{closestStationState.stationDistance}}</p>
+              </div>
+              <div align="center" class="data-element dashboard station-name">
+                <v-img
+                  :src="require('@/assets/place-yellow.png')"
+                  class="icon dashboard"
+                />
+                <p class="icon-text-paragraph">Stacja pomiarowa</p>
+                <p class="data-paragraph">{{closestStationState.stationName }}<br><span class="city-text">
+                  {{closestStationState.city}}</span></p>
+              </div>
+              <div align="center" class="data-element dashboard">
+                <v-img
+                  :src="require('@/assets/clock.png')"
+                  class="icon dashboard"
+                />
+                <p class="icon-text-paragraph">Ostatni pomiar ({{closestStationState.gaugeChartData.symbol}})</p>
+                <p class="data-paragraph">{{closestStationState.gaugeChartData.time}}</p>
+              </div>
+            </div>
+            <div class="row">
+              <div align="center" class="data-element">
+                <v-img
+                  :src="require('@/assets/fog-yellow.png')"
+                  class="icon dashboard"
+                />
+                <p class="icon-text-paragraph">Jakość powietrza</p>
+                <div class="row" v-for="sensor in closestStationState.sensors" :key="sensor.index">
+                  <div class="column sensor-symbol">
+                    <p class="sensor-symbol-paragraph">{{sensor.symbol}}</p>
+                  </div>
+                  <div class="column">
+                    <vue-apex-charts type="bar" :height="horizontalChartHeight" :width="horizontalChartWidth" :options="mapHorizontalBarChartOptions(sensor)" :series="mapHorizontalBarChartSeries(sensor)"></vue-apex-charts>
+                  </div>
+                  <div class="column">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-btn @click="fillDatacollection(sensor.id, apiResponseStateDashboard)" class="details-button" normal color="white" v-on="on" icon>
+                          <v-icon>
+                            mdi-dots-horizontal
+                          </v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Pokaż szczegóły</span>
+                    </v-tooltip>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div class="row" v-if="thirdRowStatement">
-            <div align="center" class="data-element dashboard">
-              <v-img
-                :src="require('@/assets/termometer.png')"
-                class="icon dashboard"
-              />
-              <p class="icon-text-paragraph">Temperatura</p>
-              <p class="data-paragraph">{{closestStationState.temperature+' &ordm;C'}}</p>
-            </div>
-            <div align="center" class="data-element dashboard">
-              <v-img
-                :src="require('@/assets/pressure.png')"
-                class="icon dashboard"
-              />
-              <p class="icon-text-paragraph">Ciśnienie</p>
-              <p class="data-paragraph">{{closestStationState.pressure+' hPa'}}</p>
-            </div>
-            <div align="center" class="data-element dashboard">
-              <v-img
-                :src="require('@/assets/wind.png')"
-                class="icon dashboard"
-              />
-              <p class="icon-text-paragraph">Prędkość wiatru</p>
-              <p class="data-paragraph">{{closestStationState.wind+' km/h'}}</p>
-            </div>
-            <div align="center" class="data-element dashboard">
-              <v-img
-                :src="require('@/assets/humidity.png')"
-                class="icon dashboard humidity"
-              />
-              <p class="icon-text-paragraph">Wilgotność</p>
-              <p class="data-paragraph">{{closestStationState.humidity+'%'}}</p>
+            <div class="row" v-if="thirdRowStatement">
+              <div align="center" class="data-element dashboard">
+                <v-img
+                  :src="require('@/assets/termometer.png')"
+                  class="icon dashboard"
+                />
+                <p class="icon-text-paragraph">Temperatura</p>
+                <p class="data-paragraph">{{closestStationState.temperature+' &ordm;C'}}</p>
+              </div>
+              <div align="center" class="data-element dashboard">
+                <v-img
+                  :src="require('@/assets/pressure.png')"
+                  class="icon dashboard"
+                />
+                <p class="icon-text-paragraph">Ciśnienie</p>
+                <p class="data-paragraph">{{closestStationState.pressure+' hPa'}}</p>
+              </div>
+              <div align="center" class="data-element dashboard">
+                <v-img
+                  :src="require('@/assets/wind.png')"
+                  class="icon dashboard"
+                />
+                <p class="icon-text-paragraph">Prędkość wiatru</p>
+                <p class="data-paragraph">{{closestStationState.wind+' km/h'}}</p>
+              </div>
+              <div align="center" class="data-element dashboard">
+                <v-img
+                  :src="require('@/assets/humidity.png')"
+                  class="icon dashboard humidity"
+                />
+                <p class="icon-text-paragraph">Wilgotność</p>
+                <p class="data-paragraph">{{closestStationState.humidity+'%'}}</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </transition>
-  </div>
+      </transition>
+    </div>
+  </vue-pull-refresh>
 </template>
 
 <script>
+import { bus } from '@/main'
+import VuePullRefresh from 'vue-pull-refresh'
 import AnimatedNumber from 'animated-number-vue'
 import { VueSvgGauge } from 'vue-svg-gauge'
 import { mapActions, mapState } from 'vuex'
@@ -192,6 +199,12 @@ export default {
   name: 'Dashboard',
   data () {
     return {
+      pullConfig: {
+        errorLabel: 'Wystąpił błąd',
+        startLabel: 'Start',
+        readyLabel: 'Gotowe',
+        loadingLabel: 'Proszę czekać...'
+      },
       dataStatement: false,
       functions: new HelperFunctions(),
       stationsService: new StationsService(),
@@ -203,11 +216,24 @@ export default {
     }
   },
   components: {
+    'vue-pull-refresh': VuePullRefresh,
     VueSvgGauge,
     AnimatedNumber,
     VueApexCharts
   },
   methods: {
+    onRefresh: function () {
+      return new Promise(function (resolve, reject) {
+        setTimeout(function () {
+          if (navigator.onLine) {
+            window.location.reload(true)
+          } else {
+            bus.$emit('setNetworkDialogVisibility', true)
+            resolve()
+          }
+        }, 1000)
+      })
+    },
     ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState']),
     async fillDatacollection (id, apiResponse) {
       const sensor = apiResponse.find(sensor => sensor.details.id === id)

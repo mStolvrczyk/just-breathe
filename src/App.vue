@@ -1,251 +1,238 @@
 <template>
   <v-app
   >
-    <vue-pull-refresh
-      v-if="$route.path === '/dashboard'"
-      :on-refresh="onRefresh"
-      :config="pullConfig"
+    <v-navigation-drawer
+      height="100vh"
+      light
+      clipped
+      v-model="drawer"
+      :mini-variant="miniVariant"
+      stateless
+      app
+      :width="navbarWidth"
+      :src="require('@/assets/appImage.jpg')"
     >
-      <v-navigation-drawer
-        height="100vh"
-        light
-        clipped
-        v-model="drawer"
-        :mini-variant="miniVariant"
-        stateless
-        app
-        :width="navbarWidth"
-        :src="require('@/assets/appImage.jpg')"
+      <template v-slot:img="props">
+        <v-img
+          :gradient="'to top right, rgba(0,77,64,.9), rgba(0,77,64,.9)'"
+          v-bind="props"
+        />
+      </template>
+      <v-container
+      id="container"
       >
-        <template v-slot:img="props">
-          <v-img
-            :gradient="'to top right, rgba(0,77,64,.9), rgba(0,77,64,.9)'"
-            v-bind="props"
-          />
-        </template>
-        <v-container
-        id="container"
-        >
-          <nav>
-            <div
-              id="image-container"
-            >
-              <v-img
-                class="logo-image"
-                v-if="miniVariant"
-                :src="require('@/assets/jb-sygnet.png')"
-              />
-              <v-img
-                v-else
-                :src="require('@/assets/jb-logo.png')"
-              />
-            </div>
-            <div align="center" id="view-icons">
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                  <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on"
-                         @click="navigateTo('/dashboard')" icon>
-                    <v-icon>
-                      mdi-tablet-dashboard
-                    </v-icon>
-                  </v-btn>
-                  <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/dashboard')" icon>
-                    <v-icon>
-                      mdi-tablet-dashboard
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <span>Panel użytkownika</span>
-              </v-tooltip>
-  <!--            <v-tooltip bottom>-->
-  <!--              <template v-slot:activator="{ on }">-->
-  <!--                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="navigateTo('/map')"-->
-  <!--                       icon>-->
-  <!--                  <v-icon>-->
-  <!--                    mdi-map-marker-->
-  <!--                  </v-icon>-->
-  <!--                </v-btn>-->
-  <!--                <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/map')" icon>-->
-  <!--                  <v-icon>-->
-  <!--                    mdi-map-marker-->
-  <!--                  </v-icon>-->
-  <!--                </v-btn>-->
-  <!--              </template>-->
-  <!--              <span>Mapa</span>-->
-  <!--            </v-tooltip>-->
-  <!--            <v-tooltip bottom>-->
-  <!--              <template v-slot:activator="{ on }">-->
-  <!--                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on"-->
-  <!--                       @click="$router.push('/dashboard')" icon>-->
-  <!--                  <v-icon>-->
-  <!--                    mdi-tablet-dashboard-->
-  <!--                  </v-icon>-->
-  <!--                </v-btn>-->
-  <!--                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/dashboard')" icon>-->
-  <!--                  <v-icon>-->
-  <!--                    mdi-tablet-dashboard-->
-  <!--                  </v-icon>-->
-  <!--                </v-btn>-->
-  <!--              </template>-->
-  <!--              <span>Panel użytkownika</span>-->
-  <!--            </v-tooltip>-->
-  <!--            <v-tooltip bottom>-->
-  <!--              <template v-slot:activator="{ on }">-->
-  <!--                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="$router.push('/map')"-->
-  <!--                       icon>-->
-  <!--                  <v-icon>-->
-  <!--                    mdi-map-marker-->
-  <!--                  </v-icon>-->
-  <!--                </v-btn>-->
-  <!--                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/map')" icon>-->
-  <!--                  <v-icon>-->
-  <!--                    mdi-map-marker-->
-  <!--                  </v-icon>-->
-  <!--                </v-btn>-->
-  <!--              </template>-->
-  <!--              <span>Mapa</span>-->
-  <!--            </v-tooltip>-->
-              <v-tooltip bottom v-if=" $route.path === '/map'">
-                <template v-slot:activator="{ on }">
-                  <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="setStationInput" icon>
-                    <v-icon>
-                      search
-                    </v-icon>
-                  </v-btn>
-                  <v-btn v-else x-large color="white" v-on="on" @click="setStationInput" icon>
-                    <v-icon>
-                      search
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <span>Szukaj stacji</span>
-              </v-tooltip>
-            </div>
-            <transition name="popup">
-              <v-autocomplete
-                v-if="inputVisibility && $route.path === '/map'"
-                background-color="white"
-                v-model="selectedStation"
-                :items="allStationsState"
-                flat
-                append-icon="false"
-                search="searchValue"
-                hide-no-data
-                item-value="id"
-                item-text="stationName"
-                label="Wybierz stację"
-                solo
-                return-object
-              >
-                <template v-slot:no-data>
-                  <v-list-item>
-                    <v-list-item-title>
-                      Brak stacji
-                    </v-list-item-title>
-                  </v-list-item>
-                </template>
-              </v-autocomplete>
-            </transition>
-          </nav>
+        <nav>
+          <div
+            id="image-container"
+          >
+            <v-img
+              class="logo-image"
+              v-if="miniVariant"
+              :src="require('@/assets/jb-sygnet.png')"
+            />
+            <v-img
+              v-else
+              :src="require('@/assets/jb-logo.png')"
+            />
+          </div>
+          <div align="center" id="view-icons">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on"
+                       @click="navigateTo('/dashboard')" icon>
+                  <v-icon>
+                    mdi-tablet-dashboard
+                  </v-icon>
+                </v-btn>
+                <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/dashboard')" icon>
+                  <v-icon>
+                    mdi-tablet-dashboard
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>Panel użytkownika</span>
+            </v-tooltip>
+<!--            <v-tooltip bottom>-->
+<!--              <template v-slot:activator="{ on }">-->
+<!--                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="navigateTo('/map')"-->
+<!--                       icon>-->
+<!--                  <v-icon>-->
+<!--                    mdi-map-marker-->
+<!--                  </v-icon>-->
+<!--                </v-btn>-->
+<!--                <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/map')" icon>-->
+<!--                  <v-icon>-->
+<!--                    mdi-map-marker-->
+<!--                  </v-icon>-->
+<!--                </v-btn>-->
+<!--              </template>-->
+<!--              <span>Mapa</span>-->
+<!--            </v-tooltip>-->
+<!--            <v-tooltip bottom>-->
+<!--              <template v-slot:activator="{ on }">-->
+<!--                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on"-->
+<!--                       @click="$router.push('/dashboard')" icon>-->
+<!--                  <v-icon>-->
+<!--                    mdi-tablet-dashboard-->
+<!--                  </v-icon>-->
+<!--                </v-btn>-->
+<!--                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/dashboard')" icon>-->
+<!--                  <v-icon>-->
+<!--                    mdi-tablet-dashboard-->
+<!--                  </v-icon>-->
+<!--                </v-btn>-->
+<!--              </template>-->
+<!--              <span>Panel użytkownika</span>-->
+<!--            </v-tooltip>-->
+<!--            <v-tooltip bottom>-->
+<!--              <template v-slot:activator="{ on }">-->
+<!--                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="$router.push('/map')"-->
+<!--                       icon>-->
+<!--                  <v-icon>-->
+<!--                    mdi-map-marker-->
+<!--                  </v-icon>-->
+<!--                </v-btn>-->
+<!--                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/map')" icon>-->
+<!--                  <v-icon>-->
+<!--                    mdi-map-marker-->
+<!--                  </v-icon>-->
+<!--                </v-btn>-->
+<!--              </template>-->
+<!--              <span>Mapa</span>-->
+<!--            </v-tooltip>-->
+            <v-tooltip bottom v-if=" $route.path === '/map'">
+              <template v-slot:activator="{ on }">
+                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="setStationInput" icon>
+                  <v-icon>
+                    search
+                  </v-icon>
+                </v-btn>
+                <v-btn v-else x-large color="white" v-on="on" @click="setStationInput" icon>
+                  <v-icon>
+                    search
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>Szukaj stacji</span>
+            </v-tooltip>
+          </div>
           <transition name="popup">
-            <div
-              id="station-content"
-              class="scrollable-content"
+            <v-autocomplete
+              v-if="inputVisibility && $route.path === '/map'"
+              background-color="white"
+              v-model="selectedStation"
+              :items="allStationsState"
+              flat
+              append-icon="false"
+              search="searchValue"
+              hide-no-data
+              item-value="id"
+              item-text="stationName"
+              label="Wybierz stację"
+              solo
+              return-object
             >
-              <div v-if="stationDetails !== null && !miniVariant">
-                <div align="center" class="data-element">
-                  <v-img
-                    :src="require('@/assets/place-yellow.png')"
-                    class="icon sidebar"
-                  />
-                 <p class="icon-text-paragraph">Stacja pomiarowa</p>
-                  <p class="data-paragraph">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails
-                    .city}}</span></p>
-                </div>
-                <div align="center" class="data-element">
-                  <v-img
-                  :src="require('@/assets/road-yellow.png')"
+              <template v-slot:no-data>
+                <v-list-item>
+                  <v-list-item-title>
+                    Brak stacji
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
+            </v-autocomplete>
+          </transition>
+        </nav>
+        <transition name="popup">
+          <div
+            id="station-content"
+            class="scrollable-content"
+          >
+            <div v-if="stationDetails !== null && !miniVariant">
+              <div align="center" class="data-element">
+                <v-img
+                  :src="require('@/assets/place-yellow.png')"
                   class="icon sidebar"
-                  />
-                  <p class="icon-text-paragraph">Odległość</p>
-                  <p class="data-paragraph">{{stationDetails.stationDistance}}</p>
-                </div>
-                <div align="center" class="data-element" v-if="stationDetails.temperature !== null">
-                  <v-img
-                    :src="require('@/assets/termometer.png')"
-                    class="icon sidebar"
-                  />
-                  <p class="icon-text-paragraph">Temperatura</p>
-                  <p class="data-paragraph">{{stationDetails.temperature+' &ordm;C'}}</p>
-                </div>
-                <div align="center" class="data-element" v-if="stationDetails.pressure !== null">
-                  <v-img
-                    :src="require('@/assets/pressure.png')"
-                    class="icon sidebar"
-                  />
-                  <p class="icon-text-paragraph">Ciśnienie</p>
-                  <p class="data-paragraph">{{stationDetails.pressure+' hPa'}}</p>
-                </div>
-                <div align="center" class="data-element">
-                  <v-img
-                    :src="require('@/assets/fog-yellow.png')"
-                    class="icon sidebar"
-                  />
-                  <p class="icon-text-paragraph">Jakość powietrza</p>
-                  <div
-                    class="row sensor"
-                    v-for="sensor in stationDetails.sensors"
-                    :key="sensor.index"
-                  >
-                    <div class="column sensor">
-                      <p class="sensor-symbol-paragraph">{{sensor.symbol}}</p>
-                    </div>
-                    <div class="column sensor">
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on }">
-                          <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.lastPercentValue+'%'}}</p>
-                        </template>
-                        <span>{{sensor.lastValue+' &#181;/m'}}<sup>3</sup></span>
-                      </v-tooltip>
-                    </div>
-                    <div class="column button">
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on }">
-                          <v-btn @click="fillDatacollection(sensor.id, apiResponseStateMap)" normal color="white" v-on="on" icon>
-                            <v-icon>
-                              mdi-dots-horizontal
-                            </v-icon>
-                          </v-btn>
-                        </template>
-                        <span>Pokaż szczegóły</span>
-                      </v-tooltip>
-                    </div>
+                />
+               <p class="icon-text-paragraph">Stacja pomiarowa</p>
+                <p class="data-paragraph">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails
+                  .city}}</span></p>
+              </div>
+              <div align="center" class="data-element">
+                <v-img
+                :src="require('@/assets/road-yellow.png')"
+                class="icon sidebar"
+                />
+                <p class="icon-text-paragraph">Odległość</p>
+                <p class="data-paragraph">{{stationDetails.stationDistance}}</p>
+              </div>
+              <div align="center" class="data-element" v-if="stationDetails.temperature !== null">
+                <v-img
+                  :src="require('@/assets/termometer.png')"
+                  class="icon sidebar"
+                />
+                <p class="icon-text-paragraph">Temperatura</p>
+                <p class="data-paragraph">{{stationDetails.temperature+' &ordm;C'}}</p>
+              </div>
+              <div align="center" class="data-element" v-if="stationDetails.pressure !== null">
+                <v-img
+                  :src="require('@/assets/pressure.png')"
+                  class="icon sidebar"
+                />
+                <p class="icon-text-paragraph">Ciśnienie</p>
+                <p class="data-paragraph">{{stationDetails.pressure+' hPa'}}</p>
+              </div>
+              <div align="center" class="data-element">
+                <v-img
+                  :src="require('@/assets/fog-yellow.png')"
+                  class="icon sidebar"
+                />
+                <p class="icon-text-paragraph">Jakość powietrza</p>
+                <div
+                  class="row sensor"
+                  v-for="sensor in stationDetails.sensors"
+                  :key="sensor.index"
+                >
+                  <div class="column sensor">
+                    <p class="sensor-symbol-paragraph">{{sensor.symbol}}</p>
+                  </div>
+                  <div class="column sensor">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.lastPercentValue+'%'}}</p>
+                      </template>
+                      <span>{{sensor.lastValue+' &#181;/m'}}<sup>3</sup></span>
+                    </v-tooltip>
+                  </div>
+                  <div class="column button">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-btn @click="fillDatacollection(sensor.id, apiResponseStateMap)" normal color="white" v-on="on" icon>
+                          <v-icon>
+                            mdi-dots-horizontal
+                          </v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Pokaż szczegóły</span>
+                    </v-tooltip>
                   </div>
                 </div>
               </div>
             </div>
-          </transition>
-        </v-container>
-      </v-navigation-drawer>
-      <v-content>
-        <router-view/>
-        <ChartDialog/>
-  <!--        :sensorDetails="sensorDetails"-->
-  <!--        :apiResponse="apiResponse"-->
-  <!--        :barDataCollection="barDataCollection"-->
-  <!--        :lineDataCollection="lineDataCollection"-->
-  <!--        :chartDialogVisibility.sync="chartDialogVisibility"-->
-  <!--        :chartVisibility.sync="chartVisibility"-->
-  <!--        v-on:closeChartDialog="closeChartDialog"-->
-  <!--        v-on:barDataComparison="barDataComparison"-->
-  <!--        v-on:lineDataComparison="lineDataComparison"-->
-  <!--        v-on:withoutComparison="withoutComparison"-->
-      </v-content>
-    </vue-pull-refresh>
+          </div>
+        </transition>
+      </v-container>
+    </v-navigation-drawer>
+    <v-content>
+      <router-view/>
+      <ChartDialog/>
+      <NetworkDialog
+        :networkDialogVisibility.sync="networkDialogVisibility"
+        v-on:closeNetworkDialog="closeNetworkDialog"
+      />
+    </v-content>
   </v-app>
 </template>
 <script>
-import VuePullRefresh from 'vue-pull-refresh'
 import ChartDialog from '@/components/ui/ChartDialog'
 import { bus } from '@/main'
 import { mapActions, mapState } from 'vuex'
@@ -254,17 +241,13 @@ import StationsService from '@/services/StationsService'
 import pollutionLevels from '@/libs/pollutionLevels'
 import pollutionLevelsSort from '@/libs/pollutionLevelsSort'
 import pollutionLevelsSortReversed from '@/libs/pollutionLevelsSortReversed'
+import NetworkDialog from '@/components/ui/NetworkDialog'
 
 export default {
-  components: { ChartDialog, 'vue-pull-refresh': VuePullRefresh },
+  components: { NetworkDialog, ChartDialog },
   data () {
     return {
-      pullConfig: {
-        errorLabel: 'Wystąpił błąd',
-        startLabel: 'Start',
-        readyLabel: 'Gotowe',
-        loadingLabel: 'Proszę czekać...'
-      },
+      networkDialogVisibility: false,
       drawer: false,
       inputVisibility: false,
       searchValue: '',
@@ -281,21 +264,13 @@ export default {
       stationDetails: null,
       stationsService: new StationsService(),
       functions: new Functions(),
-      watcher: navigator.geolocation.watchPosition(this.getLocation, this.handleError, {
-        enableHighAccuracy: true,
-        maximumAge: 0
-      }),
       allStations: null,
       selectedStation: null
     }
   },
   methods: {
-    onRefresh: function () {
-      return new Promise(function (resolve, reject) {
-        this.closestStation(this.userLocationState)
-        setTimeout(function () {
-        }, 1000)
-      })
+    closeNetworkDialog (value) {
+      this.networkDialogVisibility = value
     },
     navigateTo (path) {
       if (this.$route.path !== path) {
@@ -399,13 +374,14 @@ export default {
       this.setClosestStationState(closestStation)
     },
     getLocation (pos) {
-      const userLocation = [
-        pos.coords.latitude,
-        pos.coords.longitude
-      ]
-      this.closestStation(userLocation)
-      this.setUserLocationState(userLocation)
-      navigator.geolocation.clearWatch(this.watcher)
+      if (navigator.onLine) {
+        const userLocation = [
+          pos.coords.latitude,
+          pos.coords.longitude
+        ]
+        this.closestStation(userLocation)
+        this.setUserLocationState(userLocation)
+      }
     },
     mapHorizontalBarChartLimit (sensors) {
       const lastPercentValuesArray = sensors.map((sensor) => {
@@ -573,6 +549,9 @@ export default {
         50)
       }
     },
+    'networkDialogVisibility' (value) {
+      console.log(value)
+    },
     allStationsState: {
       handler: function (value) {
         this.allStations = value
@@ -605,12 +584,24 @@ export default {
     bus.$on('resetSelectedStation', (value) => {
       this.selectedStation = value
     })
+    bus.$on('setNetworkDialogVisibility', (value) => {
+      this.networkDialogVisibility = value
+    })
   },
   mounted () {
+    if (navigator.onLine) {
+      navigator.geolocation.getCurrentPosition(this.getLocation, this.handleError, { maximumAge: 60000, timeout: 5000, enableHighAccuracy: true })
+    } else {
+      setTimeout(function () { this.networkDialogVisibility = true }
+         .bind(this),
+        10000)
+    }
     this.setAllStationsState()
     this.$nextTick(function () {
       window.setInterval(() => {
-        this.closestStation(this.userLocationState)
+        if (navigator.onLine) {
+          this.closestStation(this.userLocationState)
+        }
       }, 900000)
     })
   }
