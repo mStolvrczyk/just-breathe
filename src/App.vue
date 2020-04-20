@@ -3,6 +3,12 @@
   >
     <vue-pull-refresh
       :on-refresh="onRefresh"
+      :config="{
+        startLabel: 'Przeładowywanie',
+        readyLabel: 'Gotowe',
+        loadingLabel: 'Ladowanie',
+        pullDownHeight: onRefresh
+      }"
     >
       <v-navigation-drawer
         height="100vh"
