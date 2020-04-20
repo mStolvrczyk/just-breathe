@@ -222,7 +222,6 @@
         </transition>
       </v-container>
     </v-navigation-drawer>
-    <vue-pull-refresh :on-refresh="onRefresh"></vue-pull-refresh>
     <v-content>
       <router-view/>
       <ChartDialog/>
@@ -240,7 +239,6 @@
   </v-app>
 </template>
 <script>
-  import VuePullRefresh from 'vue-pull-refresh'
 import ChartDialog from '@/components/ui/ChartDialog'
 import { bus } from '@/main'
 import { mapActions, mapState } from 'vuex'
@@ -251,7 +249,7 @@ import pollutionLevelsSort from '@/libs/pollutionLevelsSort'
 import pollutionLevelsSortReversed from '@/libs/pollutionLevelsSortReversed'
 
 export default {
-  components: { ChartDialog, 'vue-pull-refresh': VuePullRefresh },
+  components: { ChartDialog },
   data () {
     return {
       drawer: false,
@@ -279,13 +277,6 @@ export default {
     }
   },
   methods: {
-    onRefresh: function () {
-      return new Promise(function (resolve, reject) {
-        setTimeout(function () {
-          resolve()
-        }, 1000)
-      })
-    },
     navigateTo (path) {
       if (this.$route.path !== path) {
         this.drawer = false
