@@ -48,7 +48,8 @@ h3 {
   &.black {
     color: #000000;
   }
-  &.chart-info-text {
+  &.network-info {
+    font-weight: bold;
     color: #ffff;
   }
 }
@@ -465,6 +466,17 @@ nav {
   text-align: center;
   align-content: center;
   alignment: center;
+}
+
+// NetworkDialog.vue
+
+#network-dialog-card {
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
+  background: rgba(0,77,64, 0.9);
+  overflow-y: hidden;
 }
 
 // Media Queries
