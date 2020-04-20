@@ -1,5 +1,6 @@
 <template>
   <div id="dashboard">
+    <vue-pull-refresh :on-refresh="onRefresh"></vue-pull-refresh>
     <div id="dashboard-sidebar">
       <v-img
         class="logo-image"
@@ -181,6 +182,7 @@
 </template>
 
 <script>
+import VuePullRefresh from 'vue-pull-refresh'
 import AnimatedNumber from 'animated-number-vue'
 import { VueSvgGauge } from 'vue-svg-gauge'
 import { mapActions, mapState } from 'vuex'
@@ -203,11 +205,19 @@ export default {
     }
   },
   components: {
+    'vue-pull-refresh': VuePullRefresh,
     VueSvgGauge,
     AnimatedNumber,
     VueApexCharts
   },
   methods: {
+    onRefresh: function () {
+      return new Promise(function (resolve, reject) {
+        setTimeout(function () {
+          resolve()
+        }, 1000)
+      })
+    },
     ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState']),
     async fillDatacollection (id, apiResponse) {
       const sensor = apiResponse.find(sensor => sensor.details.id === id)
