@@ -3,12 +3,7 @@
   >
     <vue-pull-refresh
       :on-refresh="onRefresh"
-      :config="{
-        startLabel: 'Przeładowywanie',
-        readyLabel: 'Gotowe',
-        loadingLabel: 'Ladowanie',
-        pullDownHeight: onRefresh
-      }"
+      :config="pullConfig"
     >
       <v-navigation-drawer
         height="100vh"
@@ -263,6 +258,12 @@ export default {
   components: { ChartDialog, 'vue-pull-refresh': VuePullRefresh },
   data () {
     return {
+      pullConfig: {
+        errorLabel: 'Wystąpił błąd',
+        startLabel: 'Przeładowywanie',
+        readyLabel: 'Gotowe',
+        loadingLabel: 'Ladowanie'
+      },
       drawer: false,
       inputVisibility: false,
       searchValue: '',
