@@ -5,8 +5,6 @@
       :on-refresh="onRefresh"
       :config="{
         startLabel: 'Start',
-        readyLabel: 'Gotowe',
-        loadingLabel: 'Ladowanie'
       }"
     >
       <v-navigation-drawer
