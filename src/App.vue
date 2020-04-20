@@ -1,7 +1,6 @@
 <template>
   <v-app
   >
-    <vue-pull-refresh :on-refresh="onRefresh"></vue-pull-refresh>
     <v-navigation-drawer
       height="100vh"
       light
@@ -224,6 +223,7 @@
       </v-container>
     </v-navigation-drawer>
     <v-content>
+      <vue-pull-refresh :on-refresh="onRefresh"></vue-pull-refresh>
       <router-view/>
       <ChartDialog/>
 <!--        :sensorDetails="sensorDetails"-->
