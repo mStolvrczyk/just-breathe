@@ -1,7 +1,14 @@
 <template>
   <v-app
   >
-    <vue-pull-refresh :on-refresh="onRefresh">
+    <vue-pull-refresh
+      :on-refresh="onRefresh"
+      :config="{
+        startLabel: 'Start',
+        readyLabel: 'Gotowe',
+        loadingLabel: 'Ladowanie'
+      }"
+    >
       <v-navigation-drawer
         height="100vh"
         light
