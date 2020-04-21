@@ -374,14 +374,12 @@ export default {
       this.setClosestStationState(closestStation)
     },
     getLocation (pos) {
-      if (navigator.onLine) {
-        const userLocation = [
-          pos.coords.latitude,
-          pos.coords.longitude
-        ]
-        this.closestStation(userLocation)
-        this.setUserLocationState(userLocation)
-      }
+      const userLocation = [
+        pos.coords.latitude,
+        pos.coords.longitude
+      ]
+      this.closestStation(userLocation)
+      this.setUserLocationState(userLocation)
     },
     mapHorizontalBarChartLimit (sensors) {
       const lastPercentValuesArray = sensors.map((sensor) => {

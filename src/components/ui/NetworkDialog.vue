@@ -5,7 +5,7 @@
     :max-width="networkChartWidth"
   >
     <div id="network-dialog-card">
-      <h3 class="network-info">Brak połączenia z internetem lub lokalizacja nie została udostępniona.</h3>
+      <h3 class="network-info">Brak połączenia z internetem.</h3>
       <div class="row chart button">
         <v-btn @click="closeNetworkDialog" class="teal--text font-weight-bold" rounded color="#EEEEEE" dark>Wróć</v-btn>
       </div>
