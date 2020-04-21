@@ -225,16 +225,10 @@
     <v-content>
       <router-view/>
       <ChartDialog/>
-<!--        :sensorDetails="sensorDetails"-->
-<!--        :apiResponse="apiResponse"-->
-<!--        :barDataCollection="barDataCollection"-->
-<!--        :lineDataCollection="lineDataCollection"-->
-<!--        :chartDialogVisibility.sync="chartDialogVisibility"-->
-<!--        :chartVisibility.sync="chartVisibility"-->
-<!--        v-on:closeChartDialog="closeChartDialog"-->
-<!--        v-on:barDataComparison="barDataComparison"-->
-<!--        v-on:lineDataComparison="lineDataComparison"-->
-<!--        v-on:withoutComparison="withoutComparison"-->
+      <NetworkDialog
+        :networkDialogVisibility.sync="networkDialogVisibility"
+        v-on:closeNetworkDialog="closeNetworkDialog"
+      />
     </v-content>
   </v-app>
 </template>
@@ -247,11 +241,13 @@ import StationsService from '@/services/StationsService'
 import pollutionLevels from '@/libs/pollutionLevels'
 import pollutionLevelsSort from '@/libs/pollutionLevelsSort'
 import pollutionLevelsSortReversed from '@/libs/pollutionLevelsSortReversed'
+import NetworkDialog from '@/components/ui/NetworkDialog'
 
 export default {
-  components: { ChartDialog },
+  components: { NetworkDialog, ChartDialog },
   data () {
     return {
+      networkDialogVisibility: false,
       drawer: false,
       inputVisibility: false,
       searchValue: '',
@@ -268,15 +264,14 @@ export default {
       stationDetails: null,
       stationsService: new StationsService(),
       functions: new Functions(),
-      watcher: navigator.geolocation.watchPosition(this.getLocation, this.handleError, {
-        enableHighAccuracy: true,
-        maximumAge: 0
-      }),
       allStations: null,
       selectedStation: null
     }
   },
   methods: {
+    closeNetworkDialog (value) {
+      this.networkDialogVisibility = value
+    },
     navigateTo (path) {
       if (this.$route.path !== path) {
         this.drawer = false
@@ -379,13 +374,14 @@ export default {
       this.setClosestStationState(closestStation)
     },
     getLocation (pos) {
-      const userLocation = [
-        pos.coords.latitude,
-        pos.coords.longitude
-      ]
-      this.closestStation(userLocation)
-      this.setUserLocationState(userLocation)
-      navigator.geolocation.clearWatch(this.watcher)
+      if (navigator.onLine) {
+        const userLocation = [
+          pos.coords.latitude,
+          pos.coords.longitude
+        ]
+        this.closestStation(userLocation)
+        this.setUserLocationState(userLocation)
+      }
     },
     mapHorizontalBarChartLimit (sensors) {
       const lastPercentValuesArray = sensors.map((sensor) => {
@@ -524,7 +520,7 @@ export default {
         return 270
       }
     },
-    ...mapState('stations', ['allStationsState', 'selectedStationState']),
+    ...mapState('stations', ['allStationsState', 'selectedStationState', 'userLocationState']),
     ...mapState('sensors', ['apiResponseStateMap'])
   },
   watch: {
@@ -552,6 +548,9 @@ export default {
           .bind(this),
         50)
       }
+    },
+    'networkDialogVisibility' (value) {
+      console.log(value)
     },
     allStationsState: {
       handler: function (value) {
@@ -585,9 +584,26 @@ export default {
     bus.$on('resetSelectedStation', (value) => {
       this.selectedStation = value
     })
+    bus.$on('setNetworkDialogVisibility', (value) => {
+      this.networkDialogVisibility = value
+    })
   },
   mounted () {
+    if (navigator.onLine) {
+      navigator.geolocation.getCurrentPosition(this.getLocation, this.handleError, { maximumAge: 60000, timeout: 5000, enableHighAccuracy: true })
+    } else {
+      setTimeout(function () { this.networkDialogVisibility = true }
+         .bind(this),
+        10000)
+    }
     this.setAllStationsState()
+    this.$nextTick(function () {
+      window.setInterval(() => {
+        if (navigator.onLine) {
+          this.closestStation(this.userLocationState)
+        }
+      }, 900000)
+    })
   }
 }
 </script>

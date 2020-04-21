@@ -13,6 +13,11 @@ function getApiUrl () {
 }
 
 module.exports = {
+  pwa: {
+    workboxOptions: {
+      skipWaiting: true
+    }
+  },
   configureWebpack: {
     ...require('./webpack.config'),
     plugins: [
