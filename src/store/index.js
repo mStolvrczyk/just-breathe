@@ -1,14 +1,14 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import layout from './modules/layout'
 import stations from './modules/stations'
+import sensors from './modules/sensors'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   modules: {
     namespaced: true,
-    layout,
-    stations
+    stations,
+    sensors
   }
 })

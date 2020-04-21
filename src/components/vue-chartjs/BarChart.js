@@ -13,11 +13,23 @@ export default {
     //   }
     // },
     options: {
+      legend: {
+        labels: {
+          fontColor: '#fff'
+        }
+      },
       responsive: true,
       maintainAspectRatio: true,
       scales: {
         xAxes: [{
           ticks: {
+            fontColor: '#fff',
+            beginAtZero: true
+          }
+        }],
+        yAxes: [{
+          ticks: {
+            fontColor: '#fff',
             beginAtZero: true
           }
         }]

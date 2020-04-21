@@ -4,15 +4,20 @@ const path = require('path')
 function getApiUrl () {
   switch (process.env.NODE_ENV) {
     case 'production': {
-      return './api'
+      return 'https://just-breathe-app.netlify.app/.netlify/functions/server'
     }
     default: {
-      return './api'
+      return 'http://localhost:8000/api'
     }
   }
 }
 
 module.exports = {
+  pwa: {
+    workboxOptions: {
+      skipWaiting: true
+    }
+  },
   configureWebpack: {
     ...require('./webpack.config'),
     plugins: [
