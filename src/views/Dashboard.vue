@@ -77,7 +77,7 @@
                   v-else
                   size="100"
                   indeterminate
-                  color="#FFD600"
+                  color="#E6C136"
                   width="8"
                 ></v-progress-circular>
               </div>
