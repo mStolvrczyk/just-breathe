@@ -415,6 +415,9 @@ export default {
 
 <style lang="scss">
   #dashboard {
+    ::-webkit-scrollbar {
+      display: none;
+    }
     align-content: center;
     overflow-y: hidden;
     overflow-x: hidden;
