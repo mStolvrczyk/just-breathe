@@ -1,9 +1,9 @@
 <template>
-  <vue-pull-refresh
-    :on-refresh="onRefresh"
-    :config="pullConfig"
-  >
     <div id="dashboard">
+    <vue-pull-refresh
+      :on-refresh="onRefresh"
+      :config="pullConfig"
+    >
       <div id="dashboard-sidebar">
         <v-img
           class="logo-image"
@@ -181,8 +181,8 @@
           </div>
         </div>
       </transition>
-    </div>
   </vue-pull-refresh>
+    </div>
 </template>
 
 <script>
