@@ -416,7 +416,7 @@ export default {
 <style lang="scss">
   #dashboard {
     align-content: center;
-    overflow-y: auto;
+    overflow-y: hidden;
     overflow-x: hidden;
     justify-content: center;
     width: 100%;
