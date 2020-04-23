@@ -228,7 +228,7 @@ export default {
           if (navigator.onLine) {
             window.location.reload(true)
           } else {
-            bus.$emit('setNetworkDialogVisibility', true)
+            bus.$emit('setInformationDialog', { informationDialogVisibility: true, informationDialogText: 'Brak połączenia z internetem.' })
             resolve()
           }
         }, 1000)
