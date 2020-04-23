@@ -14,6 +14,7 @@
 </template>
 
 <script>
+  // fix
     export default {
       name: 'InformationDialog',
       props: {
