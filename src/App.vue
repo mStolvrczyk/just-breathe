@@ -277,7 +277,6 @@ export default {
     },
     navigateTo (path) {
       if (this.$route.path !== path) {
-        this.drawer = false
         setTimeout(function () {
           this.$router.push(path)
         }
@@ -532,6 +531,7 @@ export default {
       if (value === '/map') {
         this.drawer = true
       } else {
+        this.drawer = false
         this.stationDetails = null
       }
     },
