@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 
 import { register } from 'register-service-worker'
+import { bus } from '@/main'
 
 if (process.env.NODE_ENV === 'production') {
   register(`${process.env.BASE_URL}service-worker.js`, {
@@ -20,8 +21,7 @@ if (process.env.NODE_ENV === 'production') {
       console.log('New content is downloading.')
     },
     updated () {
-      console.log('New content is available; please refresh.')
-      window.location.reload(true)
+      bus.$emit('setInformationDialog', { informationDialogVisibility: true, informationDialogText: 'Dostępna jest nowa wersja aplikacji' })
     },
     offline () {
       console.log('No internet connection found. App is running in offline mode.')
