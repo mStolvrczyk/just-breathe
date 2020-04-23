@@ -21,7 +21,7 @@ if (process.env.NODE_ENV === 'production') {
       console.log('New content is downloading.')
     },
     updated () {
-      bus.$emit('setInformationDialog', { informationDialogVisibility: true, informationDialogText: 'Dostępna jest nowa wersja aplikacji' })
+      bus.$emit('setInformationDialog', { informationDialogVisibility: true, informationDialogText: 'Aplikacja została zaktualizowana.' })
     },
     offline () {
       console.log('No internet connection found. App is running in offline mode.')
