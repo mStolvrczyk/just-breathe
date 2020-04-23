@@ -483,10 +483,10 @@ export default {
     handleError (error) {
       switch (error.code) {
         case 1:
-          this.chartDialogVisibility = true; this.informationDialogText = 'Lokalizacja nie została udostępniona.'
+          this.informationDialogVisibility = true; this.informationDialogText = 'Lokalizacja nie została udostępniona.'
           break
         case 2:
-          this.chartDialogVisibility = true; this.informationDialogText = 'Nie można ustalić lokalizacji.'
+          this.informationDialogVisibility = true; this.informationDialogText = 'Nie można ustalić lokalizacji.'
           break
         case 3:
           alert('timeout')
