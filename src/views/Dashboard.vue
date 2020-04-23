@@ -1,9 +1,9 @@
 <template>
-  <vue-pull-refresh
-    :on-refresh="onRefresh"
-    :config="pullConfig"
-  >
     <div id="dashboard">
+    <vue-pull-refresh
+      :on-refresh="onRefresh"
+      :config="pullConfig"
+    >
       <div id="dashboard-sidebar">
         <v-img
           class="logo-image"
@@ -181,8 +181,8 @@
           </div>
         </div>
       </transition>
-    </div>
   </vue-pull-refresh>
+    </div>
 </template>
 
 <script>
@@ -228,7 +228,7 @@ export default {
           if (navigator.onLine) {
             window.location.reload(true)
           } else {
-            bus.$emit('setNetworkDialogVisibility', true)
+            bus.$emit('setInformationDialog', { informationDialogVisibility: true, informationDialogText: 'Brak połączenia z internetem.' })
             resolve()
           }
         }, 1000)
@@ -307,13 +307,6 @@ export default {
         },
         chart: {
           parentHeightOffset: 0,
-          events: {
-            click: function (event, chartContext, config) {
-              console.log(config)
-              console.log(config.seriesIndex)
-              console.log(config.dataPointIndex)
-            }
-          },
           foreSize: 15,
           foreColor: '#fff',
           toolbar: {
@@ -415,8 +408,13 @@ export default {
 
 <style lang="scss">
   #dashboard {
+    @media only screen and (max-width: 599px) {
+      ::-webkit-scrollbar {
+        display: none;
+      }
+    }
     align-content: center;
-    overflow-y: auto;
+    overflow-y: hidden;
     overflow-x: hidden;
     justify-content: center;
     width: 100%;

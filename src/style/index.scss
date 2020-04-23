@@ -48,7 +48,7 @@ h3 {
   &.black {
     color: #000000;
   }
-  &.network-info {
+  &.information-info {
     font-weight: bold;
     color: #ffff;
   }
@@ -468,9 +468,9 @@ nav {
   alignment: center;
 }
 
-// NetworkDialog.vue
+// InformationDialog.vue
 
-#network-dialog-card {
+#information-dialog-card {
   flex-direction: column;
   width: 100%;
   height: 100%;
