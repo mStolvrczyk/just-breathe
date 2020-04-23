@@ -225,9 +225,10 @@
     <v-content>
       <router-view/>
       <ChartDialog/>
-      <NetworkDialog
-        :networkDialogVisibility.sync="networkDialogVisibility"
-        v-on:closeNetworkDialog="closeNetworkDialog"
+      <InformationDialog
+        :information.sync="informationDialogText"
+        :informationDialogVisibility.sync="informationDialogVisibility"
+        v-on:closeInformationDialog="closeInformationDialog"
       />
     </v-content>
   </v-app>
@@ -241,13 +242,14 @@ import StationsService from '@/services/StationsService'
 import pollutionLevels from '@/libs/pollutionLevels'
 import pollutionLevelsSort from '@/libs/pollutionLevelsSort'
 import pollutionLevelsSortReversed from '@/libs/pollutionLevelsSortReversed'
-import NetworkDialog from '@/components/ui/NetworkDialog'
+import InformationDialog from '@/components/ui/InformationDialog'
 
 export default {
-  components: { NetworkDialog, ChartDialog },
+  components: { InformationDialog, ChartDialog },
   data () {
     return {
-      networkDialogVisibility: false,
+      informationDialogText: null,
+      informationDialogVisibility: false,
       drawer: false,
       inputVisibility: false,
       searchValue: '',
@@ -269,8 +271,9 @@ export default {
     }
   },
   methods: {
-    closeNetworkDialog (value) {
-      this.networkDialogVisibility = value
+    closeInformationDialog (value) {
+      this.informationDialogVisibility = value.informationDialogVisibility
+      this.informationDialogText = value.informationDialogText
     },
     navigateTo (path) {
       if (this.$route.path !== path) {
@@ -480,10 +483,10 @@ export default {
     handleError (error) {
       switch (error.code) {
         case 1:
-          alert('permission denied')
+          this.chartDialogVisibility = true; this.informationDialogText = 'Lokalizacja nie została udostępniona.'
           break
         case 2:
-          alert('position unavailable')
+          this.chartDialogVisibility = true; this.informationDialogText = 'Nie można ustalić lokalizacji.'
           break
         case 3:
           alert('timeout')
@@ -547,9 +550,6 @@ export default {
         50)
       }
     },
-    'networkDialogVisibility' (value) {
-      console.log(value)
-    },
     allStationsState: {
       handler: function (value) {
         this.allStations = value
@@ -582,15 +582,15 @@ export default {
     bus.$on('resetSelectedStation', (value) => {
       this.selectedStation = value
     })
-    bus.$on('setNetworkDialogVisibility', (value) => {
-      this.networkDialogVisibility = value
+    bus.$on('setInformationDialog', (value) => {
+      this.informationDialogVisibility = value.informationDialogVisibility; this.informationDialogText = value.informationDialogText
     })
   },
   mounted () {
     if (navigator.onLine) {
       navigator.geolocation.getCurrentPosition(this.getLocation, this.handleError, { maximumAge: 60000, timeout: 5000, enableHighAccuracy: true })
     } else {
-      setTimeout(function () { this.networkDialogVisibility = true }
+      setTimeout(function () { this.informationDialogVisibility = true; this.informationDialogText = 'Brak połączenia z internetem.' }
          .bind(this),
         10000)
     }
