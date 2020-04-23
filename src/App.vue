@@ -277,7 +277,6 @@ export default {
     },
     navigateTo (path) {
       if (this.$route.path !== path) {
-        this.drawer = false
         setTimeout(function () {
           this.$router.push(path)
         }
@@ -483,10 +482,10 @@ export default {
     handleError (error) {
       switch (error.code) {
         case 1:
-          this.chartDialogVisibility = true; this.informationDialogText = 'Lokalizacja nie została udostępniona.'
+          this.informationDialogVisibility = true; this.informationDialogText = 'Lokalizacja nie została udostępniona.'
           break
         case 2:
-          this.chartDialogVisibility = true; this.informationDialogText = 'Nie można ustalić lokalizacji.'
+          this.informationDialogVisibility = true; this.informationDialogText = 'Nie można ustalić lokalizacji.'
           break
         case 3:
           alert('timeout')
@@ -532,6 +531,7 @@ export default {
       if (value === '/map') {
         this.drawer = true
       } else {
+        this.drawer = false
         this.stationDetails = null
       }
     },

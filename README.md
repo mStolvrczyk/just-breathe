@@ -1,7 +1,7 @@
 # Air Quality Check 
 
 ## General info
-Air Quality Check is a Vue.js SPA application that allows you to monitor air quality across Poland. It uses Firebase for storing data, JSON API developed by Chief Inspectorate for Environmental Protection and Vue.js libraries like Vue2Leaflet and vue-chartjs.
+JustBreathe is a Vue.js SPA application that allows you to monitor air quality and weather across Poland. It uses JSON APIs developed by Chief Inspectorate for Environmental Protection and Institute of Meteorology and Water Management.
 
 
 
@@ -31,7 +31,7 @@ npm run lint
 npm run test:unit
 ```
 ### Live example
-<a href="http://just-breathe-app.herokuapp.com/">Go here</a> to check out live example
+<a href="https://just-breathe-app.netlify.app">Go here</a> to check out live example
 ## Future plans:
 * firebase for storing data and authentication
 * adding User Panel that will contain information such as last measurements or average of them

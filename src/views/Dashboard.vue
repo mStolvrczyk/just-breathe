@@ -307,13 +307,6 @@ export default {
         },
         chart: {
           parentHeightOffset: 0,
-          events: {
-            click: function (event, chartContext, config) {
-              console.log(config)
-              console.log(config.seriesIndex)
-              console.log(config.dataPointIndex)
-            }
-          },
           foreSize: 15,
           foreColor: '#fff',
           toolbar: {
@@ -415,8 +408,10 @@ export default {
 
 <style lang="scss">
   #dashboard {
-    ::-webkit-scrollbar {
-      display: none;
+    @media only screen and (max-width: 599px) {
+      ::-webkit-scrollbar {
+        display: none;
+      }
     }
     align-content: center;
     overflow-y: hidden;
