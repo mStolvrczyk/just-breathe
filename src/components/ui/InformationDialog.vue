@@ -15,6 +15,7 @@
 
 <script>
     export default {
+      // fix
       name: 'InformationDialog',
       props: {
         informationDialogVisibility: Boolean,
