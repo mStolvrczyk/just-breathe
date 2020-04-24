@@ -277,11 +277,11 @@ export default {
     },
     navigateTo (path) {
       if (this.$route.path !== path) {
-        setTimeout(function () {
-          this.$router.push(path)
-        }
-          .bind(this),
-        150)
+        // setTimeout(function () {
+        this.$router.push(path)
+        // }
+        //   .bind(this),
+        // 150)
       }
     },
     ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState', 'setSelectedStationState', 'setRouteState']),
