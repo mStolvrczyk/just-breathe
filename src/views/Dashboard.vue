@@ -6,7 +6,7 @@
     >
       <div id="dashboard-sidebar">
         <v-img
-          class="logo-image"
+          class="logo-image-small"
           :src="require('@/assets/jb-sygnet.png')"
         />
         <v-tooltip bottom>
