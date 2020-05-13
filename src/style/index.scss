@@ -154,6 +154,15 @@ h3 {
 @mixin desktop-drawer () {
   // shared elements
 
+  .logo-image-small {
+    margin-left: auto;
+    margin-right: auto;
+    width: 55px;
+    height: 55px;
+  }
+  .logo-image-large {
+    height: 55px;
+  }
   h3 {
     line-height: 32px;
     font-size: 18px;
@@ -250,8 +259,45 @@ h3 {
     font-weight: bold;
     text-align: center;
   }
+
+  // Map.vue
+
+  .map-panel {
+    padding: 0.3rem;
+    align-content: center;
+    justify-content: center;
+    alignment: center;
+    border-radius: 0 0 65px 0;
+    background: rgba(0,77,64,.9);
+    top: 0;
+    left: 0;
+    width: 70px;
+    transition: height 0.5s, width 0.5s, border-radius 0.5s;
+    height: 30%;
+    position: absolute;
+    &.large {
+      width: 300px;
+      padding: 1rem;
+      height: 40%;
+      &.station {
+        border-radius: 0;
+        height: 100%;
+      }
+    }
+  }
 }
 @mixin mobile-drawer () {
+  // shared elements
+
+  .logo-image-small {
+    margin-left: auto;
+    margin-right: auto;
+    width: 50px;
+    height: 50px;
+  }
+  .logo-image-large {
+    height: 50px;
+  }
   h3 {
     line-height: 32px;
     font-size: 14px;
@@ -374,6 +420,32 @@ h3 {
     font-weight: bold;
     text-align: center;
   }
+
+  // Map.vue
+
+  .map-panel {
+    padding: 0.3rem;
+    align-content: center;
+    justify-content: center;
+    alignment: center;
+    border-radius: 0 0 65px 0;
+    background: rgba(0,77,64,.9);
+    top: 0;
+    left: 0;
+    width: 70px;
+    transition: height 0.5s, width 0.5s, border-radius 0.5s;
+    height: 30%;
+    position: absolute;
+    &.large {
+      width: 250px;
+      padding: 1rem;
+      height: 37%;
+      &.station {
+        border-radius: 0;
+        height: 100%;
+      }
+    }
+  }
 }
 .image-container {
   margin-bottom: 1rem;
@@ -406,7 +478,9 @@ nav {
 // Dashboard.vue
 
 #dashboard-sidebar {
-  margin: 0.6rem;
+  left: 0;
+  top: 0;
+  margin: 0.5rem;
   position: absolute;
   text-align: center;
 }
@@ -423,13 +497,6 @@ nav {
   text-align: center;
   width: 100%;
 }
-.logo-image-small {
-  width: 55px;
-  height: 55px;
-}
-.logo-image-large {
-  height: 55px;
-}
 .inner-text {
   display: flex;
   justify-content: center;
@@ -437,12 +504,6 @@ nav {
   height: 100%;
   width: 100%;
 }
-//#chart {
-//  position: relative;
-//  padding: 1rem;
-//  width: 20%;
-//  height: 20%;
-//}
 
 // Map.vue
 

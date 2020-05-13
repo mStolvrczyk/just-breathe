@@ -30,21 +30,15 @@
         />
       </l-marker>
     </l-map>
-    <div id="map-panel">
-<!--      <div-->
-<!--        id="image-container"-->
-<!--      >-->
-<!--        <v-img-->
-<!--          v-else-->
-<!--          :src="require('@/assets/jb-logo.png')"-->
-<!--        />-->
-<!--      </div>-->
+    <div id="map-panel" class="map-panel">
       <v-img
+        @click="$router.push('/dashboard')"
         v-if="largeMapPanelVisibility"
         class="logo-image-large"
         :src="require('@/assets/jb-logo.png')"
       />
       <v-img
+        @click="$router.push('/dashboard')"
         v-else
         class="logo-image-small"
         :src="require('@/assets/jb-sygnet.png')"
@@ -222,6 +216,7 @@ import { LMap, LTileLayer, LMarker, LIcon } from 'vue2-leaflet'
 import StationsService from '@/services/StationsService'
 import Functions from '@/libs/helperFunctions'
 import { mapState, mapActions } from 'vuex'
+import pollutionLevels from '@/libs/pollutionLevels'
 export default {
   name: 'Map',
   data () {
@@ -258,35 +253,84 @@ export default {
     LIcon
   },
   methods: {
+    async fillDatacollection (id, apiResponse) {
+      const sensor = apiResponse.find(sensor => sensor.details.id === id)
+      const filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
+      const filteredValues = filteredMeasurements.map(({ value }) => value)
+      const averageMeasurement = this.functions.getAverage(filteredValues)
+      const lastMeasurement = this.functions.getLastMeasurement(filteredValues)
+      const barDataCollection = {
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
+            backgroundColor: this.functions.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
+            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
+          }
+        ]
+      }
+      this.setBarDataCollectionState(barDataCollection)
+      const lineDataCollection = {
+        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
+        datasets: [
+          {
+            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
+            backgroundColor: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, true)[0],
+            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
+          }
+        ]
+      }
+      this.setLineDataCollectionState(lineDataCollection)
+      const sensorDetails = {
+        sensorId: sensor.details.id,
+        averageMeasurement: {
+          value: averageMeasurement.toFixed(2),
+          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement),
+          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]],
+          color: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]
+        },
+        lastMeasurement: {
+          value: lastMeasurement.toFixed(2),
+          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement),
+          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]],
+          color: this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]
+        }
+      }
+      this.setSensorDetailsState(sensorDetails)
+      this.setChartDialogVisibilityState(true)
+    },
     test () {
       if (this.largeMapPanelVisibility === false && this.stationDetails === null) {
         this.largeMapPanelVisibility = true
         setTimeout(function () { this.autocompleteVisibility = true }
             .bind(this),
           500)
-        document.getElementById('map-panel').style.width = '300px'
-        document.getElementById('map-panel').style.padding = '1rem'
-        document.getElementById('map-panel').style.height = '40%'
+        document.getElementById('map-panel').className = 'map-panel large'
+        // document.getElementById('map-panel').style.width = '300px'
+        // document.getElementById('map-panel').style.padding = '1rem'
+        // document.getElementById('map-panel').style.height = '40%'
       } else if (this.largeMapPanelVisibility === true && this.stationDetails === null) {
         this.autocompleteVisibility = false
         this.largeMapPanelVisibility = false
-        document.getElementById('map-panel').style.height = '30%'
-        document.getElementById('map-panel').style.width = '70px'
-        document.getElementById('map-panel').style.padding = '0.3rem'
+        document.getElementById('map-panel').className = 'map-panel'
+        // document.getElementById('map-panel').style.height = '30%'
+        // document.getElementById('map-panel').style.width = '70px'
+        // document.getElementById('map-panel').style.padding = '0.3rem'
       } else if (this.largeMapPanelVisibility === true && this.stationDetails !== null) {
         this.autocompleteVisibility = !this.autocompleteVisibility
       }
     },
     ...mapActions('stations', ['setSelectedStationState']),
-    ...mapActions('sensors', ['setApiResponseStateMap']),
+    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState', 'setApiResponseStateMap']),
     mapClick () {
       if (this.largeMapPanelVisibility === true) {
         this.autocompleteVisibility = false
         this.largeMapPanelVisibility = false
-        document.getElementById('map-panel').style.height = '30%'
-        document.getElementById('map-panel').style.width = '70px'
-        document.getElementById('map-panel').style.padding = '0.3rem'
-        document.getElementById('map-panel').style.borderRadius = '0 0 65px 0'
+        document.getElementById('map-panel').className = 'map-panel'
+        // document.getElementById('map-panel').style.height = '30%'
+        // document.getElementById('map-panel').style.width = '70px'
+        // document.getElementById('map-panel').style.padding = '0.3rem'
+        // document.getElementById('map-panel').style.borderRadius = '0 0 65px 0'
       }
     },
     getMark (station) {
@@ -328,10 +372,11 @@ export default {
         this.autocompleteVisibility = false
       }
       this.largeMapPanelVisibility = true
-      document.getElementById('map-panel').style.height = '100%'
-      document.getElementById('map-panel').style.borderRadius = '0'
-      document.getElementById('map-panel').style.width = '300px'
-      document.getElementById('map-panel').style.padding = '1rem'
+      document.getElementById('map-panel').className = 'map-panel large station'
+      // document.getElementById('map-panel').style.height = '100%'
+      // document.getElementById('map-panel').style.borderRadius = '0'
+      // document.getElementById('map-panel').style.width = '300px'
+      // document.getElementById('map-panel').style.padding = '1rem'
     },
     roundStationDistance (stationDistance) {
       if (stationDistance >= 1000) {
@@ -374,10 +419,11 @@ export default {
       if (this.largeMapPanelVisibility === true) {
         this.autocompleteVisibility = false
         this.largeMapPanelVisibility = false
-        document.getElementById('map-panel').style.height = '30%'
-        document.getElementById('map-panel').style.width = '70px'
-        document.getElementById('map-panel').style.padding = '0.3rem'
-        document.getElementById('map-panel').style.borderRadius = '0 0 65px 0'
+        document.getElementById('map-panel').className = 'map-panel'
+        // document.getElementById('map-panel').style.height = '30%'
+        // document.getElementById('map-panel').style.width = '70px'
+        // document.getElementById('map-panel').style.padding = '0.3rem'
+        // document.getElementById('map-panel').style.borderRadius = '0 0 65px 0'
       }
     },
     setZoom () {
@@ -472,20 +518,6 @@ export default {
 </script>
 
 <style lang="scss">
-  #map-panel {
-    padding: 0.3rem;
-    align-content: center;
-    justify-content: center;
-    alignment: center;
-    border-radius: 0 0 65px 0;
-    background: rgba(0,77,64,.9);
-    top: 0;
-    left: 0;
-    width: 70px;
-    transition: height 0.5s, width 0.5s, border-radius 0.5s;
-    height: 30%;
-    position: absolute;
-  }
   /*@import "~leaflet/dist/leaflet.css";*/
   /*@import "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";*/
 </style>
