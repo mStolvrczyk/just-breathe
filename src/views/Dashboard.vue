@@ -4,29 +4,29 @@
       :on-refresh="onRefresh"
       :config="pullConfig"
     >
-      <div id="dashboard-sidebar">
-        <v-img
-          class="logo-image"
-          :src="require('@/assets/jb-sygnet.png')"
-        />
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on }">
-            <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="navigateTo('/map')"
-                   icon>
-              <v-icon>
-                mdi-map-marker
-              </v-icon>
-            </v-btn>
-            <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/map')" icon>
-              <v-icon>
-                mdi-map-marker
-              </v-icon>
-            </v-btn>
-          </template>
-          <span>Mapa</span>
-        </v-tooltip>
-      </div>
       <div class="row">
+        <div id="dashboard-sidebar">
+          <v-img
+            class="logo-image-small"
+            :src="require('@/assets/jb-sygnet.png')"
+          />
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn v-if="$vuetify.breakpoint.xsOnly" small color="white" v-on="on" @click="navigateTo('/map')"
+                     icon>
+                <v-icon>
+                  mdi-map-marker
+                </v-icon>
+              </v-btn>
+              <v-btn v-else large color="white" v-on="on" @click="navigateTo('/map')" icon>
+                <v-icon>
+                  mdi-map-marker
+                </v-icon>
+              </v-btn>
+            </template>
+            <span>Mapa</span>
+          </v-tooltip>
+        </div>
         <div id="chart">
           <v-tooltip max-width="250px" bottom>
             <template v-slot:activator="{ on }">
