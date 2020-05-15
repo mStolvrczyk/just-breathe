@@ -46,13 +46,13 @@
       <div align="center" id="view-icons">
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on"
+            <v-btn v-if="$vuetify.breakpoint.xsOnly" class="my-1 mx-1" small color="white" v-on="on"
                    @click="$router.push('/dashboard')" icon>
               <v-icon>
                 mdi-tablet-dashboard
               </v-icon>
             </v-btn>
-            <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/dashboard')" icon>
+            <v-btn v-else large color="white" v-on="on" @click="$router.push('/dashboard')" icon>
               <v-icon>
                 mdi-tablet-dashboard
               </v-icon>
@@ -62,12 +62,12 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn @click="test" v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" icon>
+            <v-btn @click="test" v-if="$vuetify.breakpoint.xsOnly" class="my-1 mx-1" small color="white" v-on="on" icon>
               <v-icon>
                 search
               </v-icon>
             </v-btn>
-            <v-btn @click="test" v-else x-large color="white" v-on="on" icon>
+            <v-btn @click="test" v-else large color="white" v-on="on" icon>
               <v-icon>
                 search
               </v-icon>
@@ -304,7 +304,7 @@ export default {
         this.largeMapPanelVisibility = true
         setTimeout(function () { this.autocompleteVisibility = true }
             .bind(this),
-          500)
+          600)
         document.getElementById('map-panel').className = 'map-panel large'
         // document.getElementById('map-panel').style.width = '300px'
         // document.getElementById('map-panel').style.padding = '1rem'
@@ -455,7 +455,7 @@ export default {
       if (value !== null) {
         setTimeout(function () { this.stationContentStatement = true }
             .bind(this),
-          250)
+          600)
       } else {
         setTimeout(function () { this.stationContentStatement = false }
             .bind(this),

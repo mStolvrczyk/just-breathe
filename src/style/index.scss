@@ -54,6 +54,9 @@ h3 {
   }
 }
 .row {
+  @media only screen and (max-width: 599px) {
+    position: relative;
+  }
   margin-right: 0;
   margin-left: 0;
   margin-bottom: 0.5rem;
@@ -157,11 +160,13 @@ h3 {
   .logo-image-small {
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 1.2rem;
     width: 55px;
     height: 55px;
   }
   .logo-image-large {
     height: 55px;
+    margin-bottom: 1.2rem;
   }
   h3 {
     line-height: 32px;
@@ -267,20 +272,19 @@ h3 {
     align-content: center;
     justify-content: center;
     alignment: center;
-    border-radius: 0 0 65px 0;
+    border-radius: 0 0 15px 0;
     background: rgba(0,77,64,.9);
     top: 0;
     left: 0;
     width: 70px;
     transition: height 0.5s, width 0.5s, border-radius 0.5s;
-    height: 30%;
+    height: 180px;
     position: absolute;
     &.large {
-      width: 300px;
+      width: 330px;
       padding: 1rem;
-      height: 40%;
+      height: 250px;
       &.station {
-        border-radius: 0;
         height: 100%;
       }
     }
@@ -292,6 +296,7 @@ h3 {
   .logo-image-small {
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 1rem;
     width: 50px;
     height: 50px;
   }
@@ -428,27 +433,23 @@ h3 {
     align-content: center;
     justify-content: center;
     alignment: center;
-    border-radius: 0 0 65px 0;
+    border-radius: 0 0 15px 0;
     background: rgba(0,77,64,.9);
     top: 0;
     left: 0;
-    width: 70px;
+    width: 60px;
     transition: height 0.5s, width 0.5s, border-radius 0.5s;
-    height: 30%;
+    height: 150px;
     position: absolute;
     &.large {
       width: 250px;
       padding: 1rem;
-      height: 37%;
+      height: 210px;
       &.station {
-        border-radius: 0;
         height: 100%;
       }
     }
   }
-}
-.image-container {
-  margin-bottom: 1rem;
 }
 nav {
   top: 0;
