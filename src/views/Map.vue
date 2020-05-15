@@ -324,13 +324,11 @@ export default {
     ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState', 'setApiResponseStateMap']),
     mapClick () {
       if (this.largeMapPanelVisibility === true) {
-        this.autocompleteVisibility = false
+        if (this.autocompleteVisibility === true) {
+          this.autocompleteVisibility = false
+        }
         this.largeMapPanelVisibility = false
         document.getElementById('map-panel').className = 'map-panel'
-        // document.getElementById('map-panel').style.height = '30%'
-        // document.getElementById('map-panel').style.width = '70px'
-        // document.getElementById('map-panel').style.padding = '0.3rem'
-        // document.getElementById('map-panel').style.borderRadius = '0 0 65px 0'
       }
     },
     getMark (station) {
@@ -373,10 +371,6 @@ export default {
       }
       this.largeMapPanelVisibility = true
       document.getElementById('map-panel').className = 'map-panel large station'
-      // document.getElementById('map-panel').style.height = '100%'
-      // document.getElementById('map-panel').style.borderRadius = '0'
-      // document.getElementById('map-panel').style.width = '300px'
-      // document.getElementById('map-panel').style.padding = '1rem'
     },
     roundStationDistance (stationDistance) {
       if (stationDistance >= 1000) {
