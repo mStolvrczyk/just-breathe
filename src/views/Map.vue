@@ -62,12 +62,12 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn @click="test" v-if="$vuetify.breakpoint.xsOnly" class="my-1 mx-1" small color="white" v-on="on" icon>
+            <v-btn class="my-1 mx-1" @click="mapPanelAction" v-if="$vuetify.breakpoint.xsOnly" small color="white" v-on="on" icon>
               <v-icon>
                 search
               </v-icon>
             </v-btn>
-            <v-btn @click="test" v-else large color="white" v-on="on" icon>
+            <v-btn class="my-1 mx-1" @click="mapPanelAction" v-else large color="white" v-on="on" icon>
               <v-icon>
                 search
               </v-icon>
@@ -107,15 +107,14 @@
           id="station-content"
           class="scrollable-content"
         >
-          <div v-if="stationDetails !== null">
+          <div v-if="mainDataStatement">
             <div align="center" class="data-element">
               <v-img
                 :src="require('@/assets/place-yellow.png')"
                 class="icon sidebar"
               />
               <p class="icon-text-paragraph">Stacja pomiarowa</p>
-              <p class="data-paragraph">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails
-                  .city}}</span></p>
+              <p class="data-paragraph">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails.city}}</span></p>
             </div>
             <div align="center" class="data-element">
               <v-img
@@ -125,7 +124,7 @@
               <p class="icon-text-paragraph">Odległość</p>
               <p class="data-paragraph">{{stationDetails.stationDistance}}</p>
             </div>
-            <div align="center" class="data-element" v-if="stationDetails.temperature !== null">
+            <div align="center" class="data-element" v-if="temperatureStatement">
               <v-img
                 :src="require('@/assets/termometer.png')"
                 class="icon sidebar"
@@ -133,7 +132,7 @@
               <p class="icon-text-paragraph">Temperatura</p>
               <p class="data-paragraph">{{stationDetails.temperature+' &ordm;C'}}</p>
             </div>
-            <div align="center" class="data-element" v-if="stationDetails.pressure !== null">
+            <div align="center" class="data-element" v-if="pressureStatement">
               <v-img
                 :src="require('@/assets/pressure.png')"
                 class="icon sidebar"
@@ -153,7 +152,12 @@
                 :key="sensor.index"
               >
                 <div class="column sensor">
-                  <p class="sensor-symbol-paragraph">{{sensor.symbol}}</p>
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                      <p v-on="on" class="sensor-symbol-paragraph">{{ sensor.symbol }}</p>
+                    </template>
+                    <span>{{ sensor.name }}</span>
+                  </v-tooltip>
                 </div>
                 <div class="column sensor">
                   <v-tooltip bottom>
@@ -191,9 +195,6 @@
           </template>
           <span>Pokaż najbliższą stację</span>
         </v-tooltip>
-<!--        <v-btn @click="closestStation(stations, userLocation)" fab small color="rgba(0,77,64,.9)">-->
-<!--          <v-icon style="color: white">mdi-crosshairs-gps</v-icon>-->
-<!--        </v-btn>-->
       </div>
       <div class="my-2">
         <v-tooltip v-if="zoomResetVisibility" bottom>
@@ -204,9 +205,6 @@
           </template>
           <span>Wróć</span>
         </v-tooltip>
-<!--        <v-btn v-else-if="zoomResetVisibility" @click="zoomReset" fab small color="rgba(0,77,64,.9)">-->
-<!--          <v-icon style="font-size:23px;color: white">mdi-arrow-left</v-icon>-->
-<!--        </v-btn>-->
       </div>
     </div>
   </div>
@@ -214,7 +212,7 @@
 <script>
 import { LMap, LTileLayer, LMarker, LIcon } from 'vue2-leaflet'
 import StationsService from '@/services/StationsService'
-import Functions from '@/libs/helperFunctions'
+import Functions from '@/libs/sharedFunctions'
 import { mapState, mapActions } from 'vuex'
 import pollutionLevels from '@/libs/pollutionLevels'
 export default {
@@ -224,7 +222,6 @@ export default {
       stationContentStatement: false,
       largeMapPanelVisibility: false,
       autocompleteVisibility: false,
-      miniVariant: true,
       functions: new Functions(),
       zoomHolder: null,
       options: { zoomControl: false },
@@ -233,13 +230,12 @@ export default {
         52.25,
         19.3
       ],
-      url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<a/> contributors',
       tealIcon: require('@/assets/tealPin.png'),
       yellowIcon: require('@/assets/yellowPin.png'),
       tealIconSize: [40, 40],
       yellowIconSize: [30, 40],
-      initialLocation: [59.93428, 30.335098],
       stationId: null,
       stationsService: new StationsService(),
       stationDetails: null,
@@ -253,6 +249,8 @@ export default {
     LIcon
   },
   methods: {
+    ...mapActions('stations', ['setSelectedStationState']),
+    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState', 'setApiResponseStateMap']),
     async fillDatacollection (id, apiResponse) {
       const sensor = apiResponse.find(sensor => sensor.details.id === id)
       const filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
@@ -299,29 +297,21 @@ export default {
       this.setSensorDetailsState(sensorDetails)
       this.setChartDialogVisibilityState(true)
     },
-    test () {
+    mapPanelAction () {
       if (this.largeMapPanelVisibility === false && this.stationDetails === null) {
         this.largeMapPanelVisibility = true
         setTimeout(function () { this.autocompleteVisibility = true }
             .bind(this),
           600)
         document.getElementById('map-panel').className = 'map-panel large'
-        // document.getElementById('map-panel').style.width = '300px'
-        // document.getElementById('map-panel').style.padding = '1rem'
-        // document.getElementById('map-panel').style.height = '40%'
       } else if (this.largeMapPanelVisibility === true && this.stationDetails === null) {
         this.autocompleteVisibility = false
         this.largeMapPanelVisibility = false
         document.getElementById('map-panel').className = 'map-panel'
-        // document.getElementById('map-panel').style.height = '30%'
-        // document.getElementById('map-panel').style.width = '70px'
-        // document.getElementById('map-panel').style.padding = '0.3rem'
       } else if (this.largeMapPanelVisibility === true && this.stationDetails !== null) {
         this.autocompleteVisibility = !this.autocompleteVisibility
       }
     },
-    ...mapActions('stations', ['setSelectedStationState']),
-    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState', 'setApiResponseStateMap']),
     mapClick () {
       if (this.largeMapPanelVisibility === true) {
         if (this.autocompleteVisibility === true) {
@@ -414,10 +404,6 @@ export default {
         this.autocompleteVisibility = false
         this.largeMapPanelVisibility = false
         document.getElementById('map-panel').className = 'map-panel'
-        // document.getElementById('map-panel').style.height = '30%'
-        // document.getElementById('map-panel').style.width = '70px'
-        // document.getElementById('map-panel').style.padding = '0.3rem'
-        // document.getElementById('map-panel').style.borderRadius = '0 0 65px 0'
       }
     },
     setZoom () {
@@ -433,15 +419,17 @@ export default {
   computed: {
     ...mapState('stations', ['closestStationState', 'allStationsState', 'userLocationState', 'selectedStationState']),
     ...mapState('sensors', ['apiResponseStateMap']),
+    mainDataStatement () {
+      return this.stationDetails !== null
+    },
+    temperatureStatement () {
+      return this.stationDetails.temperature !== null
+    },
+    pressureStatement () {
+      return this.stationDetails.pressure !== null
+    },
     zoomResetVisibility () {
       return (this.zoom !== this.zoomHolder) || this.stationId !== null
-    },
-    scrollableContentHeight () {
-      if (this.autocompleteVisibility === true && this.stationDetails !== null) {
-        return true
-      } else {
-        return false
-      }
     }
   },
   watch: {
@@ -468,24 +456,6 @@ export default {
         document.getElementById('station-content').className = 'scrollable-content'
       }
     },
-    // 'inputVisibility' (value) {
-    //   const content = document.getElementById('station-content')
-    //   if (value === true) {
-    //     setTimeout(function () { this.autocompleteVisibility = true }
-    //         .bind(this),
-    //       250)
-    //     content.className = 'scrollable-content-input'
-    //     document.getElementById('map-panel').style.width = '20%'
-    //     document.getElementById('map-panel').style.padding = '1rem'
-    //     document.getElementById('map-panel').style.height = '40%'
-    //   } else {
-    //     this.autocompleteVisibility = false
-    //     content.className = 'scrollable-content'
-    //     document.getElementById('map-panel').style.height = '30%'
-    //     document.getElementById('map-panel').style.width = '5%'
-    //     document.getElementById('map-panel').style.padding = '0.3rem'
-    //   }
-    // },
     '$vuetify.breakpoint.xsOnly' (value) {
       if (value === true) {
         this.zoom = 5
@@ -501,17 +471,8 @@ export default {
       }
     }
   },
-  // created () {
-  //   bus.$on('setSelectedStation', (stationId) => {
-  //   })
-  // },
   mounted () {
     this.setZoom()
   }
 }
 </script>
-
-<style lang="scss">
-  /*@import "~leaflet/dist/leaflet.css";*/
-  /*@import "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";*/
-</style>

@@ -8,11 +8,11 @@
     transition="dialog-bottom-transition"
   >
     <div id="chart-dialog-card">
-      <h3 class="silver" v-if="barDataCollectionState.datasets.length === 0 || lineDataCollectionState.datasets.length === 0">
+      <h3 class="silver" v-if="noMeasurementsStatement">
         Brak pomiarów
       </h3>
       <transition name="popup">
-        <div v-if="(barDataCollectionState.datasets.length > 0 || barDataCollectionState.datasets.length > 0) && chartDialogVisibilityState">
+        <div v-if="measurementsStatement">
           <bar-chart
             v-if="chartSwitch"
             :chart-data="barDataCollectionState"
@@ -53,7 +53,7 @@
           </div>
         </div>
       </transition>
-      <div class="row" v-if="barDataCollectionState.datasets.length > 0 || lineDataCollectionState.datasets.length > 0">
+      <div class="row" v-if="measurementsStatement">
         <div class="row">
           <p class="chart-dialog-paragraph">Średni pomiar: <span :style="{'color':sensorDetailsState.averageMeasurement.color}">{{sensorDetailsState.averageMeasurement.procentValue + '%'}} ({{sensorDetailsState.averageMeasurement.value + ' &#181;/m'}}<sup>3</sup>) - {{sensorDetailsState.averageMeasurement.pollutionLevel}}</span></p>
         </div>
@@ -71,7 +71,7 @@
 <script>
 import BarChart from '@/components/vue-chartjs/BarChart'
 import LineChart from '@/components/vue-chartjs/LineChart'
-import Functions from '@/libs/helperFunctions'
+import Functions from '@/libs/sharedFunctions'
 import { mapActions, mapState } from 'vuex'
 import pollutionLevels from '@/libs/pollutionLevels'
 
@@ -92,14 +92,6 @@ export default {
       alignment: 0
     }
   },
-  // props: {
-  //   chartDialogVisibility: Boolean,
-  //   chartVisibility: Boolean,
-  //   sensorDetails: Object,
-  //   apiResponse: Array,
-  //   barDataCollection: Object,
-  //   lineDataCollection: Object
-  // },
   methods: {
     ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState']),
     closeDialog () {
@@ -222,6 +214,12 @@ export default {
       } else {
         return this.height / 1.4
       }
+    },
+    noMeasurementsStatement () {
+      return this.barDataCollectionState.datasets.length === 0 || this.lineDataCollectionState.datasets.length === 0
+    },
+    measurementsStatement () {
+      return (this.barDataCollectionState.datasets.length > 0 || this.barDataCollectionState.datasets.length > 0)
     },
     ...mapState('sensors', ['barDataCollectionState', 'lineDataCollectionState', 'sensorDetailsState', 'chartDialogVisibilityState', 'apiResponseStateDashboard', 'apiResponseStateMap'])
   },
