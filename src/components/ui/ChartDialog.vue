@@ -55,10 +55,10 @@
       </transition>
       <div class="row" v-if="barDataCollectionState.datasets.length > 0 || lineDataCollectionState.datasets.length > 0">
         <div class="row">
-          <p class="chart-dialog-paragraph">Średni pomiar: <span :style="{'color':sensorDetailsState.averageMeasurement.color}">{{sensorDetailsState.averageMeasurement.procentValue + '%'}}({{sensorDetailsState.averageMeasurement.value + ' &#181;/m'}}<sup>3</sup>) - {{sensorDetailsState.averageMeasurement.pollutionLevel}}</span></p>
+          <p class="chart-dialog-paragraph">Średni pomiar: <span :style="{'color':sensorDetailsState.averageMeasurement.color}">{{sensorDetailsState.averageMeasurement.procentValue + '%'}} ({{sensorDetailsState.averageMeasurement.value + ' &#181;/m'}}<sup>3</sup>) - {{sensorDetailsState.averageMeasurement.pollutionLevel}}</span></p>
         </div>
         <div class="row">
-          <p class="chart-dialog-paragraph">Ostatni pomiar: <span :style="{'color':sensorDetailsState.lastMeasurement.color}">{{sensorDetailsState.lastMeasurement.procentValue + '%'}}({{sensorDetailsState.lastMeasurement.value + ' &#181;/m'}}<sup>3</sup>) -{{sensorDetailsState.lastMeasurement.pollutionLevel}}</span></p>
+          <p class="chart-dialog-paragraph">Ostatni pomiar: <span :style="{'color':sensorDetailsState.lastMeasurement.color}">{{sensorDetailsState.lastMeasurement.procentValue + '%'}} ({{sensorDetailsState.lastMeasurement.value + ' &#181;/m'}}<sup>3</sup>) -{{sensorDetailsState.lastMeasurement.pollutionLevel}}</span></p>
         </div>
       </div>
       <div class="row chart button">

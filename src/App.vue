@@ -1,82 +1,50 @@
 <template>
   <v-app
   >
-    <v-navigation-drawer
-      height="100vh"
-      light
-      clipped
-      v-model="drawer"
-      :mini-variant="miniVariant"
-      stateless
-      app
-      :width="navbarWidth"
-      :src="require('@/assets/appImage.jpg')"
-    >
-      <template v-slot:img="props">
-        <v-img
-          :gradient="'to top right, rgba(0,77,64,.9), rgba(0,77,64,.9)'"
-          v-bind="props"
-        />
-      </template>
-      <v-container
-      id="container"
-      >
-        <nav>
-          <div
-            id="image-container"
-          >
-            <v-img
-              class="logo-image"
-              v-if="miniVariant"
-              :src="require('@/assets/jb-sygnet.png')"
-            />
-            <v-img
-              v-else
-              :src="require('@/assets/jb-logo.png')"
-            />
-          </div>
-          <div align="center" id="view-icons">
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on"
-                       @click="navigateTo('/dashboard')" icon>
-                  <v-icon>
-                    mdi-tablet-dashboard
-                  </v-icon>
-                </v-btn>
-                <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/dashboard')" icon>
-                  <v-icon>
-                    mdi-tablet-dashboard
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>Panel użytkownika</span>
-            </v-tooltip>
-<!--            <v-tooltip bottom>-->
-<!--              <template v-slot:activator="{ on }">-->
-<!--                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="navigateTo('/map')"-->
-<!--                       icon>-->
-<!--                  <v-icon>-->
-<!--                    mdi-map-marker-->
-<!--                  </v-icon>-->
-<!--                </v-btn>-->
-<!--                <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/map')" icon>-->
-<!--                  <v-icon>-->
-<!--                    mdi-map-marker-->
-<!--                  </v-icon>-->
-<!--                </v-btn>-->
-<!--              </template>-->
-<!--              <span>Mapa</span>-->
-<!--            </v-tooltip>-->
+<!--    <v-navigation-drawer-->
+<!--      height="100vh"-->
+<!--      light-->
+<!--      clipped-->
+<!--      v-model="drawer"-->
+<!--      :mini-variant="miniVariant"-->
+<!--      stateless-->
+<!--      app-->
+<!--      :width="navbarWidth"-->
+<!--      :src="require('@/assets/appImage.jpg')"-->
+<!--    >-->
+<!--      <template v-slot:img="props">-->
+<!--        <v-img-->
+<!--          :gradient="'to top right, rgba(0,77,64,.9), rgba(0,77,64,.9)'"-->
+<!--          v-bind="props"-->
+<!--        />-->
+<!--      </template>-->
+<!--      <v-container-->
+<!--      id="container"-->
+<!--      >-->
+<!--        <nav>-->
+<!--          <div-->
+<!--            id="image-container"-->
+<!--          >-->
+<!--            <v-img-->
+<!--              class="logo-image"-->
+<!--              v-if="miniVariant"-->
+<!--              :src="require('@/assets/jb-sygnet.png')"-->
+<!--            />-->
+<!--            <v-img-->
+<!--              v-else-->
+<!--              :src="require('@/assets/jb-logo.png')"-->
+<!--            />-->
+<!--          </div>-->
+<!--          <div align="center" id="view-icons">-->
 <!--            <v-tooltip bottom>-->
 <!--              <template v-slot:activator="{ on }">-->
 <!--                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on"-->
-<!--                       @click="$router.push('/dashboard')" icon>-->
+<!--                       @click="navigateTo('/dashboard')" icon>-->
 <!--                  <v-icon>-->
 <!--                    mdi-tablet-dashboard-->
 <!--                  </v-icon>-->
 <!--                </v-btn>-->
-<!--                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/dashboard')" icon>-->
+<!--                <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/dashboard')" icon>-->
 <!--                  <v-icon>-->
 <!--                    mdi-tablet-dashboard-->
 <!--                  </v-icon>-->
@@ -84,144 +52,176 @@
 <!--              </template>-->
 <!--              <span>Panel użytkownika</span>-->
 <!--            </v-tooltip>-->
-<!--            <v-tooltip bottom>-->
+<!--&lt;!&ndash;            <v-tooltip bottom>&ndash;&gt;-->
+<!--&lt;!&ndash;              <template v-slot:activator="{ on }">&ndash;&gt;-->
+<!--&lt;!&ndash;                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="navigateTo('/map')"&ndash;&gt;-->
+<!--&lt;!&ndash;                       icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                  <v-icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                    mdi-map-marker&ndash;&gt;-->
+<!--&lt;!&ndash;                  </v-icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                </v-btn>&ndash;&gt;-->
+<!--&lt;!&ndash;                <v-btn v-else x-large color="white" v-on="on" @click="navigateTo('/map')" icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                  <v-icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                    mdi-map-marker&ndash;&gt;-->
+<!--&lt;!&ndash;                  </v-icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                </v-btn>&ndash;&gt;-->
+<!--&lt;!&ndash;              </template>&ndash;&gt;-->
+<!--&lt;!&ndash;              <span>Mapa</span>&ndash;&gt;-->
+<!--&lt;!&ndash;            </v-tooltip>&ndash;&gt;-->
+<!--&lt;!&ndash;            <v-tooltip bottom>&ndash;&gt;-->
+<!--&lt;!&ndash;              <template v-slot:activator="{ on }">&ndash;&gt;-->
+<!--&lt;!&ndash;                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on"&ndash;&gt;-->
+<!--&lt;!&ndash;                       @click="$router.push('/dashboard')" icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                  <v-icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                    mdi-tablet-dashboard&ndash;&gt;-->
+<!--&lt;!&ndash;                  </v-icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                </v-btn>&ndash;&gt;-->
+<!--&lt;!&ndash;                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/dashboard')" icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                  <v-icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                    mdi-tablet-dashboard&ndash;&gt;-->
+<!--&lt;!&ndash;                  </v-icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                </v-btn>&ndash;&gt;-->
+<!--&lt;!&ndash;              </template>&ndash;&gt;-->
+<!--&lt;!&ndash;              <span>Panel użytkownika</span>&ndash;&gt;-->
+<!--&lt;!&ndash;            </v-tooltip>&ndash;&gt;-->
+<!--&lt;!&ndash;            <v-tooltip bottom>&ndash;&gt;-->
+<!--&lt;!&ndash;              <template v-slot:activator="{ on }">&ndash;&gt;-->
+<!--&lt;!&ndash;                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="$router.push('/map')"&ndash;&gt;-->
+<!--&lt;!&ndash;                       icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                  <v-icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                    mdi-map-marker&ndash;&gt;-->
+<!--&lt;!&ndash;                  </v-icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                </v-btn>&ndash;&gt;-->
+<!--&lt;!&ndash;                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/map')" icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                  <v-icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                    mdi-map-marker&ndash;&gt;-->
+<!--&lt;!&ndash;                  </v-icon>&ndash;&gt;-->
+<!--&lt;!&ndash;                </v-btn>&ndash;&gt;-->
+<!--&lt;!&ndash;              </template>&ndash;&gt;-->
+<!--&lt;!&ndash;              <span>Mapa</span>&ndash;&gt;-->
+<!--&lt;!&ndash;            </v-tooltip>&ndash;&gt;-->
+<!--            <v-tooltip bottom v-if=" $route.path === '/map'">-->
 <!--              <template v-slot:activator="{ on }">-->
-<!--                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="$router.push('/map')"-->
-<!--                       icon>-->
+<!--                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="setStationInput" icon>-->
 <!--                  <v-icon>-->
-<!--                    mdi-map-marker-->
+<!--                    search-->
 <!--                  </v-icon>-->
 <!--                </v-btn>-->
-<!--                <v-btn v-else x-large color="white" v-on="on" @click="$router.push('/map')" icon>-->
+<!--                <v-btn v-else x-large color="white" v-on="on" @click="setStationInput" icon>-->
 <!--                  <v-icon>-->
-<!--                    mdi-map-marker-->
+<!--                    search-->
 <!--                  </v-icon>-->
 <!--                </v-btn>-->
 <!--              </template>-->
-<!--              <span>Mapa</span>-->
+<!--              <span>Szukaj stacji</span>-->
 <!--            </v-tooltip>-->
-            <v-tooltip bottom v-if=" $route.path === '/map'">
-              <template v-slot:activator="{ on }">
-                <v-btn v-if="$vuetify.breakpoint.xsOnly" large color="white" v-on="on" @click="setStationInput" icon>
-                  <v-icon>
-                    search
-                  </v-icon>
-                </v-btn>
-                <v-btn v-else x-large color="white" v-on="on" @click="setStationInput" icon>
-                  <v-icon>
-                    search
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>Szukaj stacji</span>
-            </v-tooltip>
-          </div>
-          <transition name="popup">
-            <v-autocomplete
-              v-if="inputVisibility && $route.path === '/map'"
-              background-color="white"
-              v-model="selectedStation"
-              :items="allStationsState"
-              flat
-              append-icon="false"
-              search="searchValue"
-              hide-no-data
-              item-value="id"
-              item-text="stationName"
-              label="Wybierz stację"
-              solo
-              return-object
-            >
-              <template v-slot:no-data>
-                <v-list-item>
-                  <v-list-item-title>
-                    Brak stacji
-                  </v-list-item-title>
-                </v-list-item>
-              </template>
-            </v-autocomplete>
-          </transition>
-        </nav>
-        <transition name="popup">
-          <div
-            id="station-content"
-            class="scrollable-content"
-          >
-            <div v-if="stationDetails !== null && !miniVariant">
-              <div align="center" class="data-element">
-                <v-img
-                  :src="require('@/assets/place-yellow.png')"
-                  class="icon sidebar"
-                />
-               <p class="icon-text-paragraph">Stacja pomiarowa</p>
-                <p class="data-paragraph">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails
-                  .city}}</span></p>
-              </div>
-              <div align="center" class="data-element">
-                <v-img
-                :src="require('@/assets/road-yellow.png')"
-                class="icon sidebar"
-                />
-                <p class="icon-text-paragraph">Odległość</p>
-                <p class="data-paragraph">{{stationDetails.stationDistance}}</p>
-              </div>
-              <div align="center" class="data-element" v-if="stationDetails.temperature !== null">
-                <v-img
-                  :src="require('@/assets/termometer.png')"
-                  class="icon sidebar"
-                />
-                <p class="icon-text-paragraph">Temperatura</p>
-                <p class="data-paragraph">{{stationDetails.temperature+' &ordm;C'}}</p>
-              </div>
-              <div align="center" class="data-element" v-if="stationDetails.pressure !== null">
-                <v-img
-                  :src="require('@/assets/pressure.png')"
-                  class="icon sidebar"
-                />
-                <p class="icon-text-paragraph">Ciśnienie</p>
-                <p class="data-paragraph">{{stationDetails.pressure+' hPa'}}</p>
-              </div>
-              <div align="center" class="data-element">
-                <v-img
-                  :src="require('@/assets/fog-yellow.png')"
-                  class="icon sidebar"
-                />
-                <p class="icon-text-paragraph">Jakość powietrza</p>
-                <div
-                  class="row sensor"
-                  v-for="sensor in stationDetails.sensors"
-                  :key="sensor.index"
-                >
-                  <div class="column sensor">
-                    <p class="sensor-symbol-paragraph">{{sensor.symbol}}</p>
-                  </div>
-                  <div class="column sensor">
-                    <v-tooltip bottom>
-                      <template v-slot:activator="{ on }">
-                        <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.lastPercentValue+'%'}}</p>
-                      </template>
-                      <span>{{sensor.lastValue+' &#181;/m'}}<sup>3</sup></span>
-                    </v-tooltip>
-                  </div>
-                  <div class="column button">
-                    <v-tooltip bottom>
-                      <template v-slot:activator="{ on }">
-                        <v-btn @click="fillDatacollection(sensor.id, apiResponseStateMap)" normal color="white" v-on="on" icon>
-                          <v-icon>
-                            mdi-dots-horizontal
-                          </v-icon>
-                        </v-btn>
-                      </template>
-                      <span>Pokaż szczegóły</span>
-                    </v-tooltip>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </transition>
-      </v-container>
-    </v-navigation-drawer>
+<!--          </div>-->
+<!--          <transition name="popup">-->
+<!--            <v-autocomplete-->
+<!--              v-if="inputVisibility && $route.path === '/map'"-->
+<!--              background-color="white"-->
+<!--              v-model="selectedStation"-->
+<!--              :items="allStationsState"-->
+<!--              flat-->
+<!--              append-icon="false"-->
+<!--              search="searchValue"-->
+<!--              hide-no-data-->
+<!--              item-value="id"-->
+<!--              item-text="stationName"-->
+<!--              label="Wybierz stację"-->
+<!--              solo-->
+<!--              return-object-->
+<!--            >-->
+<!--              <template v-slot:no-data>-->
+<!--                <v-list-item>-->
+<!--                  <v-list-item-title>-->
+<!--                    Brak stacji-->
+<!--                  </v-list-item-title>-->
+<!--                </v-list-item>-->
+<!--              </template>-->
+<!--            </v-autocomplete>-->
+<!--          </transition>-->
+<!--        </nav>-->
+<!--        <transition name="popup">-->
+<!--          <div-->
+<!--            id="station-content"-->
+<!--            class="scrollable-content"-->
+<!--          >-->
+<!--            <div v-if="stationDetails !== null && !miniVariant">-->
+<!--              <div align="center" class="data-element">-->
+<!--                <v-img-->
+<!--                  :src="require('@/assets/place-yellow.png')"-->
+<!--                  class="icon sidebar"-->
+<!--                />-->
+<!--               <p class="icon-text-paragraph">Stacja pomiarowa</p>-->
+<!--                <p class="data-paragraph">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails-->
+<!--                  .city}}</span></p>-->
+<!--              </div>-->
+<!--              <div align="center" class="data-element">-->
+<!--                <v-img-->
+<!--                :src="require('@/assets/road-yellow.png')"-->
+<!--                class="icon sidebar"-->
+<!--                />-->
+<!--                <p class="icon-text-paragraph">Odległość</p>-->
+<!--                <p class="data-paragraph">{{stationDetails.stationDistance}}</p>-->
+<!--              </div>-->
+<!--              <div align="center" class="data-element" v-if="stationDetails.temperature !== null">-->
+<!--                <v-img-->
+<!--                  :src="require('@/assets/termometer.png')"-->
+<!--                  class="icon sidebar"-->
+<!--                />-->
+<!--                <p class="icon-text-paragraph">Temperatura</p>-->
+<!--                <p class="data-paragraph">{{stationDetails.temperature+' &ordm;C'}}</p>-->
+<!--              </div>-->
+<!--              <div align="center" class="data-element" v-if="stationDetails.pressure !== null">-->
+<!--                <v-img-->
+<!--                  :src="require('@/assets/pressure.png')"-->
+<!--                  class="icon sidebar"-->
+<!--                />-->
+<!--                <p class="icon-text-paragraph">Ciśnienie</p>-->
+<!--                <p class="data-paragraph">{{stationDetails.pressure+' hPa'}}</p>-->
+<!--              </div>-->
+<!--              <div align="center" class="data-element">-->
+<!--                <v-img-->
+<!--                  :src="require('@/assets/fog-yellow.png')"-->
+<!--                  class="icon sidebar"-->
+<!--                />-->
+<!--                <p class="icon-text-paragraph">Jakość powietrza</p>-->
+<!--                <div-->
+<!--                  class="row sensor"-->
+<!--                  v-for="sensor in stationDetails.sensors"-->
+<!--                  :key="sensor.index"-->
+<!--                >-->
+<!--                  <div class="column sensor">-->
+<!--                    <p class="sensor-symbol-paragraph">{{sensor.symbol}}</p>-->
+<!--                  </div>-->
+<!--                  <div class="column sensor">-->
+<!--                    <v-tooltip bottom>-->
+<!--                      <template v-slot:activator="{ on }">-->
+<!--                        <p class="sensor-value" v-on="on" :style="{'color': sensor.backgroundColor}">{{sensor.lastPercentValue+'%'}}</p>-->
+<!--                      </template>-->
+<!--                      <span>{{sensor.lastValue+' &#181;/m'}}<sup>3</sup></span>-->
+<!--                    </v-tooltip>-->
+<!--                  </div>-->
+<!--                  <div class="column button">-->
+<!--                    <v-tooltip bottom>-->
+<!--                      <template v-slot:activator="{ on }">-->
+<!--                        <v-btn @click="fillDatacollection(sensor.id, apiResponseStateMap)" normal color="white" v-on="on" icon>-->
+<!--                          <v-icon>-->
+<!--                            mdi-dots-horizontal-->
+<!--                          </v-icon>-->
+<!--                        </v-btn>-->
+<!--                      </template>-->
+<!--                      <span>Pokaż szczegóły</span>-->
+<!--                    </v-tooltip>-->
+<!--                  </div>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </transition>-->
+<!--      </v-container>-->
+<!--    </v-navigation-drawer>-->
     <v-content>
       <router-view/>
       <ChartDialog/>
@@ -277,11 +277,11 @@ export default {
     },
     navigateTo (path) {
       if (this.$route.path !== path) {
-        setTimeout(function () {
-          this.$router.push(path)
-        }
-          .bind(this),
-        150)
+        // setTimeout(function () {
+        this.$router.push(path)
+        // }
+        //   .bind(this),
+        // 150)
       }
     },
     ...mapActions('stations', ['setAllStationsState', 'setClosestStationState', 'setUserLocationState', 'setSelectedStationState', 'setRouteState']),
