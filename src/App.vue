@@ -59,6 +59,7 @@ export default {
       this.setApiResponseStateDashboard(response)
       const sensorsDetails = response.map(({ details }) => details)
       const lastSensorsValues = this.functions.mapLastValues(response)
+      const sensors = this.functions.mapSensors(sensorsDetails, lastSensorsValues)
       const closestStation = {
         response: response,
         id: closestStationDetails.id,
@@ -68,8 +69,8 @@ export default {
         pressure: closestStationDetails.pressure,
         wind: closestStationDetails.wind,
         humidity: closestStationDetails.humidity,
-        sensors: this.functions.mapSensors(sensorsDetails, lastSensorsValues),
-        gaugeChartData: this.mapGaugeChartData(this.functions.mapSensors(sensorsDetails, lastSensorsValues)),
+        sensors: sensors,
+        gaugeChartData: this.mapGaugeChartData(sensors),
         stationDistance: this.functions.roundStationDistance(this.functions.getDistance(closestStationDetails.coordinates,
           userLocation))
       }

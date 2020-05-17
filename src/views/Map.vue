@@ -334,7 +334,7 @@ export default {
       const stationId = id
       const station = await stations.find(({ id }) => id === stationId)
       const sensorsDetails = response.map(({ details }) => details)
-      const lastSensorsValues = this.mapLastValues(response)
+      const lastSensorsValues = this.functions.mapLastValues(response)
       if (this.zoom === 5 || this.zoom === 6) {
         this.$refs.map.mapObject.flyTo([station.coordinates[0], station.coordinates[1]], 7)
       } else {
@@ -350,8 +350,8 @@ export default {
         pressure: station.pressure,
         wind: station.wind,
         humidity: station.humidity,
-        sensors: this.mapSensors(sensorsDetails, lastSensorsValues),
-        stationDistance: this.roundStationDistance(this.functions.getDistance(station.coordinates, userLocation))
+        sensors: this.functions.mapSensors(sensorsDetails, lastSensorsValues),
+        stationDistance: this.functions.roundStationDistance(this.functions.getDistance(station.coordinates, userLocation))
       }
       if (this.selectedStation !== null) {
         this.selectedStation = null
