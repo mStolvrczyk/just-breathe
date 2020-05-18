@@ -134,11 +134,11 @@ export default class Functions {
         id: sensorsDetails[i].id,
         name: sensorsDetails[i].param,
         symbol: sensorsDetails[i].paramTwo,
-        lastValue: parseInt((lastSensorsValues[i].value).toFixed(1)),
+        lastValue: parseFloat((lastSensorsValues[i].value).toFixed(1)),
         pollutionLevel: pollutionLevels[this.setBackgroundColor([lastSensorsValues[i].value], sensorsDetails[i].paramTwo, false)[0]],
         time: lastSensorsValues[i].date.substring(11, 16),
         backgroundColor: this.setBackgroundColor([lastSensorsValues[i].value], sensorsDetails[i].paramTwo, false)[0],
-        lastPercentValue: parseInt(this.getPollutionLimit(sensorsDetails[i].paramTwo, (lastSensorsValues[i].value).toFixed(1)))
+        lastPercentValue: parseFloat(this.getPollutionLimit(sensorsDetails[i].paramTwo, (lastSensorsValues[i].value).toFixed(1)))
       })
     }
     return sensorsArray

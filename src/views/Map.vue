@@ -62,12 +62,12 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn @click="test" v-if="$vuetify.breakpoint.xsOnly" class="my-1 mx-1" small color="white" v-on="on" icon>
+            <v-btn class="my-1 mx-1" @click="mapPanelAction" v-if="$vuetify.breakpoint.xsOnly" small color="white" v-on="on" icon>
               <v-icon>
                 search
               </v-icon>
             </v-btn>
-            <v-btn @click="test" v-else large color="white" v-on="on" icon>
+            <v-btn class="my-1 mx-1" @click="mapPanelAction" v-else large color="white" v-on="on" icon>
               <v-icon>
                 search
               </v-icon>
@@ -104,18 +104,17 @@
       <transition name="popup">
         <div
           v-if="stationContentStatement"
-          id="station-content"
+          id="scrollable-content"
           class="scrollable-content"
         >
-          <div v-if="stationDetails !== null">
+          <div v-if="mainDataStatement">
             <div align="center" class="data-element">
               <v-img
                 :src="require('@/assets/place-yellow.png')"
                 class="icon sidebar"
               />
               <p class="icon-text-paragraph">Stacja pomiarowa</p>
-              <p class="data-paragraph">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails
-                  .city}}</span></p>
+              <p class="data-paragraph">{{stationDetails.stationName}}<br><span class="city-text">{{stationDetails.city}}</span></p>
             </div>
             <div align="center" class="data-element">
               <v-img
@@ -125,7 +124,7 @@
               <p class="icon-text-paragraph">Odległość</p>
               <p class="data-paragraph">{{stationDetails.stationDistance}}</p>
             </div>
-            <div align="center" class="data-element" v-if="stationDetails.temperature !== null">
+            <div align="center" class="data-element" v-if="temperatureStatement">
               <v-img
                 :src="require('@/assets/termometer.png')"
                 class="icon sidebar"
@@ -133,7 +132,7 @@
               <p class="icon-text-paragraph">Temperatura</p>
               <p class="data-paragraph">{{stationDetails.temperature+' &ordm;C'}}</p>
             </div>
-            <div align="center" class="data-element" v-if="stationDetails.pressure !== null">
+            <div align="center" class="data-element" v-if="pressureStatement">
               <v-img
                 :src="require('@/assets/pressure.png')"
                 class="icon sidebar"
@@ -153,7 +152,12 @@
                 :key="sensor.index"
               >
                 <div class="column sensor">
-                  <p class="sensor-symbol-paragraph">{{sensor.symbol}}</p>
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                      <p v-on="on" class="sensor-symbol-paragraph">{{ sensor.symbol }}</p>
+                    </template>
+                    <span>{{ sensor.name }}</span>
+                  </v-tooltip>
                 </div>
                 <div class="column sensor">
                   <v-tooltip bottom>
@@ -166,7 +170,7 @@
                 <div class="column button">
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
-                      <v-btn @click="fillDatacollection(sensor.id, apiResponseStateMap)" normal color="white" v-on="on" icon>
+                      <v-btn @click="setChartDialogDataState({ id: sensor.id, apiResponse: apiResponseStateMap})" normal color="white" v-on="on" icon>
                         <v-icon>
                           mdi-dots-horizontal
                         </v-icon>
@@ -181,7 +185,7 @@
         </div>
       </transition>
     </div>
-    <div align="center" id="button_panel">
+    <div align="center" id="button-panel">
       <div class="my-2">
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
@@ -191,9 +195,6 @@
           </template>
           <span>Pokaż najbliższą stację</span>
         </v-tooltip>
-<!--        <v-btn @click="closestStation(stations, userLocation)" fab small color="rgba(0,77,64,.9)">-->
-<!--          <v-icon style="color: white">mdi-crosshairs-gps</v-icon>-->
-<!--        </v-btn>-->
       </div>
       <div class="my-2">
         <v-tooltip v-if="zoomResetVisibility" bottom>
@@ -204,9 +205,6 @@
           </template>
           <span>Wróć</span>
         </v-tooltip>
-<!--        <v-btn v-else-if="zoomResetVisibility" @click="zoomReset" fab small color="rgba(0,77,64,.9)">-->
-<!--          <v-icon style="font-size:23px;color: white">mdi-arrow-left</v-icon>-->
-<!--        </v-btn>-->
       </div>
     </div>
   </div>
@@ -214,9 +212,8 @@
 <script>
 import { LMap, LTileLayer, LMarker, LIcon } from 'vue2-leaflet'
 import StationsService from '@/services/StationsService'
-import Functions from '@/libs/helperFunctions'
+import Functions from '@/libs/sharedFunctions'
 import { mapState, mapActions } from 'vuex'
-import pollutionLevels from '@/libs/pollutionLevels'
 export default {
   name: 'Map',
   data () {
@@ -224,7 +221,6 @@ export default {
       stationContentStatement: false,
       largeMapPanelVisibility: false,
       autocompleteVisibility: false,
-      miniVariant: true,
       functions: new Functions(),
       zoomHolder: null,
       options: { zoomControl: false },
@@ -233,13 +229,12 @@ export default {
         52.25,
         19.3
       ],
-      url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<a/> contributors',
       tealIcon: require('@/assets/tealPin.png'),
       yellowIcon: require('@/assets/yellowPin.png'),
       tealIconSize: [40, 40],
       yellowIconSize: [30, 40],
-      initialLocation: [59.93428, 30.335098],
       stationId: null,
       stationsService: new StationsService(),
       stationDetails: null,
@@ -253,75 +248,22 @@ export default {
     LIcon
   },
   methods: {
-    async fillDatacollection (id, apiResponse) {
-      const sensor = apiResponse.find(sensor => sensor.details.id === id)
-      const filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
-      const filteredValues = filteredMeasurements.map(({ value }) => value)
-      const averageMeasurement = this.functions.getAverage(filteredValues)
-      const lastMeasurement = this.functions.getLastMeasurement(filteredValues)
-      const barDataCollection = {
-        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
-        datasets: [
-          {
-            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
-            backgroundColor: this.functions.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
-            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
-          }
-        ]
-      }
-      this.setBarDataCollectionState(barDataCollection)
-      const lineDataCollection = {
-        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
-        datasets: [
-          {
-            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
-            backgroundColor: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, true)[0],
-            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
-          }
-        ]
-      }
-      this.setLineDataCollectionState(lineDataCollection)
-      const sensorDetails = {
-        sensorId: sensor.details.id,
-        averageMeasurement: {
-          value: averageMeasurement.toFixed(2),
-          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement),
-          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]],
-          color: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]
-        },
-        lastMeasurement: {
-          value: lastMeasurement.toFixed(2),
-          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement),
-          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]],
-          color: this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]
-        }
-      }
-      this.setSensorDetailsState(sensorDetails)
-      this.setChartDialogVisibilityState(true)
-    },
-    test () {
+    ...mapActions('sensors', ['setChartDialogDataState', 'setApiResponseStateMap']),
+    mapPanelAction () {
       if (this.largeMapPanelVisibility === false && this.stationDetails === null) {
         this.largeMapPanelVisibility = true
         setTimeout(function () { this.autocompleteVisibility = true }
             .bind(this),
           600)
         document.getElementById('map-panel').className = 'map-panel large'
-        // document.getElementById('map-panel').style.width = '300px'
-        // document.getElementById('map-panel').style.padding = '1rem'
-        // document.getElementById('map-panel').style.height = '40%'
       } else if (this.largeMapPanelVisibility === true && this.stationDetails === null) {
         this.autocompleteVisibility = false
         this.largeMapPanelVisibility = false
         document.getElementById('map-panel').className = 'map-panel'
-        // document.getElementById('map-panel').style.height = '30%'
-        // document.getElementById('map-panel').style.width = '70px'
-        // document.getElementById('map-panel').style.padding = '0.3rem'
       } else if (this.largeMapPanelVisibility === true && this.stationDetails !== null) {
         this.autocompleteVisibility = !this.autocompleteVisibility
       }
     },
-    ...mapActions('stations', ['setSelectedStationState']),
-    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState', 'setApiResponseStateMap']),
     mapClick () {
       if (this.largeMapPanelVisibility === true) {
         if (this.autocompleteVisibility === true) {
@@ -344,7 +286,7 @@ export default {
       const stationId = id
       const station = await stations.find(({ id }) => id === stationId)
       const sensorsDetails = response.map(({ details }) => details)
-      const lastSensorsValues = this.mapLastValues(response)
+      const lastSensorsValues = this.functions.mapLastValues(response)
       if (this.zoom === 5 || this.zoom === 6) {
         this.$refs.map.mapObject.flyTo([station.coordinates[0], station.coordinates[1]], 7)
       } else {
@@ -360,8 +302,8 @@ export default {
         pressure: station.pressure,
         wind: station.wind,
         humidity: station.humidity,
-        sensors: this.mapSensors(sensorsDetails, lastSensorsValues),
-        stationDistance: this.roundStationDistance(this.functions.getDistance(station.coordinates, userLocation))
+        sensors: this.functions.mapSensors(sensorsDetails, lastSensorsValues),
+        stationDistance: this.functions.roundStationDistance(this.functions.getDistance(station.coordinates, userLocation))
       }
       if (this.selectedStation !== null) {
         this.selectedStation = null
@@ -371,38 +313,6 @@ export default {
       }
       this.largeMapPanelVisibility = true
       document.getElementById('map-panel').className = 'map-panel large station'
-    },
-    roundStationDistance (stationDistance) {
-      if (stationDistance >= 1000) {
-        stationDistance = (stationDistance / 1000).toFixed(1) + ' km'
-      } else {
-        stationDistance = stationDistance.toFixed(0) + ' m'
-      }
-      return stationDistance
-    },
-    mapLastValues (response) {
-      const values = response.map(({ measurement }) => measurement)
-      const valuesArray = []
-      values.forEach(value => {
-        value.reverse()
-        valuesArray.push(value[value.length - 1].value)
-      })
-      return valuesArray
-    },
-    mapSensors (sensorsDetails, lastSensorsValues) {
-      const sensorsArray = []
-      for (let i = 0; i < sensorsDetails.length && i < lastSensorsValues.length; i++) {
-        const currentValue = [lastSensorsValues[i]]
-        sensorsArray.push({
-          id: sensorsDetails[i].id,
-          name: sensorsDetails[i].param,
-          symbol: sensorsDetails[i].paramTwo,
-          lastValue: (lastSensorsValues[i]).toFixed(1),
-          backgroundColor: this.functions.setBackgroundColor(currentValue, sensorsDetails[i].paramTwo, false)[0],
-          lastPercentValue: this.functions.getPollutionLimit(sensorsDetails[i].paramTwo, (lastSensorsValues[i]).toFixed(1))
-        })
-      }
-      return sensorsArray
     },
     zoomReset () {
       this.stationId = null
@@ -414,10 +324,6 @@ export default {
         this.autocompleteVisibility = false
         this.largeMapPanelVisibility = false
         document.getElementById('map-panel').className = 'map-panel'
-        // document.getElementById('map-panel').style.height = '30%'
-        // document.getElementById('map-panel').style.width = '70px'
-        // document.getElementById('map-panel').style.padding = '0.3rem'
-        // document.getElementById('map-panel').style.borderRadius = '0 0 65px 0'
       }
     },
     setZoom () {
@@ -431,8 +337,17 @@ export default {
     }
   },
   computed: {
-    ...mapState('stations', ['closestStationState', 'allStationsState', 'userLocationState', 'selectedStationState']),
+    ...mapState('stations', ['closestStationState', 'allStationsState', 'userLocationState']),
     ...mapState('sensors', ['apiResponseStateMap']),
+    mainDataStatement () {
+      return this.stationDetails !== null
+    },
+    temperatureStatement () {
+      return this.stationDetails.temperature !== null
+    },
+    pressureStatement () {
+      return this.stationDetails.pressure !== null
+    },
     zoomResetVisibility () {
       return (this.zoom !== this.zoomHolder) || this.stationId !== null
     },
@@ -463,29 +378,15 @@ export default {
     },
     'scrollableContentHeight' (value) {
       if (value === true) {
-        document.getElementById('station-content').className = 'scrollable-content-input'
+        setTimeout(function () { document.getElementById('scrollable-content').className = 'scrollable-content input' }
+            ,
+          1)
       } else {
-        document.getElementById('station-content').className = 'scrollable-content'
+        setTimeout(function () { document.getElementById('scrollable-content').className = 'scrollable-content' }
+          ,
+          1)
       }
     },
-    // 'inputVisibility' (value) {
-    //   const content = document.getElementById('station-content')
-    //   if (value === true) {
-    //     setTimeout(function () { this.autocompleteVisibility = true }
-    //         .bind(this),
-    //       250)
-    //     content.className = 'scrollable-content-input'
-    //     document.getElementById('map-panel').style.width = '20%'
-    //     document.getElementById('map-panel').style.padding = '1rem'
-    //     document.getElementById('map-panel').style.height = '40%'
-    //   } else {
-    //     this.autocompleteVisibility = false
-    //     content.className = 'scrollable-content'
-    //     document.getElementById('map-panel').style.height = '30%'
-    //     document.getElementById('map-panel').style.width = '5%'
-    //     document.getElementById('map-panel').style.padding = '0.3rem'
-    //   }
-    // },
     '$vuetify.breakpoint.xsOnly' (value) {
       if (value === true) {
         this.zoom = 5
@@ -501,17 +402,8 @@ export default {
       }
     }
   },
-  // created () {
-  //   bus.$on('setSelectedStation', (stationId) => {
-  //   })
-  // },
   mounted () {
     this.setZoom()
   }
 }
 </script>
-
-<style lang="scss">
-  /*@import "~leaflet/dist/leaflet.css";*/
-  /*@import "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";*/
-</style>
