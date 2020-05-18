@@ -80,11 +80,19 @@ h3 {
     flex: 1;
     display: flex;
   }
+  &.chart-dialog {
+    margin-bottom: 0.5rem;
+    &.action {
+      padding-top: 0.5rem;
+      text-align: center;
+      &.button {
+        padding-bottom: 0.3rem;
+      }
+    }
+  }
   &.chart {
-    padding-top: 0.5rem;
-    text-align: center;
     &.button {
-      margin-bottom: 1rem;
+      padding-bottom: 0.3rem;
     }
   }
 }
