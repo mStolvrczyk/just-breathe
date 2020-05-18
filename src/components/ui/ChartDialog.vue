@@ -179,7 +179,7 @@ export default {
         this.chartSwitch = true
         this.comparison = false
       } else {
-        if (this.$route.path === '/dashboard') {
+      if (this.$route.path === '/dashboard') {
           this.apiResponseHolder = this.apiResponseStateDashboard
         } else if (this.$route.path === '/map') {
           this.apiResponseHolder = this.apiResponseStateMap

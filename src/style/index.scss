@@ -2,6 +2,10 @@
 .v-navigation-drawer--fixed {
   position: absolute;
 }
+.v-navigation-drawer__content {
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
 html {
   overflow-y: hidden;
 }
@@ -160,327 +164,82 @@ h3 {
 .autocomplete-popup-leave-active {
   transition: transform 50ms;
 }
-@mixin desktop-drawer () {
-  // shared elements
+// shared elements
 
-  .logo-image-small {
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 1.2rem;
-    width: 55px;
-    height: 55px;
-  }
-  .logo-image-large {
-    height: 55px;
-    margin-bottom: 1.2rem;
-  }
-  h3 {
-    line-height: 32px;
-    font-size: 18px;
-  }
-  p {
-    font-family: Rubik;
-    color: #FFFF;
-    text-align: center;
-    &.icon-text-paragraph {
-      font-weight: bold;
-      font-size: 12px;
-    }
-    &.data-paragraph {
-      font-weight: bold;
-    }
-    &.chart-dialog-paragraph {
-      font-size: 18px;
-    }
-  }
-  span {
-    &.city-text {
-      font-family: Rubik;
-      font-weight: lighter;
-      font-size: 13px;
-      color: #FFFF;
-      text-align: center;
-    }
-  }
-
-  // Dashboard.vue
-
-  #chart {
-    position: relative;
-    padding: 1rem;
-
-    width: 20%;
-    height: 20%;
-  }
-  .data-element {
-    justify-content: center;
-    align-content: center;
-    flex-direction: column;
-    margin-bottom: 1rem;
-    &.dashboard {
-      margin-bottom: 2.5rem;
-      width: 160px;
-      height: 80px;
-      &.left {
-        margin-left: 2rem;
-      }
-      &.right {
-        margin-right: 2rem;
-      }
-      &.station-name {
-        width: 190px;
-      }
-    }
-  }
-  .scrollable-content-input {
-    padding: 0.5rem;
-    overflow-y: auto;
-    height: 60%;
-  }
-  .icon {
-    align-items: center;
-    margin-bottom: 0.2rem;
-    &.sidebar {
-      width: 25px;
-      height: 25px;
-    }
-    &.dashboard {
-      width: 30px;
-      height: 30px;
-      &.humidity {
-        width: 21px;
-      }
-    }
-  }
-  .sensor-symbol {
-    font-family: Rubik;
-    font-size: 16px;
-    color: #FFFF;
-    font-weight: bold;
-    text-align: center;
-    &.dashboard {
-      text-align: right;
-    }
-  }
-  .sensor-value {
-    align-content: center;
-    alignment: center;
-    justify-content: center;
-    font-family: Rubik;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-  }
-
-  // Map.vue
-
-  .map-panel {
-    padding: 0.3rem;
-    align-content: center;
-    justify-content: center;
-    alignment: center;
-    border-radius: 0 0 15px 0;
-    background: rgba(0,77,64,.9);
-    top: 0;
-    left: 0;
-    width: 70px;
-    transition: height 0.5s, width 0.5s, border-radius 0.5s;
-    height: 180px;
-    position: absolute;
-    &.large {
-      width: 330px;
-      padding: 1rem;
-      height: 250px;
-      &.station {
-        height: 100%;
-      }
-    }
-  }
-}
-@mixin mobile-drawer () {
-  // shared elements
-
-  .logo-image-small {
-    margin-left: auto;
-    margin-right: auto;
+.logo-image-small {
+  margin-left: auto;
+  margin-right: auto;
+  @media only screen and (max-width: 599px) {
     margin-bottom: 1rem;
     width: 50px;
     height: 50px;
   }
-  .logo-image-large {
+  @media only screen and (min-width: 600px) {
+    margin-bottom: 1.2rem;
+    width: 55px;
+    height: 55px;
+  }
+}
+.logo-image-large {
+  @media only screen and (max-width: 599px) {
     height: 50px;
   }
-  h3 {
-    line-height: 32px;
+  @media only screen and (min-width: 600px) {
+    height: 55px;
+    margin-bottom: 1.2rem;
+  }
+}
+h3 {
+  line-height: 32px;
+  @media only screen and (max-width: 599px) {
     font-size: 14px;
   }
-  p {
-    font-family: Rubik;
-    color: #FFFF;
-    text-align: center;
-    &.icon-text-paragraph {
-      font-weight: bold;
+  @media only screen and (min-width: 600px) {
+    font-size: 18px;
+  }
+}
+p {
+  font-family: Rubik;
+  color: #FFFF;
+  text-align: center;
+  &.icon-text-paragraph {
+    font-weight: bold;
+    @media only screen and (max-width: 599px) {
       font-size: 10px;
     }
-    &.data-paragraph {
-      font-weight: bold;
+    @media only screen and (min-width: 600px) {
       font-size: 12px;
     }
-    &.chart-dialog-paragraph {
+  }
+  &.data-paragraph {
+    font-weight: bold;
+    @media only screen and (max-width: 599px) {
+      font-size: 12px;
+    }
+  }
+  &.chart-dialog-paragraph {
+    @media only screen and (max-width: 599px) {
       font-size: 14px;
       padding-bottom: 0.3rem;
     }
-  }
-  span {
-    &.city-text {
-      font-family: Rubik;
-      font-weight: lighter;
-      font-size: 11px;
-      color: #FFFF;
-      text-align: center;
+    @media only screen and (min-width: 600px) {
+      font-size: 18px;
     }
   }
-
-  //Dashboard.vue
-
-  #chart {
-    position: relative;
-    padding: 1rem;
-    width: 50%;
-    height: 50%;
-  }
-  .data-element {
-    justify-content: center;
-    align-content: center;
-    flex-direction: column;
-    margin-bottom: 1rem;
-    &.dashboard {
-      margin-bottom: 2rem;
-      width: 75px;
-      height: 80px;
-      &.left {
-        margin-left: 1rem;
-      }
-      &.right {
-        margin-right: 1rem;
-      }
-      &.station-name {
-        width: 150px;
-      }
-    }
-  }
-  .scrollable-content-input {
-    padding: 0.5rem;
-    overflow-y: auto;
-    height: 55%;
-  }
-  .icon {
-    align-items: center;
-    margin-bottom: 0.2rem;
-    &.sidebar {
-      width: 20px;
-      height: 20px;
-    }
-    &.dashboard {
-      width: 25px;
-      height: 25px;
-      &.humidity {
-        width: 17px;
-      }
-    }
-  }
-  .icon-text-paragraph {
-    font-family: Rubik;
-    font-size: 11px;
-    color: #FFFF;
-    font-weight: bold;
-  }
-  .data-paragraph {
-    font-family: Rubik;
-    font-size: 13px;
-    color: #FFFF;
-    font-weight: bold;
-    text-align: center;
-  }
-  .city-text {
+}
+span {
+  &.city-text {
     font-family: Rubik;
     font-weight: lighter;
-    font-size: 12px;
     color: #FFFF;
     text-align: center;
-  }
-  .data-paragraph {
-    font-family: Rubik;
-    font-size: 13px;
-    color: #FFFF;
-    font-weight: bold;
-    text-align: center;
-  }
-  .sensor-symbol {
-    font-family: Rubik;
-    font-size: 14px;
-    color: #FFFF;
-    font-weight: bold;
-    text-align: center;
-  }
-  .sensor-value {
-    align-content: center;
-    alignment: center;
-    justify-content: center;
-    font-family: Rubik;
-    font-size: 14px;
-    font-weight: bold;
-    text-align: center;
-  }
-
-  // Map.vue
-
-  .map-panel {
-    padding: 0.3rem;
-    align-content: center;
-    justify-content: center;
-    alignment: center;
-    border-radius: 0 0 15px 0;
-    background: rgba(0,77,64,.9);
-    top: 0;
-    left: 0;
-    width: 60px;
-    transition: height 0.5s, width 0.5s, border-radius 0.5s;
-    height: 150px;
-    position: absolute;
-    &.large {
-      width: 250px;
-      padding: 1rem;
-      height: 210px;
-      &.station {
-        height: 100%;
-      }
+    @media only screen and (max-width: 599px) {
+      font-size: 11px;
+    }
+    @media only screen and (min-width: 600px) {
+      font-size: 13px;
     }
   }
-}
-nav {
-  top: 0;
-  z-index: 1;
-  position: sticky;
-}
-#container {
-  height: 100vh;
-}
-.v-navigation-drawer__content {
-  overflow-x: hidden;
-  overflow-y: hidden;
-}
-
-// App.vue
-
-#view-icons {
-  margin-bottom: 15px;
-}
-
-.scrollable-content {
-  padding: 0.5rem;
-  overflow-y: auto;
-  height: 75%;
 }
 
 // Dashboard.vue
@@ -512,9 +271,186 @@ nav {
   height: 100%;
   width: 100%;
 }
+#chart {
+  position: relative;
+  padding: 1rem;
+  @media only screen and (max-width: 599px) {
+    width: 50%;
+    height: 50%;
+  }
+  @media only screen and (min-width: 600px) and (max-width: 1024px){
+    width: 40%;
+    height: 40%;
+  }
+  @media only screen and (min-width: 1025px) {
+    width: 20%;
+    height: 20%;
+  }
+}
+.data-element {
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  margin-bottom: 1rem;
+  &.dashboard {
+    height: 80px;
+    @media only screen and (max-width: 599px) {
+      margin-bottom: 2rem;
+      width: 75px;
+    }
+    @media only screen and (min-width: 600px) {
+      margin-bottom: 2.5rem;
+      width: 160px;
+    }
+    &.left {
+      @media only screen and (max-width: 599px) {
+        margin-left: 1rem;
+      }
+      @media only screen and (min-width: 600px) {
+        margin-left: 2rem;
+      }
+    }
+    &.right {
+      @media only screen and (max-width: 599px) {
+        margin-right: 1rem;
+      }
+      @media only screen and (min-width: 600px) {
+      margin-right: 2rem;
+      }
+    }
+    &.station-name {
+      @media only screen and (max-width: 599px) {
+        width: 150px;
+      }
+      @media only screen and (min-width: 600px) {
+        width: 190px;
+      }
+    }
+  }
+}
+.icon {
+  align-items: center;
+  margin-bottom: 0.2rem;
+  &.sidebar {
+    @media only screen and (max-width: 599px) {
+      width: 20px;
+      height: 20px;
+    }
+    @media only screen and (min-width: 600px) {
+      width: 25px;
+      height: 25px;
+    }
+  }
+  &.dashboard {
+    @media only screen and (max-width: 599px) {
+      width: 25px;
+      height: 25px;
+    }
+    @media only screen and (min-width: 600px) {
+      width: 30px;
+      height: 30px;
+    }
+    &.humidity {
+      @media only screen and (max-width: 599px) {
+        width: 17px;
+      }
+      @media only screen and (min-width: 600px) {
+        width: 21px;
+      }
+    }
+  }
+}
+.sensor-symbol {
+  font-family: Rubik;
+  color: #FFFF;
+  font-weight: bold;
+  text-align: center;
+  @media only screen and (max-width: 599px) {
+    font-size: 14px;
+  }
+  @media only screen and (min-width: 600px) {
+    font-size: 16px;
+  }
+}
+.sensor-value {
+  align-content: center;
+  alignment: center;
+  justify-content: center;
+  font-family: Rubik;
+  font-weight: bold;
+  text-align: center;
+  @media only screen and (max-width: 599px) {
+    font-size: 14px;
+  }
+  @media only screen and (min-width: 600px) {
+    font-size: 16px;
+  }
+}
 
 // Map.vue
 
+.map-panel {
+  padding: 0.3rem;
+  align-content: center;
+  justify-content: center;
+  alignment: center;
+  border-radius: 0 0 15px 0;
+  background: rgba(0,77,64,.9);
+  top: 0;
+  left: 0;
+  transition: height 0.5s, width 0.5s, border-radius 0.5s;
+  position: absolute;
+  @media only screen and (max-width: 599px) {
+    width: 60px;
+    height: 150px;
+  }
+  @media only screen and (min-width: 600px) {
+    width: 70px;
+    height: 180px;
+  }
+  &.large {
+    padding: 1rem;
+    @media only screen and (max-width: 599px) {
+      width: 250px;
+      height: 210px;
+    }
+    @media only screen and (min-width: 600px) {
+      width: 330px;
+      height: 250px;
+    }
+    &.station {
+      height: 100%;
+    }
+  }
+}
+#button-panel {
+  position: absolute;
+  @media only screen and (max-width: 599px) {
+    bottom: 55%;
+    right: 2%;
+  }
+  @media only screen and (min-width: 600px) {
+    top: 20%;
+    right: 3%;
+  }
+}
+#view-icons {
+  margin-bottom: 15px;
+}
+.scrollable-content {
+  padding: 0.5rem;
+  overflow-y: auto;
+  height: 75%;
+  @media only screen and (max-height: 500px) {
+    height: 55%;
+  }
+  &.input {
+    height: 60%;
+    @media only screen and (max-height: 500px) {
+      height: 35%;
+    }
+  }
+}
 #map{
   position: absolute;
   top: 0;
@@ -562,42 +498,4 @@ nav {
   padding: 1rem;
   background: rgba(0,77,64, 0.9);
   overflow-y: hidden;
-}
-
-// Media Queries
-
-@media only screen and (min-width: 600px) {
-  @include desktop-drawer();
-
-  // Map.vue
-
-  #button_panel {
-    position: absolute;
-    top: 20%;
-    right: 3%;
-  }
-
-}
-@media only screen and (max-width: 599px) {
-  @include mobile-drawer();
-
-  //Map.vue
-
-  #button_panel {
-    position: absolute;
-    bottom: 55%;
-    right: 2%;
-  }
-}
-@media only screen and (max-height: 500px) {
-  .scrollable-content {
-    padding: 0.5rem;
-    overflow-y: auto;
-    height: 55%;
-  }
-  .scrollable-content-input {
-    padding: 0.5rem;
-    overflow-y: auto;
-    height: 35%;
-  }
 }

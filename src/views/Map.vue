@@ -104,7 +104,7 @@
       <transition name="popup">
         <div
           v-if="stationContentStatement"
-          id="station-content"
+          id="scrollable-content"
           class="scrollable-content"
         >
           <div v-if="mainDataStatement">
@@ -185,7 +185,7 @@
         </div>
       </transition>
     </div>
-    <div align="center" id="button_panel">
+    <div align="center" id="button-panel">
       <div class="my-2">
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
@@ -350,6 +350,13 @@ export default {
     },
     zoomResetVisibility () {
       return (this.zoom !== this.zoomHolder) || this.stationId !== null
+    },
+    scrollableContentHeight () {
+      if (this.autocompleteVisibility === true && this.stationDetails !== null) {
+        return true
+      } else {
+        return false
+      }
     }
   },
   watch: {
@@ -371,9 +378,13 @@ export default {
     },
     'scrollableContentHeight' (value) {
       if (value === true) {
-        document.getElementById('station-content').className = 'scrollable-content-input'
+        setTimeout(function () { document.getElementById('scrollable-content').className = 'scrollable-content input' }
+            ,
+          1)
       } else {
-        document.getElementById('station-content').className = 'scrollable-content'
+        setTimeout(function () { document.getElementById('scrollable-content').className = 'scrollable-content' }
+          ,
+          1)
       }
     },
     '$vuetify.breakpoint.xsOnly' (value) {
