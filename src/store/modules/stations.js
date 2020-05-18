@@ -18,7 +18,6 @@ const state = {
       backgroundColor: null
     }
   },
-  selectedStationState: null,
   routeState: null
 }
 
@@ -38,9 +37,6 @@ const actions = {
   async setUserLocationState ({ commit }, userLocation) {
     await commit('setUserLocationState', userLocation)
   },
-  async setSelectedStationState ({ commit }, selectedStation) {
-    await commit('setSelectedStationState', selectedStation)
-  },
   async setRouteState ({ commit }, route) {
     await commit('setRouteState', route)
   }
@@ -53,8 +49,6 @@ const mutations = {
   setClosestStationState: (state, closestStation) => state.closestStationState = closestStation,
   // eslint-disable-next-line no-return-assign
   setUserLocationState: (state, userLocation) => state.userLocationState = userLocation,
-  // eslint-disable-next-line no-return-assign
-  setSelectedStationState: (state, selectedStation) => state.selectedStationState = selectedStation,
   // eslint-disable-next-line no-return-assign
   setRouteState: (state, route) => state.routeState = route
 }

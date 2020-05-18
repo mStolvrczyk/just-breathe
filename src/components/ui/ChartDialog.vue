@@ -1,18 +1,18 @@
 <template>
   <v-dialog
     persistent
-    v-model="chartDialogVisibilityState"
+    v-model="measurementsStatement"
     max-width="100%"
     fullscreen
     hide-overlay
     transition="dialog-bottom-transition"
   >
     <div id="chart-dialog-card">
-      <h3 class="silver" v-if="barDataCollectionState.datasets.length === 0 || lineDataCollectionState.datasets.length === 0">
+      <h3 class="silver" v-if="noMeasurementsStatement">
         Brak pomiarów
       </h3>
       <transition name="popup">
-        <div v-if="(barDataCollectionState.datasets.length > 0 || barDataCollectionState.datasets.length > 0) && chartDialogVisibilityState">
+        <div v-if="measurementsStatement">
           <bar-chart
             v-if="chartSwitch"
             :chart-data="barDataCollectionState"
@@ -53,16 +53,16 @@
           </div>
         </div>
       </transition>
-      <div class="row" v-if="barDataCollectionState.datasets.length > 0 || lineDataCollectionState.datasets.length > 0">
+      <div class="row" v-if="measurementsStatement">
         <div class="row">
-          <p class="chart-dialog-paragraph">Średni pomiar: <span :style="{'color':sensorDetailsState.averageMeasurement.color}">{{sensorDetailsState.averageMeasurement.procentValue + '%'}}({{sensorDetailsState.averageMeasurement.value + ' &#181;/m'}}<sup>3</sup>) - {{sensorDetailsState.averageMeasurement.pollutionLevel}}</span></p>
+          <p class="chart-dialog-paragraph">Średni pomiar: <span :style="{'color':sensorDetailsState.averageMeasurement.color}">{{sensorDetailsState.averageMeasurement.procentValue + '%'}} ({{sensorDetailsState.averageMeasurement.value + ' &#181;/m'}}<sup>3</sup>) - {{sensorDetailsState.averageMeasurement.pollutionLevel}}</span></p>
         </div>
         <div class="row">
-          <p class="chart-dialog-paragraph">Ostatni pomiar: <span :style="{'color':sensorDetailsState.lastMeasurement.color}">{{sensorDetailsState.lastMeasurement.procentValue + '%'}}({{sensorDetailsState.lastMeasurement.value + ' &#181;/m'}}<sup>3</sup>) -{{sensorDetailsState.lastMeasurement.pollutionLevel}}</span></p>
+          <p class="chart-dialog-paragraph">Ostatni pomiar: <span :style="{'color':sensorDetailsState.lastMeasurement.color}">{{sensorDetailsState.lastMeasurement.procentValue + '%'}} ({{sensorDetailsState.lastMeasurement.value + ' &#181;/m'}}<sup>3</sup>) -{{sensorDetailsState.lastMeasurement.pollutionLevel}}</span></p>
         </div>
       </div>
       <div class="row chart button">
-        <v-btn @click="closeDialog" class="teal--text font-weight-bold" rounded color="#EEEEEE" dark>Wróć</v-btn>
+        <v-btn @click="resetChartDialogDataState" class="teal--text font-weight-bold" rounded color="#EEEEEE" dark>Wróć</v-btn>
       </div>
     </div>
   </v-dialog>
@@ -71,9 +71,8 @@
 <script>
 import BarChart from '@/components/vue-chartjs/BarChart'
 import LineChart from '@/components/vue-chartjs/LineChart'
-import Functions from '@/libs/helperFunctions'
+import Functions from '@/libs/sharedFunctions'
 import { mapActions, mapState } from 'vuex'
-import pollutionLevels from '@/libs/pollutionLevels'
 
 export default {
   name: 'ChartDialog',
@@ -92,80 +91,8 @@ export default {
       alignment: 0
     }
   },
-  // props: {
-  //   chartDialogVisibility: Boolean,
-  //   chartVisibility: Boolean,
-  //   sensorDetails: Object,
-  //   apiResponse: Array,
-  //   barDataCollection: Object,
-  //   lineDataCollection: Object
-  // },
   methods: {
-    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState']),
-    closeDialog () {
-      const barDataCollectionState = {
-        labels: null,
-        datasets: []
-      }
-      const lineDataCollectionState = {
-        labels: null,
-        datasets: []
-      }
-      const sensorDetailsState = {
-        sensorId: null,
-        averageMeasurement: null,
-        lastMeasurement: null
-      }
-      this.setBarDataCollectionState(barDataCollectionState)
-      this.setLineDataCollectionState(lineDataCollectionState)
-      this.setSensorDetailsState(sensorDetailsState)
-      this.setChartDialogVisibilityState(false)
-    },
-    async fillDatacollection (id, apiResponse) {
-      const sensor = apiResponse.find(sensor => sensor.details.id === id)
-      const filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
-      const filteredValues = filteredMeasurements.map(({ value }) => value)
-      const averageMeasurement = this.functions.getAverage(filteredValues)
-      const lastMeasurement = this.functions.getLastMeasurement(filteredValues)
-      const barDataCollection = {
-        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
-        datasets: [
-          {
-            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
-            backgroundColor: this.functions.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
-            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
-          }
-        ]
-      }
-      this.setBarDataCollectionState(barDataCollection)
-      const lineDataCollection = {
-        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
-        datasets: [
-          {
-            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
-            backgroundColor: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, true)[0],
-            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
-          }
-        ]
-      }
-      this.setLineDataCollectionState(lineDataCollection)
-      const sensorDetails = {
-        sensorId: sensor.details.id,
-        averageMeasurement: {
-          value: averageMeasurement.toFixed(2),
-          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement),
-          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]],
-          color: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]
-        },
-        lastMeasurement: {
-          value: lastMeasurement.toFixed(2),
-          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement),
-          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]],
-          color: this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]
-        }
-      }
-      this.setSensorDetailsState(sensorDetails)
-    },
+    ...mapActions('sensors', ['setChartDialogDataState', 'resetChartDialogDataState', 'setBarDataCollectionState', 'setLineDataCollectionState']),
     async compareWithYesterday (id, apiResponse) {
       const yesterdaysDate = this.getYesterdaysDate()
       const sensor = apiResponse.find(sensor => sensor.details.id === id)
@@ -218,43 +145,46 @@ export default {
   computed: {
     chartHeight () {
       if (this.$vuetify.breakpoint.mdAndUp) {
-        return this.height / 6
+        return this.height / 7
       } else {
         return this.height / 1.4
       }
     },
-    ...mapState('sensors', ['barDataCollectionState', 'lineDataCollectionState', 'sensorDetailsState', 'chartDialogVisibilityState', 'apiResponseStateDashboard', 'apiResponseStateMap'])
+    noMeasurementsStatement () {
+      return this.barDataCollectionState.datasets.length === 0 || this.lineDataCollectionState.datasets.length === 0
+    },
+    measurementsStatement () {
+      return (this.barDataCollectionState.datasets.length > 0 || this.barDataCollectionState.datasets.length > 0) && (this.sensorDetailsState.averageMeasurement !== null || this.sensorDetailsState.lastMeasurement !== null)
+    },
+    ...mapState('sensors', ['barDataCollectionState', 'lineDataCollectionState', 'sensorDetailsState', 'apiResponseStateDashboard', 'apiResponseStateMap'])
   },
   watch: {
     'alignment' (value) {
-      if (value === 0 && this.chartSwitch === true && this.chartDialogVisibilityState === true) {
-        this.fillDatacollection(this.sensorDetailsState.sensorId, this.apiResponseHolder)
+      if (value === 0 && this.chartSwitch === true && this.measurementsStatement === true) {
+        this.setChartDialogDataState({ id: this.sensorDetailsState.sensorId, apiResponse: this.apiResponseHolder })
         this.comparison = false
-      } else if (value === 2 && this.chartSwitch === false && this.chartDialogVisibilityState === true) {
-        this.fillDatacollection(this.sensorDetailsState.sensorId, this.apiResponseHolder)
+      } else if (value === 2 && this.chartSwitch === false && this.measurementsStatement === true) {
+        this.setChartDialogDataState({ id: this.sensorDetailsState.sensorId, apiResponse: this.apiResponseHolder })
         this.comparison = false
       }
     },
     'comparison' (value) {
-      if (value === false && this.chartDialogVisibilityState === true) {
-        this.fillDatacollection(this.sensorDetailsState.sensorId, this.apiResponseHolder)
+      if (value === false && this.measurementsStatement === true) {
+        this.setChartDialogDataState({ id: this.sensorDetailsState.sensorId, apiResponse: this.apiResponseHolder })
       }
     },
-    chartDialogVisibilityState: {
-      handler: function (value) {
-        if (value === false) {
-          this.alignment = 0
-          this.chartSwitch = true
-          this.comparison = false
-        } else {
-          if (this.$route.path === '/dashboard') {
-            this.apiResponseHolder = this.apiResponseStateDashboard
-          } else if (this.$route.path === '/map') {
-            this.apiResponseHolder = this.apiResponseStateMap
-          }
+    'measurementsStatement' (value) {
+      if (value === false) {
+        this.alignment = 0
+        this.chartSwitch = true
+        this.comparison = false
+      } else {
+      if (this.$route.path === '/dashboard') {
+          this.apiResponseHolder = this.apiResponseStateDashboard
+        } else if (this.$route.path === '/map') {
+          this.apiResponseHolder = this.apiResponseStateMap
         }
-      },
-      deep: true
+      }
     }
   }
 }
