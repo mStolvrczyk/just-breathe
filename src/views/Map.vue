@@ -170,7 +170,7 @@
                 <div class="column button">
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
-                      <v-btn @click="fillDatacollection(sensor.id, apiResponseStateMap)" normal color="white" v-on="on" icon>
+                      <v-btn @click="setChartDialogDataState({ id: sensor.id, apiResponse: apiResponseStateMap})" normal color="white" v-on="on" icon>
                         <v-icon>
                           mdi-dots-horizontal
                         </v-icon>
@@ -214,7 +214,6 @@ import { LMap, LTileLayer, LMarker, LIcon } from 'vue2-leaflet'
 import StationsService from '@/services/StationsService'
 import Functions from '@/libs/sharedFunctions'
 import { mapState, mapActions } from 'vuex'
-import pollutionLevels from '@/libs/pollutionLevels'
 export default {
   name: 'Map',
   data () {
@@ -249,54 +248,7 @@ export default {
     LIcon
   },
   methods: {
-    ...mapActions('stations', ['setSelectedStationState']),
-    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState', 'setApiResponseStateMap']),
-    async fillDatacollection (id, apiResponse) {
-      const sensor = apiResponse.find(sensor => sensor.details.id === id)
-      const filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
-      const filteredValues = filteredMeasurements.map(({ value }) => value)
-      const averageMeasurement = this.functions.getAverage(filteredValues)
-      const lastMeasurement = this.functions.getLastMeasurement(filteredValues)
-      const barDataCollection = {
-        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
-        datasets: [
-          {
-            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
-            backgroundColor: this.functions.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
-            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
-          }
-        ]
-      }
-      this.setBarDataCollectionState(barDataCollection)
-      const lineDataCollection = {
-        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
-        datasets: [
-          {
-            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
-            backgroundColor: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, true)[0],
-            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
-          }
-        ]
-      }
-      this.setLineDataCollectionState(lineDataCollection)
-      const sensorDetails = {
-        sensorId: sensor.details.id,
-        averageMeasurement: {
-          value: averageMeasurement.toFixed(2),
-          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement),
-          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]],
-          color: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]
-        },
-        lastMeasurement: {
-          value: lastMeasurement.toFixed(2),
-          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement),
-          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]],
-          color: this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]
-        }
-      }
-      this.setSensorDetailsState(sensorDetails)
-      this.setChartDialogVisibilityState(true)
-    },
+    ...mapActions('sensors', ['setChartDialogDataState', 'setApiResponseStateMap']),
     mapPanelAction () {
       if (this.largeMapPanelVisibility === false && this.stationDetails === null) {
         this.largeMapPanelVisibility = true
@@ -362,38 +314,6 @@ export default {
       this.largeMapPanelVisibility = true
       document.getElementById('map-panel').className = 'map-panel large station'
     },
-    roundStationDistance (stationDistance) {
-      if (stationDistance >= 1000) {
-        stationDistance = (stationDistance / 1000).toFixed(1) + ' km'
-      } else {
-        stationDistance = stationDistance.toFixed(0) + ' m'
-      }
-      return stationDistance
-    },
-    mapLastValues (response) {
-      const values = response.map(({ measurement }) => measurement)
-      const valuesArray = []
-      values.forEach(value => {
-        value.reverse()
-        valuesArray.push(value[value.length - 1].value)
-      })
-      return valuesArray
-    },
-    mapSensors (sensorsDetails, lastSensorsValues) {
-      const sensorsArray = []
-      for (let i = 0; i < sensorsDetails.length && i < lastSensorsValues.length; i++) {
-        const currentValue = [lastSensorsValues[i]]
-        sensorsArray.push({
-          id: sensorsDetails[i].id,
-          name: sensorsDetails[i].param,
-          symbol: sensorsDetails[i].paramTwo,
-          lastValue: (lastSensorsValues[i]).toFixed(1),
-          backgroundColor: this.functions.setBackgroundColor(currentValue, sensorsDetails[i].paramTwo, false)[0],
-          lastPercentValue: this.functions.getPollutionLimit(sensorsDetails[i].paramTwo, (lastSensorsValues[i]).toFixed(1))
-        })
-      }
-      return sensorsArray
-    },
     zoomReset () {
       this.stationId = null
       this.$refs.map.setZoom(this.zoomHolder)
@@ -417,7 +337,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('stations', ['closestStationState', 'allStationsState', 'userLocationState', 'selectedStationState']),
+    ...mapState('stations', ['closestStationState', 'allStationsState', 'userLocationState']),
     ...mapState('sensors', ['apiResponseStateMap']),
     mainDataStatement () {
       return this.stationDetails !== null

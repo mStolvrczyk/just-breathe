@@ -137,7 +137,7 @@
                   <div class="column">
                     <v-tooltip bottom>
                       <template v-slot:activator="{ on }">
-                        <v-btn @click="fillDatacollection(sensor.id, apiResponseStateDashboard)" class="details-button" normal color="white" v-on="on" icon>
+                        <v-btn @click="setChartDialogDataState({ id: sensor.id, apiResponse: apiResponseStateDashboard })" class="details-button" normal color="white" v-on="on" icon>
                           <v-icon>
                             mdi-dots-horizontal
                           </v-icon>
@@ -199,7 +199,6 @@ import { mapActions, mapState } from 'vuex'
 import Functions from '@/libs/sharedFunctions'
 import StationsService from '@/services/StationsService'
 import VueApexCharts from 'vue-apexcharts'
-import pollutionLevels from '@/libs/pollutionLevels'
 export default {
   name: 'Dashboard',
   data () {
@@ -234,53 +233,7 @@ export default {
         }, 1000)
       })
     },
-    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState']),
-    async fillDatacollection (id, apiResponse) {
-      const sensor = apiResponse.find(sensor => sensor.details.id === id)
-      const filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
-      const filteredValues = filteredMeasurements.map(({ value }) => value)
-      const averageMeasurement = this.functions.getAverage(filteredValues)
-      const lastMeasurement = this.functions.getLastMeasurement(filteredValues)
-      const barDataCollection = {
-        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
-        datasets: [
-          {
-            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
-             backgroundColor: this.functions.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
-            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
-          }
-        ]
-      }
-      this.setBarDataCollectionState(barDataCollection)
-      const lineDataCollection = {
-        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
-        datasets: [
-          {
-            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
-            backgroundColor: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, true)[0],
-            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
-          }
-        ]
-      }
-      this.setLineDataCollectionState(lineDataCollection)
-      const sensorDetails = {
-        sensorId: sensor.details.id,
-        averageMeasurement: {
-          value: averageMeasurement.toFixed(2),
-          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement),
-          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]],
-          color: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]
-        },
-        lastMeasurement: {
-          value: lastMeasurement.toFixed(2),
-          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement),
-          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]],
-          color: this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]
-        }
-      }
-      this.setSensorDetailsState(sensorDetails)
-      this.setChartDialogVisibilityState(true)
-    },
+    ...mapActions('sensors', ['setChartDialogDataState']),
     mapHorizontalBarChartLimit (sensor) {
       if (sensor.lastPercentValue > 100) {
         return Math.ceil(sensor.lastPercentValue / 50) * 50

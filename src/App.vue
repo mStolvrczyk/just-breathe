@@ -84,17 +84,6 @@ export default {
       this.closestStation(userLocation)
       this.setUserLocationState(userLocation)
     },
-    mapHorizontalBarChartLimit (sensors) {
-      const lastPercentValuesArray = sensors.map((sensor) => {
-        return sensor.lastPercentValue
-      })
-      const highestPercentValue = lastPercentValuesArray.reduce((prev, current) => (prev > current) ? prev : current)
-      if (highestPercentValue > 100) {
-        return Math.ceil(highestPercentValue / 50) * 50
-      } else {
-        return 100
-      }
-    },
     mapGaugeChartData (sensors) {
       const sensorsTable = sensors.map((sensor) => {
         return pollutionLevelsSort[sensor.pollutionLevel]

@@ -128,7 +128,6 @@ export default class Functions {
   }
 
   mapSensors (sensorsDetails, lastSensorsValues) {
-    console.log(lastSensorsValues)
     const sensorsArray = []
     for (let i = 0; i < sensorsDetails.length && i < lastSensorsValues.length; i++) {
       sensorsArray.push({
