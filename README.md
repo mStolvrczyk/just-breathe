@@ -33,5 +33,4 @@ npm run test:unit
 ### Live example
 <a href="https://just-breathe-app.netlify.app">Go here</a> to check out live example
 ## Future plans:
-* firebase for storing data and authentication
-* adding User Panel that will contain information such as last measurements or average of them
+* MongoDB database for storing informations about past measurements

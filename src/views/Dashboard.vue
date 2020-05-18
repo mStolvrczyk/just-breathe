@@ -12,13 +12,13 @@
           />
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn v-if="$vuetify.breakpoint.xsOnly" small color="white" v-on="on" @click="navigateTo('/map')"
+              <v-btn v-if="$vuetify.breakpoint.xsOnly" small color="white" v-on="on" @click="$router.push('/map')"
                      icon>
                 <v-icon>
                   mdi-map-marker
                 </v-icon>
               </v-btn>
-              <v-btn v-else large color="white" v-on="on" @click="navigateTo('/map')" icon>
+              <v-btn v-else large color="white" v-on="on" @click="$router.push('/map')" icon>
                 <v-icon>
                   mdi-map-marker
                 </v-icon>
@@ -54,7 +54,7 @@
           >
             <div class="inner-text">
               <div class="row">
-                <div class="column" v-if="closestStationState.gaugeChartData.lastPercentValue !== 0">
+                <div class="column" v-if="innerGaugeChartData">
                   <p class="white-data-paragraph">
                     <animated-number
                       :value="closestStationState.gaugeChartData.lastPercentValue"
@@ -88,7 +88,7 @@
       <transition name="popup">
         <div class="row" v-if="dataStatement">
           <div id="data-container">
-            <div class="row">
+            <div class="row dashboard-data">
               <div align="center" class="data-element dashboard">
                 <v-img
                   :src="require('@/assets/road-yellow.png')"
@@ -115,7 +115,7 @@
                 <p class="data-paragraph">{{closestStationState.gaugeChartData.time}}</p>
               </div>
             </div>
-            <div class="row">
+            <div class="row dashboard-data">
               <div align="center" class="data-element">
                 <v-img
                   :src="require('@/assets/fog-yellow.png')"
@@ -124,7 +124,12 @@
                 <p class="icon-text-paragraph">Jakość powietrza</p>
                 <div class="row" v-for="sensor in closestStationState.sensors" :key="sensor.index">
                   <div class="column sensor-symbol">
-                    <p class="sensor-symbol-paragraph">{{sensor.symbol}}</p>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <p v-on="on" class="sensor-symbol-paragraph">{{ sensor.symbol }}</p>
+                      </template>
+                      <span>{{ sensor.name }}</span>
+                    </v-tooltip>
                   </div>
                   <div class="column">
                     <vue-apex-charts type="bar" :height="horizontalChartHeight" :width="horizontalChartWidth" :options="mapHorizontalBarChartOptions(sensor)" :series="mapHorizontalBarChartSeries(sensor)"></vue-apex-charts>
@@ -132,7 +137,7 @@
                   <div class="column">
                     <v-tooltip bottom>
                       <template v-slot:activator="{ on }">
-                        <v-btn @click="fillDatacollection(sensor.id, apiResponseStateDashboard)" class="details-button" normal color="white" v-on="on" icon>
+                        <v-btn @click="setChartDialogDataState({ id: sensor.id, apiResponse: apiResponseStateDashboard })" class="details-button" normal color="white" v-on="on" icon>
                           <v-icon>
                             mdi-dots-horizontal
                           </v-icon>
@@ -144,7 +149,7 @@
                 </div>
               </div>
             </div>
-            <div class="row" v-if="thirdRowStatement">
+            <div class="row dashboard-data" v-if="thirdRowStatement">
               <div align="center" class="data-element dashboard">
                 <v-img
                   :src="require('@/assets/termometer.png')"
@@ -191,10 +196,9 @@ import VuePullRefresh from 'vue-pull-refresh'
 import AnimatedNumber from 'animated-number-vue'
 import { VueSvgGauge } from 'vue-svg-gauge'
 import { mapActions, mapState } from 'vuex'
-import HelperFunctions from '@/libs/helperFunctions'
+import Functions from '@/libs/sharedFunctions'
 import StationsService from '@/services/StationsService'
 import VueApexCharts from 'vue-apexcharts'
-import pollutionLevels from '@/libs/pollutionLevels'
 export default {
   name: 'Dashboard',
   data () {
@@ -206,13 +210,8 @@ export default {
         loadingLabel: 'Proszę czekać...'
       },
       dataStatement: false,
-      functions: new HelperFunctions(),
-      stationsService: new StationsService(),
-      chartValue: null,
-      userLocation: null,
-      allStations: null,
-      closestStation: null,
-      chartColor: null
+      functions: new Functions(),
+      stationsService: new StationsService()
     }
   },
   components: {
@@ -223,7 +222,7 @@ export default {
   },
   methods: {
     onRefresh: function () {
-      return new Promise(function (resolve, reject) {
+      return new Promise(function (resolve) {
         setTimeout(function () {
           if (navigator.onLine) {
             window.location.reload(true)
@@ -234,53 +233,7 @@ export default {
         }, 1000)
       })
     },
-    ...mapActions('sensors', ['setBarDataCollectionState', 'setLineDataCollectionState', 'setSensorDetailsState', 'setChartDialogVisibilityState']),
-    async fillDatacollection (id, apiResponse) {
-      const sensor = apiResponse.find(sensor => sensor.details.id === id)
-      const filteredMeasurements = sensor.measurement.filter(({ date }) => date >= this.functions.formatDate(new Date()) + ' 00:00:00')
-      const filteredValues = filteredMeasurements.map(({ value }) => value)
-      const averageMeasurement = this.functions.getAverage(filteredValues)
-      const lastMeasurement = this.functions.getLastMeasurement(filteredValues)
-      const barDataCollection = {
-        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
-        datasets: [
-          {
-            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
-            backgroundColor: this.functions.setBackgroundColor(filteredValues, sensor.details.paramTwo, true),
-            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
-          }
-        ]
-      }
-      this.setBarDataCollectionState(barDataCollection)
-      const lineDataCollection = {
-        labels: filteredMeasurements.map(({ date }) => date.substring(11, 16)),
-        datasets: [
-          {
-            label: sensor.details.param + ' (' + sensor.details.paramTwo + ')',
-            backgroundColor: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, true)[0],
-            data: filteredMeasurements.map(({ value }) => value.toFixed(2))
-          }
-        ]
-      }
-      this.setLineDataCollectionState(lineDataCollection)
-      const sensorDetails = {
-        sensorId: sensor.details.id,
-        averageMeasurement: {
-          value: averageMeasurement.toFixed(2),
-          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, averageMeasurement),
-          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]],
-          color: this.functions.setBackgroundColor([averageMeasurement], sensor.details.paramTwo, false)[0]
-        },
-        lastMeasurement: {
-          value: lastMeasurement.toFixed(2),
-          procentValue: this.functions.getPollutionLimit(sensor.details.paramTwo, lastMeasurement),
-          pollutionLevel: pollutionLevels[this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]],
-          color: this.functions.setBackgroundColor([lastMeasurement], sensor.details.paramTwo, false)[0]
-        }
-      }
-      this.setSensorDetailsState(sensorDetails)
-      this.setChartDialogVisibilityState(true)
-    },
+    ...mapActions('sensors', ['setChartDialogDataState']),
     mapHorizontalBarChartLimit (sensor) {
       if (sensor.lastPercentValue > 100) {
         return Math.ceil(sensor.lastPercentValue / 50) * 50
@@ -347,14 +300,14 @@ export default {
     },
     formatValue (value) {
       return `<p class="value-paragraph">(${value + ' &#181/m'}<sup>3</sup>)</p>`
-    },
-    navigateTo (path) {
-      if (this.$route.path !== path) {
-        this.$router.push(path)
-      }
     }
   },
   computed: {
+    ...mapState('stations', ['closestStationState', 'routeState']),
+    ...mapState('sensors', ['apiResponseStateDashboard']),
+    innerGaugeChartData () {
+      return this.closestStationState.gaugeChartData.lastPercentValue !== 0
+    },
     dataStatementHolder () {
       return this.closestStationState.stationDistance !== null && this.closestStationState.stationName !== null && this.closestStationState.gaugeChartData.time !== null && this.routeState === '/dashboard'
     },
@@ -381,16 +334,7 @@ export default {
       } else {
         return 100
       }
-    },
-    // progressCircularSize () {
-    //   if (this.$vuetify.breakpoint.xsOnly) {
-    //     return 100
-    //   } else {
-    //     return 100
-    //   }
-    // },
-    ...mapState('stations', ['closestStationState', 'routeState']),
-    ...mapState('sensors', ['apiResponseStateDashboard'])
+    }
   },
   watch: {
     'dataStatementHolder' (value) {
