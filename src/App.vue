@@ -109,7 +109,7 @@ export default {
           this.informationDialogVisibility = true; this.informationDialogText = 'Nie można ustalić lokalizacji.'
           break
         case 3:
-          alert('timeout')
+          this.informationDialogVisibility = true; this.informationDialogText = 'Słabe połączenie z internetem.'
           break
         default:
           alert('unknown error')
