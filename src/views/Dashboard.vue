@@ -53,7 +53,7 @@
             :transitionDuration="gaugeTransitionDuration"
           >
             <div class="inner-text">
-              <div class="row">
+              <div class="row chart">
                 <div class="column" v-if="innerGaugeChartData">
                   <p class="white-data-paragraph">
                     <animated-number

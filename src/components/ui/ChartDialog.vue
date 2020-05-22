@@ -23,7 +23,7 @@
             :chart-data="lineDataCollectionState"
             :height.sync="chartHeight"
           />
-          <div class="row chart">
+          <div class="row chart action">
             <v-btn-toggle rounded v-model="alignment">
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
@@ -53,15 +53,15 @@
           </div>
         </div>
       </transition>
-      <div class="row" v-if="measurementsStatement">
-        <div class="row">
+      <div class="row chart" v-if="measurementsStatement">
+        <div class="row chart">
           <p class="chart-dialog-paragraph">Średni pomiar: <span :style="{'color':sensorDetailsState.averageMeasurement.color}">{{sensorDetailsState.averageMeasurement.procentValue + '%'}} ({{sensorDetailsState.averageMeasurement.value + ' &#181;/m'}}<sup>3</sup>) - {{sensorDetailsState.averageMeasurement.pollutionLevel}}</span></p>
         </div>
-        <div class="row">
+        <div class="row chart">
           <p class="chart-dialog-paragraph">Ostatni pomiar: <span :style="{'color':sensorDetailsState.lastMeasurement.color}">{{sensorDetailsState.lastMeasurement.procentValue + '%'}} ({{sensorDetailsState.lastMeasurement.value + ' &#181;/m'}}<sup>3</sup>) -{{sensorDetailsState.lastMeasurement.pollutionLevel}}</span></p>
         </div>
       </div>
-      <div class="row chart button">
+      <div class="row chart action button">
         <v-btn @click="resetChartDialogDataState" class="teal--text font-weight-bold" rounded color="#EEEEEE" dark>Wróć</v-btn>
       </div>
     </div>
