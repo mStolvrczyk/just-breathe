@@ -1,30 +1,34 @@
 <template>
-    <div id="dashboard">
+  <div id="dashboard">
     <vue-pull-refresh
       :on-refresh="onRefresh"
       :config="pullConfig"
     >
       <div class="row">
-        <div id="dashboard-sidebar">
+        <div v-if="!$vuetify.breakpoint.smAndDown" id="dashboard-sidebar">
           <v-img
             class="logo-image-small"
             :src="require('@/assets/jb-sygnet.png')"
           />
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn v-if="$vuetify.breakpoint.xsOnly" small color="white" v-on="on" @click="$router.push('/map')"
-                     icon>
-                <v-icon>
-                  mdi-map-marker
-                </v-icon>
-              </v-btn>
-              <v-btn v-else large color="white" v-on="on" @click="$router.push('/map')" icon>
+              <v-btn large color="white" v-on="on" @click="$router.push('/map')" icon>
                 <v-icon>
                   mdi-map-marker
                 </v-icon>
               </v-btn>
             </template>
             <span>Mapa</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn large color="white" v-on="on" icon @click="notificationsInfo">
+                <v-icon>
+                  mdi-bell
+                </v-icon>
+              </v-btn>
+            </template>
+            <span>Powiadomienia (w trakcie realizacji)</span>
           </v-tooltip>
         </div>
         <div id="chart">
@@ -186,8 +190,41 @@
           </div>
         </div>
       </transition>
-  </vue-pull-refresh>
-    </div>
+      <div v-if="$vuetify.breakpoint.smAndDown" id="bottom-navigation">
+        <div class="bottom-nav-element">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn small color="white" v-on="on" @click="$router.push('/map')"
+                     icon>
+                <v-icon>
+                  mdi-map-marker
+                </v-icon>
+              </v-btn>
+            </template>
+            <span>Mapa</span>
+          </v-tooltip>
+        </div>
+        <div class="bottom-nav-element">
+          <v-img
+            class="logo-image-small bottom-nav"
+            :src="require('@/assets/jb-sygnet.png')"
+          />
+        </div>
+        <div class="bottom-nav-element">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn small color="white" v-on="on" icon @click="notificationsInfo">
+                <v-icon>
+                  mdi-bell
+                </v-icon>
+              </v-btn>
+            </template>
+            <span>Powiadomienia (w trakcie realizacji)</span>
+          </v-tooltip>
+        </div>
+      </div>
+    </vue-pull-refresh>
+  </div>
 </template>
 
 <script>
@@ -221,6 +258,9 @@ export default {
     VueApexCharts
   },
   methods: {
+    notificationsInfo () {
+      bus.$emit('setInformationDialog', { informationDialogVisibility: true, informationDialogText: 'Powiadomienia (w trakcie realizacji)' })
+    },
     onRefresh: function () {
       return new Promise(function (resolve) {
         setTimeout(function () {
