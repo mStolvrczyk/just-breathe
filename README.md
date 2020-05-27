@@ -31,6 +31,6 @@ npm run lint
 npm run test:unit
 ```
 ### Live example
-<a href="https://just-breathe-app.netlify.app">Go here</a> to check out live example
+<a href="https://justbreathe.netlify.app/">Go here</a> to check out live example
 ## Future plans:
 * MongoDB database for storing informations about past measurements
