@@ -22,7 +22,7 @@
           </v-tooltip>
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn large color="white" v-on="on" icon>
+              <v-btn large color="white" v-on="on" icon @click="notificationsInfo">
                 <v-icon>
                   mdi-bell
                 </v-icon>
@@ -213,7 +213,7 @@
         <div class="bottom-nav-element">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn small color="white" v-on="on" icon>
+              <v-btn small color="white" v-on="on" icon @click="notificationsInfo">
                 <v-icon>
                   mdi-bell
                 </v-icon>
@@ -258,6 +258,9 @@ export default {
     VueApexCharts
   },
   methods: {
+    notificationsInfo () {
+      bus.$emit('setInformationDialog', { informationDialogVisibility: true, informationDialogText: 'Powiadomienia (w trakcie realizacji)' })
+    },
     onRefresh: function () {
       return new Promise(function (resolve) {
         setTimeout(function () {
