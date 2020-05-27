@@ -33,7 +33,7 @@
     computed: {
       informationDialogWidth () {
         if (this.$vuetify.breakpoint.xsOnly) {
-          return 60 + '%'
+          return 70 + '%'
         } else {
           return 30 + '%'
         }
