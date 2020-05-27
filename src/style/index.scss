@@ -58,9 +58,6 @@ h3 {
   }
 }
 .row {
-  @media only screen and (max-width: 599px) {
-    position: relative;
-  }
   margin-right: 0;
   margin-left: 0;
   margin-bottom: 1.5rem;
@@ -89,11 +86,6 @@ h3 {
       &.button {
         padding-bottom: 0.3rem;
       }
-    }
-  }
-  &.chart {
-    &.button {
-      padding-bottom: 0.3rem;
     }
   }
 }
@@ -188,6 +180,11 @@ h3 {
     width: 55px;
     height: 55px;
   }
+  &.bottom-nav {
+    height: 40px;
+    width: 40px;
+    margin-bottom: 0;
+  }
 }
 .logo-image-large {
   @media only screen and (max-width: 599px) {
@@ -254,11 +251,35 @@ span {
 // Dashboard.vue
 
 #dashboard-sidebar {
+  display: flex;
+  flex-direction: column;
   left: 0;
   top: 0;
   margin: 0.5rem;
   position: absolute;
   text-align: center;
+}
+.bottom-nav-element {
+  padding: 0.2rem;
+  margin: 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  width: 60px;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+#bottom-navigation {
+  padding: 0.4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0,77,64,.9);
+  width: 100%;
+  height: 50px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
 }
 .details-button {
   margin-bottom: 0.7rem;
