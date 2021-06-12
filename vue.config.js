@@ -4,7 +4,7 @@ const path = require('path')
 function getApiUrl () {
   switch (process.env.NODE_ENV) {
     case 'production': {
-      return 'https://just-breathe-app.netlify.app/.netlify/functions/server'
+      return 'https://justbreathe.netlify.app/.netlify/functions/server'
     }
     default: {
       return 'http://localhost:8000/api'
