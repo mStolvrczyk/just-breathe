@@ -74,7 +74,7 @@
     "jest": "^24.9.0",
     "jest-transform-stub": "^2.0.0",
     "netlify-lambda": "^1.6.3",
-    "node-sass": "^4.13.1",
+    "node-sass": "^7.0.0",
     "nodemon": "^1.19.1",
     "sass": "^1.23.0",
     "sass-loader": "^8.0.2",
